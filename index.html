@@ -4,14 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gizem Keskin</title>
-<meta name="description" content="Gizem Keskin — fabrikalar için görsel kalite kontrol ve uç cihazda yapay zekâ. Computer vision & edge AI engineer, Istanbul.">
+<meta name="description" content="Gizem Keskin — yapay zekâ ve yazılım mühendisi. Bilgisayarlı görü, makine öğrenmesi, LLM tabanlı ajanlar, IoT ve uç cihazlar. Elanus Robotics kurucu ortağı. Danışmanlık ve proje bazlı çalışma.">
 <meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="https://www.gizemkeskin.com/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Gizem Keskin — Computer vision & AI engineer">
-<meta property="og:description" content="Visual quality inspection systems for factories. From camera to model to a pass/fail decision on the line.">
+<meta property="og:title" content="Gizem Keskin — AI & software engineer">
+<meta property="og:description" content="Computer vision, machine learning, LLM-based agents, IoT and edge. Co-founder of Elanus Robotics. Open to consulting and project work.">
 <meta property="og:url" content="https://www.gizemkeskin.com/">
+<meta property="og:image" content="https://www.gizemkeskin.com/assets/photo.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -67,7 +68,7 @@ html[data-lang="en"] [lang="tr"]{display:none!important}
 /* hero */
 .hero .wrap{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(28px,5vw,72px);align-items:end;padding-block:clamp(48px,8vw,104px) clamp(40px,6vw,80px)}
 .hero h1{font:500 clamp(2.3rem,5.4vw,4.3rem)/1.02 var(--font-d);font-variation-settings:"opsz" 96;letter-spacing:-.025em;margin:0 0 22px;text-wrap:balance;max-width:15ch}
-.hero .lede{max-width:50ch;color:var(--ink2);font-size:1.125rem;margin:0 0 30px}
+.hero .lede{max-width:52ch;color:var(--ink2);font-size:1.125rem;margin:0 0 30px}
 .hero .lede b{color:var(--ink);font-weight:500}
 .cta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:6px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);text-decoration:none;font:500 .95rem var(--font-b);transition:background .15s,border-color .15s,color .15s}
@@ -100,12 +101,17 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
 .svc h3{font:500 1.25rem/1.25 var(--font-d);margin:0;letter-spacing:-.01em}
 .svc p{margin:0;color:var(--ink2);max-width:60ch}
 .svc .for{font:400 .72rem var(--font-m);color:var(--mute);letter-spacing:.04em;margin-top:6px}
+.modes{margin-top:28px;padding:18px 20px;border:1px solid var(--line);border-radius:6px;display:grid;gap:8px}
+.modes .eyebrow{margin:0}
+.modes ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 0;font-size:.95rem;color:var(--ink)}
+.modes li+li::before{content:"·";color:var(--mute);margin-inline:10px}
 
 /* work */
 .work{list-style:none;margin:0;padding:0}
-.work li{display:grid;grid-template-columns:5.5rem minmax(0,1fr) 9.5rem;gap:12px 24px;padding-block:26px;border-top:1px solid var(--line)}
+.work li{display:grid;grid-template-columns:6rem minmax(0,1fr) 9.5rem;gap:12px 24px;padding-block:26px;border-top:1px solid var(--line)}
 .work li:first-child{border-top:0;padding-top:0}
 .work .yr{font:400 .72rem/1.9 var(--font-m);color:var(--mute);font-variant-numeric:tabular-nums;letter-spacing:.03em}
+.work .yr small{display:block;font-size:.66rem;line-height:1.4;color:var(--mute);opacity:.85}
 .work h3{font:500 1.15rem/1.3 var(--font-d);margin:0 0 6px;letter-spacing:-.01em}
 .work p{margin:0;color:var(--ink2);max-width:58ch}
 .work .tags{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:12px;font:400 .68rem var(--font-m);color:var(--mute);letter-spacing:.03em}
@@ -132,14 +138,24 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
 .row .v .sub{color:var(--ink2);display:block;font-size:.95rem}
 .tools{display:flex;flex-wrap:wrap;gap:6px 14px;font:400 .78rem var(--font-m);color:var(--ink2);margin:0}
 
-/* about */
-.about{display:grid;grid-template-columns:96px minmax(0,1fr);gap:26px;align-items:start}
-.about img{width:96px;height:96px;border-radius:6px;object-fit:cover;filter:saturate(.7);border:1px solid var(--line)}
-.about p{margin:0 0 14px;max-width:58ch}
-.about p:last-child{margin-bottom:0}
+/* about + stage photo with its own detection box */
+.about{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:32px;align-items:start}
+.photo{position:relative;margin:0;max-width:420px}
+.photo img{display:block;width:100%;height:auto;border-radius:4px;border:1px solid var(--line)}
+.photo figcaption{margin-top:10px;font:400 .68rem/1.5 var(--font-m);color:var(--mute);letter-spacing:.04em}
+.pbox{position:absolute;border:1px solid var(--acc);pointer-events:none}
+.pbox::before,.pbox::after,.pbox i::before,.pbox i::after{content:"";position:absolute;width:9px;height:9px;border-color:var(--acc);border-style:solid}
+.pbox i{position:absolute;inset:0}
+.pbox::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.pbox::after{top:-1px;right:-1px;border-width:2px 2px 0 0}
+.pbox i::before{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
+.pbox i::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.pbox b{position:absolute;left:-1px;bottom:100%;background:var(--acc);color:var(--acc-ink);font:500 .62rem/1 var(--font-m);letter-spacing:.06em;padding:4px 6px;white-space:nowrap}
+.about .txt p{margin:0 0 14px;max-width:58ch}
+.about .txt p:last-child{margin-bottom:0}
 
 /* contact */
-.contact .big{font:500 clamp(1.7rem,3.6vw,2.7rem)/1.12 var(--font-d);letter-spacing:-.02em;margin:0 0 22px;text-wrap:balance;max-width:22ch}
+.contact .big{font:500 clamp(1.7rem,3.6vw,2.7rem)/1.12 var(--font-d);letter-spacing:-.02em;margin:0 0 22px;text-wrap:balance;max-width:24ch}
 .contact .big a{text-decoration-thickness:2px;text-decoration-color:var(--acc);text-underline-offset:.1em}
 .links{display:flex;flex-wrap:wrap;gap:8px 24px;font:400 .78rem var(--font-m);letter-spacing:.03em;margin:0;padding:0;list-style:none}
 
@@ -171,12 +187,12 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
   section.s .wrap{grid-template-columns:minmax(0,1fr);gap:28px}
   .side{position:static}
   .work li{grid-template-columns:minmax(0,1fr);gap:8px}
+  .work .yr small{display:inline;margin-left:8px}
   .work .kpi{text-align:left;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin-top:4px}
   .work .kpi small{margin:0}
   .steps{grid-template-columns:minmax(0,1fr)}
   .row{grid-template-columns:minmax(0,1fr);gap:4px}
-  .about{grid-template-columns:72px minmax(0,1fr);gap:18px}
-  .about img{width:72px;height:72px}
+  .about{grid-template-columns:minmax(0,1fr);gap:24px}
   .status span{display:none}
 }
 @media (max-width:520px){
@@ -201,7 +217,7 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
   <div class="wrap">
     <a class="brand" href="#top">Gizem Keskin</a>
     <nav>
-      <span class="status"><i></i><span lang="tr">Yeni projelere açık · İstanbul / uzaktan</span><span lang="en">Available for projects · Istanbul / remote</span></span>
+      <span class="status"><i></i><span lang="tr">Projelere ve danışmanlığa açık · İstanbul / uzaktan</span><span lang="en">Open to projects and consulting · Istanbul / remote</span></span>
       <div class="lang" role="group" aria-label="Language">
         <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
         <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
@@ -215,20 +231,20 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
 <section class="hero">
   <div class="wrap">
     <div data-det="hero" data-conf="0.98">
-      <h1 lang="tr">Üretim hattında gözün kaçırdığını kameraya öğretiyorum.</h1>
-      <h1 lang="en">I teach cameras to catch what the eye misses on the production line.</h1>
-      <p class="lede" lang="tr">Fabrikalar için görsel kalite kontrol sistemleri kuruyorum: kameradan modele, modelden hattaki <b>geçti / kaldı</b> kararına. 2023'ten beri beş sistem üretimde; yakaladığımız en küçük hata <b>0,1 mm</b>.</p>
-      <p class="lede" lang="en">I build visual quality-inspection systems for factories: from camera to model, from model to a <b>pass / fail</b> decision on the line. Five systems in production since 2023; the smallest defect we catch is <b>0.1 mm</b>.</p>
+      <h1 lang="tr">Yapay zekâyı laboratuvardan çıkarıp sahada çalıştırıyorum.</h1>
+      <h1 lang="en">I take AI out of the lab and make it work in the field.</h1>
+      <p class="lede" lang="tr">Bilgisayarlı görü, makine öğrenmesi, LLM tabanlı ajanlar, IoT ve uç cihazlar, masaüstü ve web uygulamaları. Fabrikalarda <b>kalite kontrol</b>, tankerlerde <b>sensör ve kamera takibi</b>, atölyelerde <b>alet takibi</b> kurdum. Elanus Robotics kurucu ortağıyım; danışmanlık ve proje bazlı çalışıyorum.</p>
+      <p class="lede" lang="en">Computer vision, machine learning, LLM-based agents, IoT and edge devices, desktop and web applications. I've built <b>quality inspection</b> in factories, <b>sensor-and-camera tracking</b> on tankers and <b>tool tracking</b> in workshops. Co-founder of Elanus Robotics; available for consulting and project work.</p>
       <div class="cta">
-        <a class="btn" href="mailto:gizem3keskin@gmail.com?subject=Kalite%20kontrol%20projesi" lang="tr">Projenizi anlatın →</a>
-        <a class="btn" href="mailto:gizem3keskin@gmail.com?subject=Vision%20project" lang="en">Tell me about your line →</a>
+        <a class="btn" href="mailto:gizem3keskin@gmail.com?subject=Proje" lang="tr">Projenizi anlatın →</a>
+        <a class="btn" href="mailto:gizem3keskin@gmail.com?subject=Project" lang="en">Tell me about your project →</a>
         <a class="btn ghost" href="#work" lang="tr">Yaptığım işler</a>
         <a class="btn ghost" href="#work" lang="en">Selected work</a>
       </div>
       <div class="meta">
-        <span lang="tr"><b>5</b> sistem üretimde</span><span lang="en"><b>5</b> systems in production</span>
-        <span lang="tr"><b>0,1 mm</b> en küçük hata</span><span lang="en"><b>0.1 mm</b> smallest defect</span>
-        <span lang="tr"><b>Jetson · Coral</b> uç cihaz</span><span lang="en"><b>Jetson · Coral</b> on the edge</span>
+        <span lang="tr"><b>10+</b> sistem sahada</span><span lang="en"><b>10+</b> systems in the field</span>
+        <span lang="tr"><b>0,1 mm</b> en küçük yakalanan hata</span><span lang="en"><b>0.1 mm</b> smallest defect caught</span>
+        <span lang="tr"><b>AgentCon 2026</b> konuşmacı</span><span lang="en"><b>AgentCon 2026</b> speaker</span>
       </div>
     </div>
     <div class="frame" aria-label="Simulated inspection view of a circuit board" role="img">
@@ -246,32 +262,51 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
 <section class="s" id="services" data-det="services" data-conf="0.97">
   <div class="wrap">
     <div class="side">
-      <p class="eyebrow" lang="tr">Hizmetler</p><p class="eyebrow" lang="en">Services</p>
-      <h2 lang="tr">Kameradan karara kadar, tek elden.</h2>
-      <h2 lang="en">From the camera to the decision, one pair of hands.</h2>
-      <p class="note" lang="tr">Kamera, ışık ve model birlikte tasarlanmazsa en iyi model bile kötü ışıkta çalışmaz. Üçünü birlikte kuruyorum.</p>
-      <p class="note" lang="en">If the camera, the lighting and the model aren't designed together, the best model still fails under bad light. I build all three as one system.</p>
+      <p class="eyebrow" lang="tr">Neler yapıyorum</p><p class="eyebrow" lang="en">What I do</p>
+      <h2 lang="tr">Fikirden, sahada çalışan sisteme.</h2>
+      <h2 lang="en">From the idea to a system that runs in the field.</h2>
+      <p class="note" lang="tr">Yazılım, donanım ve süreç aynı masada tasarlanınca sistem çalışır. Üçünü birlikte düşünürüm; gerekirse üçünü de yaparım.</p>
+      <p class="note" lang="en">A system works when software, hardware and process are designed at the same table. I think about all three together, and build all three when needed.</p>
     </div>
-    <ul class="svc">
-      <li data-det="visual_inspection" data-conf="0.99">
-        <h3 lang="tr">Görsel kalite kontrol sistemi</h3><h3 lang="en">Visual inspection system</h3>
-        <p lang="tr">Yüzey kusuru, baskı hatası, eksik veya yanlış komponent, renk ve ölçü kontrolü. Kamera-lens-ışık seçimi, veri toplama, model eğitimi ve hat entegrasyonu dahil.</p>
-        <p lang="en">Surface defects, print errors, missing or wrong components, colour and dimension checks. Camera, lens and lighting selection, data collection, model training and line integration included.</p>
-        <span class="for" lang="tr">plastik enjeksiyon · elektronik · montaj · ambalaj</span><span class="for" lang="en">injection moulding · electronics · assembly · packaging</span>
-      </li>
-      <li data-det="edge_ai" data-conf="0.96">
-        <h3 lang="tr">Uç cihazda yapay zekâ</h3><h3 lang="en">Edge AI deployment</h3>
-        <p lang="tr">Modeli Nvidia Jetson veya Coral TPU üzerinde, buluta bağımlı olmadan hat hızında çalıştırma. CUDA hızlandırma, çoklu kamera ve PLC ile haberleşme.</p>
-        <p lang="en">Run the model on Nvidia Jetson or Coral TPU at line speed, with no dependency on the cloud. CUDA acceleration, multi-camera setups and PLC communication.</p>
-        <span class="for" lang="tr">mevcut bir modeli hatta taşımak isteyenler için</span><span class="for" lang="en">for teams that have a model and need it on the line</span>
-      </li>
-      <li data-det="pilot" data-conf="0.95">
-        <h3 lang="tr">İki haftalık fizibilite pilotu</h3><h3 lang="en">Two-week feasibility pilot</h3>
-        <p lang="tr">Kendi numune parçalarınızla sabit kapsamlı bir pilot: neyin yakalanabildiğini, hangi doğrulukla ve hangi donanımla, rakamlarla görürsünüz. Devam kararı sizin.</p>
-        <p lang="en">A fixed-scope pilot with your own sample parts: what can be caught, at what accuracy, on which hardware, in numbers. Then you decide whether to continue.</p>
-        <span class="for" lang="tr">sabit fiyat · yazılı doğruluk raporu · donanım listesi</span><span class="for" lang="en">fixed price · written accuracy report · hardware list</span>
-      </li>
-    </ul>
+    <div>
+      <ul class="svc">
+        <li data-det="computer_vision" data-conf="0.99">
+          <h3 lang="tr">Bilgisayarlı görü ve kalite kontrol</h3><h3 lang="en">Computer vision and quality inspection</h3>
+          <p lang="tr">Yüzey kusuru, baskı hatası, eksik veya yanlış komponent, ölçü ve renk kontrolü; nesne tespiti, takip ve poz analizi. Kamera-ışık seçiminden model eğitimine ve hat entegrasyonuna kadar.</p>
+          <p lang="en">Surface defects, print errors, missing or wrong components, dimension and colour checks; object detection, tracking and pose analysis. From camera and lighting selection to model training and line integration.</p>
+          <span class="for" lang="tr">üretim · elektronik · seramik · güvenlik kameraları</span><span class="for" lang="en">manufacturing · electronics · ceramics · cctv analytics</span>
+        </li>
+        <li data-det="ai_systems" data-conf="0.97">
+          <h3 lang="tr">Yapay zekâ ve ajan sistemleri</h3><h3 lang="en">AI and agent systems</h3>
+          <p lang="tr">Makine öğrenmesi modelleri, LLM tabanlı ajanlar ve otomasyonlar, veri analizi ve karar destek. Model seçiminden üretime alma, izleme ve yeniden eğitime kadar.</p>
+          <p lang="en">Machine-learning models, LLM-based agents and automations, data analysis and decision support. From model selection to deployment, monitoring and retraining.</p>
+          <span class="for" lang="tr">süreç otomasyonu · doküman ve veri işleme · tahminleme</span><span class="for" lang="en">process automation · document and data pipelines · forecasting</span>
+        </li>
+        <li data-det="edge_iot" data-conf="0.96">
+          <h3 lang="tr">IoT, uç cihaz ve saha sistemleri</h3><h3 lang="en">IoT, edge and field systems</h3>
+          <p lang="tr">Sensör, PLC ve Modbus entegrasyonu, 4–20 mA ölçüm, GSM ile veri aktarımı, Nvidia Jetson ve Coral üzerinde model çalıştırma, web tabanlı izleme panelleri.</p>
+          <p lang="en">Sensor, PLC and Modbus integration, 4–20 mA measurement, GSM data links, models running on Nvidia Jetson and Coral, web-based monitoring dashboards.</p>
+          <span class="for" lang="tr">filo ve tanker · tesis izleme · enerji</span><span class="for" lang="en">fleet and tankers · plant monitoring · energy</span>
+        </li>
+        <li data-det="software" data-conf="0.96">
+          <h3 lang="tr">Yazılım geliştirme</h3><h3 lang="en">Software development</h3>
+          <p lang="tr">Masaüstü uygulamalar (Qt, C#), web paneller ve API'ler, kamera ve cihaz entegrasyonları, veri tabanı tasarımı. Python ve C++ ağırlıklı; işin gerektirdiği dilde.</p>
+          <p lang="en">Desktop applications (Qt, C#), web dashboards and APIs, camera and device integrations, database design. Mostly Python and C++, in whatever language the job needs.</p>
+          <span class="for" lang="tr">operatör arayüzleri · dashboard · entegrasyon</span><span class="for" lang="en">operator interfaces · dashboards · integrations</span>
+        </li>
+        <li data-det="consulting" data-conf="0.95">
+          <h3 lang="tr">Danışmanlık ve eğitim</h3><h3 lang="en">Consulting and training</h3>
+          <p lang="tr">Fizibilite ve teknik değerlendirme, mevcut sistemin denetimi, yapay zekâ yol haritası; ekipler için görüntü işleme ve makine öğrenmesi eğitimi; konferans konuşmaları.</p>
+          <p lang="en">Feasibility and technical assessment, audits of existing systems, AI roadmaps; computer vision and machine-learning training for teams; conference talks.</p>
+          <span class="for" lang="tr">yarım günlük değerlendirme · ekip eğitimi · konuşma</span><span class="for" lang="en">half-day assessment · team training · talks</span>
+        </li>
+      </ul>
+      <div class="modes">
+        <p class="eyebrow" lang="tr">Çalışma şekli</p><p class="eyebrow" lang="en">Ways of working</p>
+        <ul lang="tr"><li>Proje bazlı</li><li>Saatlik danışmanlık</li><li>Sözleşmeli uzaktan, yarı veya tam zamanlı</li><li>Şirket içi eğitim</li><li>Yerinde devreye alma</li></ul>
+        <ul lang="en"><li>Project-based</li><li>Hourly consulting</li><li>Remote contract, part- or full-time</li><li>In-house training</li><li>On-site commissioning</li></ul>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -279,61 +314,121 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
   <div class="wrap">
     <div class="side">
       <p class="eyebrow" lang="tr">Seçilmiş işler</p><p class="eyebrow" lang="en">Selected work</p>
-      <h2 lang="tr">Üretimde çalışan sistemler.</h2>
-      <h2 lang="en">Systems that run on real lines.</h2>
-      <p class="note" lang="tr">Hepsi Alpplas Endüstriyel Yatırımlar bünyesinde, gerçek üretim hatlarında kuruldu ve devreye alındı.</p>
-      <p class="note" lang="en">All built and commissioned on real production lines at Alpplas Endüstriyel Yatırımlar, an Istanbul manufacturer.</p>
+      <h2 lang="tr">Sahada çalışan sistemler.</h2>
+      <h2 lang="en">Systems that run in the field.</h2>
+      <p class="note" lang="tr">Elanus Robotics'te tasarladığım ve yazılımını geliştirdiğim ürünler ile Alpplas Endüstriyel Yatırımlar'da gerçek üretim hatlarına kurduğum sistemler.</p>
+      <p class="note" lang="en">Products I designed and wrote the software for at Elanus Robotics, and systems I commissioned on real production lines at Alpplas Endüstriyel Yatırımlar.</p>
     </div>
     <ul class="work">
+      <li data-det="ceramic_inspection" data-conf="0.96">
+        <span class="yr">2026 –<small>Elanus · Ar-Ge</small></span>
+        <div>
+          <h3 lang="tr">Yapay zekâ tabanlı seramik kalite kontrolü</h3><h3 lang="en">AI-based ceramic quality inspection</h3>
+          <p lang="tr">Seramik ve porselende deseni üretim hatasından ayırt eden derin öğrenme sistemi. Ürünün dört yüzeyi kontrollü aydınlatma altında line-scan ve area-scan kameralarla taranıyor; uç cihazda analiz, reject mekanizması ve hata istatistikleri. Aktif Ar-Ge ve pilot uygulama.</p>
+          <p lang="en">A deep-learning system that tells decorative pattern from production defects on ceramics and porcelain. All four faces are scanned with line-scan and area-scan cameras under controlled lighting; edge analysis, a reject mechanism and defect statistics. Active R&amp;D and pilot.</p>
+          <div class="tags"><span>anomaly detection</span><span>line-scan</span><span>edge</span><span>reject</span></div>
+        </div>
+        <div class="kpi"><b lang="tr">4 yüzey</b><b lang="en">4 faces</b><small lang="tr">desen ve hata ayrımı</small><small lang="en">pattern vs defect</small></div>
+      </li>
+      <li data-det="safety_vision_agent" data-conf="0.98">
+        <span class="yr">2025<small>Elanus</small></span>
+        <div>
+          <h3 lang="tr">İSG takibi: görü ajanı tabanlı güvenlik sistemi</h3><h3 lang="en">Workplace safety with vision agents</h3>
+          <p lang="tr">Mevcut CCTV altyapısını yapay zekâ analizine dönüştüren sistem. Düşmeyi saniyesinde algılıyor, iskelet takibiyle vücut açılarını ve ergonomik riski analiz ediyor, sanal güvenlik alanlarına yetkisiz girişte anlık alarm üretiyor. AgentCon İstanbul 2026'da anlattığım sistem.</p>
+          <p lang="en">Turns an existing CCTV setup into AI analysis. Detects a fall within a second, analyses body angles and ergonomic risk through skeleton tracking, and raises instant alarms on unauthorised entry into virtual safety zones. The system I presented at AgentCon Istanbul 2026.</p>
+          <div class="tags"><span>skeleton tracking</span><span>vision agents</span><span>cctv</span><span>real-time</span></div>
+        </div>
+        <div class="kpi"><b lang="tr">CCTV → YZ</b><b lang="en">CCTV → AI</b><small lang="tr">mevcut kameralarla</small><small lang="en">with existing cameras</small></div>
+      </li>
+      <li data-det="toolguard" data-conf="0.97">
+        <span class="yr">2025<small>Elanus</small></span>
+        <div>
+          <h3 lang="tr">ToolGuard: NFC tabanlı endüstriyel alet takibi</h3><h3 lang="en">ToolGuard: NFC-based industrial tool tracking</h3>
+          <p lang="tr">Havacılık bakımı ve ağır sanayi için alet takip sistemi. Her alet NFC kimliğiyle tanımlı; kiosk okutmadan çıkış tamamlanmıyor, alet iş emriyle otomatik eşleşiyor, kullanıcı doğrulanıyor ve zaman damgalı kayıt oluşuyor. FOD riskine karşı dijital ispat.</p>
+          <p lang="en">Tool tracking for aviation maintenance and heavy industry. Every tool carries an NFC identity; checkout can't complete without a scan at the kiosk, tools are matched to work orders automatically, users are verified and every event is time-stamped. Digital proof against FOD risk.</p>
+          <div class="tags"><span>nfc</span><span>kiosk</span><span>web panel</span><span>work orders</span></div>
+        </div>
+        <div class="kpi"><b>NFC</b><small lang="tr">iş emri doğrulama</small><small lang="en">work-order verification</small></div>
+      </li>
+      <li data-det="service_station" data-conf="0.95">
+        <span class="yr">2025<small>Elanus</small></span>
+        <div>
+          <h3 lang="tr">Akıllı bakım istasyonu yönetimi</h3><h3 lang="en">Smart service-bay management</h3>
+          <p lang="tr">Araç servislerinde mevcut kameraları operasyon analizine çeviren sistem. Her iş istasyonu ayrı izleniyor, iş emirleri hedef süreyle eşleşiyor, gecikmeler otomatik işaretleniyor; yöneticiye anlık performans paneli ve günlük rapor.</p>
+          <p lang="en">Turns the cameras already in a vehicle service centre into an operations analysis tool. Each bay is monitored separately, work orders are matched with target times, delays are flagged automatically; managers get a live dashboard and a daily report.</p>
+          <div class="tags"><span>video analytics</span><span>dashboard</span><span>cycle time</span></div>
+        </div>
+        <div class="kpi"><b lang="tr">+1 araç/gün</b><b lang="en">+1 car/day</b><small lang="tr">kapasite potansiyeli</small><small lang="en">capacity potential</small></div>
+      </li>
+      <li data-det="activity_tracking" data-conf="0.95">
+        <span class="yr">2024 – 2025<small>Alpplas</small></span>
+        <div>
+          <h3 lang="tr">Gerçek zamanlı personel ve aktivite takibi</h3><h3 lang="en">Real-time personnel and activity tracking</h3>
+          <p lang="tr">Üretim alanında çok kameralı, derin öğrenme tabanlı takip. Image alignment ile geniş alan; pose estimation ile düşme, tehlikeli bölge ihlali ve kötü duruş tespiti; LSTM ile hareket akışı ve cycle time hesabı.</p>
+          <p lang="en">Multi-camera, deep-learning tracking across the production floor. Wide-area coverage through image alignment; pose estimation for falls, danger-zone violations and bad posture; LSTM analysis for motion flow and cycle time.</p>
+          <div class="tags"><span>multi-camera</span><span>pose estimation</span><span>lstm</span></div>
+        </div>
+        <div class="kpi"><b lang="tr">Çok kamera</b><b lang="en">Multi-camera</b><small lang="tr">anlık anomali</small><small lang="en">live anomaly alerts</small></div>
+      </li>
+      <li data-det="adr_tanker" data-conf="0.97">
+        <span class="yr">2024<small>Elanus</small></span>
+        <div>
+          <h3 lang="tr">ADR uyumlu akıllı tanker takip sistemi</h3><h3 lang="en">ADR-compliant smart tanker tracking</h3>
+          <p lang="tr">Akaryakıt ve tehlikeli madde tankerlerinde kapak ve vana hareketlerini manyetik sensörlerle izleyen, olay anında otomatik kamera kaydı başlatan, konum ve zaman damgasıyla merkezi bulut paneline aktaran güvenlik sistemi. Ex-proof muhafaza, GSM router, web panel.</p>
+          <p lang="en">Monitors hatch and valve movements on fuel and hazardous-goods tankers with magnetic sensors, starts camera recording automatically on an event, and reports it with location and timestamp to a central cloud panel. Ex-proof housing, GSM router, web dashboard.</p>
+          <div class="tags"><span>sensors</span><span>ip camera</span><span>gsm</span><span>cloud</span></div>
+        </div>
+        <div class="kpi"><b lang="tr">Olay anında</b><b lang="en">On event</b><small lang="tr">otomatik video kaydı</small><small lang="en">automatic video record</small></div>
+      </li>
+      <li data-det="fuel_measurement" data-conf="0.94">
+        <span class="yr">2024<small>Elanus</small></span>
+        <div>
+          <h3 lang="tr">Basınç sensörü tabanlı yakıt ölçümü</h3><h3 lang="en">Pressure-based fuel measurement</h3>
+          <p lang="tr">Filo araçlarında şamandıralı sensörlerin kör noktalarını ortadan kaldıran hidrostatik ölçüm. Depo altına monte basınç sensörü, 4–20 mA sinyal işleme, her depo için litre-basınç kalibrasyonu, GSM IO ile web panele anlık tüketim eğrisi.</p>
+          <p lang="en">Hydrostatic measurement that removes the blind spots of float sensors in fleet vehicles. A pressure sensor under the tank, 4–20 mA signal processing, a litre-to-pressure calibration per tank, and a live consumption curve on the web panel via GSM IO.</p>
+          <div class="tags"><span>4–20 mA</span><span>calibration</span><span>gsm io</span></div>
+        </div>
+        <div class="kpi"><b>±1 L</b><small lang="tr">ölçüm hassasiyeti</small><small lang="en">measurement accuracy</small></div>
+      </li>
       <li data-det="pcb_inspection" data-conf="0.97">
-        <span class="yr">2023 – 2024</span>
+        <span class="yr">2023 – 2024<small>Alpplas</small></span>
         <div>
           <h3 lang="tr">Otomatik PCB komponent kontrolü</h3><h3 lang="en">Automatic PCB component inspection</h3>
-          <p lang="tr">Konveyör üzerindeki kartlarda, fikstür veya kılavuz olmadan, tüm TH komponentlerin kontrolü: varlık/yokluk, yön, soket pin sayısı, yazı ve sembol doğruluğu, renkli bölgeler. Bu iş için AlpVisionNet derin öğrenme modeli geliştirildi.</p>
-          <p lang="en">Inspection of every through-hole component on boards travelling on the conveyor, with no fixture or guide: presence, orientation, socket pin count, text and symbol correctness, coloured regions. The AlpVisionNet deep-learning model was developed for this.</p>
-          <div class="tags"><span>pytorch</span><span>opencv</span><span>ocr</span><span>custom cnn</span><span>conveyor</span></div>
+          <p lang="tr">Konveyör üzerindeki kartlarda, fikstür veya kılavuz olmadan, tüm TH komponentlerin kontrolü: varlık/yokluk, yön, soket pin sayısı, yazı ve sembol doğruluğu. Bu iş için AlpVisionNet derin öğrenme modeli geliştirildi.</p>
+          <p lang="en">Inspection of every through-hole component on boards travelling on the conveyor, with no fixture or guide: presence, orientation, socket pin count, text and symbol correctness. The AlpVisionNet deep-learning model was developed for this.</p>
+          <div class="tags"><span>pytorch</span><span>opencv</span><span>ocr</span><span>custom cnn</span></div>
         </div>
         <div class="kpi"><b lang="tr">Fikstürsüz</b><b lang="en">No fixture</b><small lang="tr">hareket halinde kontrol</small><small lang="en">inspected in motion</small></div>
       </li>
       <li data-det="print_inspection" data-conf="0.98">
-        <span class="yr">2023</span>
+        <span class="yr">2023<small>Alpplas</small></span>
         <div>
           <h3 lang="tr">Plastik parça baskı ve enjeksiyon kontrolü</h3><h3 lang="en">Plastic part print and moulding inspection</h3>
           <p lang="tr">Lazer baskı sonrası plastik panolarda çapak, kesik, çizik, delik, toz ve leke tespiti; serigrafi kontrolü. OCR ile her fonetik dilde yazı kontrolü, geometrik ölçüm ve renk doğrulama.</p>
           <p lang="en">Detection of flash, cuts, scratches, holes, dust and stains on laser-printed plastic panels; silkscreen checks. OCR for text in any phonetic language, geometric measurement and colour verification.</p>
-          <div class="tags"><span>opencv</span><span>ocr</span><span>morphology</span><span>feature matching</span></div>
+          <div class="tags"><span>opencv</span><span>ocr</span><span>morphology</span></div>
         </div>
         <div class="kpi"><b>0,1 mm</b><small lang="tr">en küçük baskı hatası</small><small lang="en">smallest print defect</small></div>
       </li>
       <li data-det="led_inspection" data-conf="0.96">
-        <span class="yr">2023</span>
+        <span class="yr">2023<small>Alpplas</small></span>
         <div>
           <h3 lang="tr">Buton ve LED kalite kontrolü</h3><h3 lang="en">Button and LED quality inspection</h3>
           <p lang="tr">LED'li butonlarda yanma/yanmama, muhafazada ışık sızıntısı, baskı hataları ve sembol doğruluğu. CUDA ile GPU hızlandırma; threading ile aynı anda çok butonda tespit.</p>
           <p lang="en">Lit/unlit state of LED buttons, light leakage through the housing, print defects and symbol correctness. GPU acceleration with CUDA; multi-threaded detection across many buttons at once.</p>
-          <div class="tags"><span>cuda</span><span>threading</span><span>opencv</span><span>c++</span></div>
+          <div class="tags"><span>cuda</span><span>threading</span><span>c++</span></div>
         </div>
         <div class="kpi"><b lang="tr">Çoklu buton</b><b lang="en">Multi-button</b><small lang="tr">tek geçişte</small><small lang="en">in a single pass</small></div>
       </li>
-      <li data-det="activity_tracking" data-conf="0.95">
-        <span class="yr">2024 – 2025</span>
-        <div>
-          <h3 lang="tr">Gerçek zamanlı personel ve aktivite takibi</h3><h3 lang="en">Real-time personnel and activity tracking</h3>
-          <p lang="tr">Üretim alanında çok kameralı, derin öğrenme tabanlı takip. Image alignment ile geniş alan; pose estimation ile düşme, tehlikeli bölge ihlali ve kötü duruş tespiti; LSTM ile hareket akışı ve cycle time hesabı. Anlık raporlama.</p>
-          <p lang="en">Multi-camera, deep-learning-based tracking across the production floor. Wide-area coverage through image alignment; pose estimation for falls, danger-zone violations and bad posture; LSTM time-series analysis for motion flow and cycle time. Reported in real time.</p>
-          <div class="tags"><span>multi-camera</span><span>pose estimation</span><span>lstm</span><span>tracking</span></div>
-        </div>
-        <div class="kpi"><b lang="tr">Çok kamera</b><b lang="en">Multi-camera</b><small lang="tr">anlık anomali</small><small lang="en">live anomaly alerts</small></div>
-      </li>
       <li data-det="recycling_sorter" data-conf="0.94">
-        <span class="yr">2022 – 2023</span>
+        <span class="yr">2022 – 2023<small>TÜBİTAK</small></span>
         <div>
           <h3 lang="tr">Geri dönüştürülebilir atıkların otonom ayrıştırılması</h3><h3 lang="en">Autonomous sorting of recyclable waste</h3>
-          <p lang="tr">TÜBİTAK 2209-B destekli proje. Derin öğrenme ile atık sınıflandırma; kapsamlı veri seti toplama ve CNN optimizasyonu. PLC haberleşmesi, PyQt5 arayüz ve Arduino donanım entegrasyonu.</p>
-          <p lang="en">TÜBİTAK 2209-B funded project. Deep-learning waste classification; extensive dataset collection and CNN optimisation. PLC communication, a PyQt5 interface and Arduino hardware integration.</p>
+          <p lang="tr">TÜBİTAK 2209-B destekli proje. Derin öğrenme ile atık sınıflandırma; kapsamlı veri seti ve CNN optimizasyonu. PLC haberleşmesi, PyQt5 arayüz ve Arduino donanım entegrasyonu.</p>
+          <p lang="en">TÜBİTAK 2209-B funded project. Deep-learning waste classification; an extensive dataset and CNN optimisation. PLC communication, a PyQt5 interface and Arduino hardware integration.</p>
           <div class="tags"><span>cnn</span><span>plc</span><span>pyqt5</span><span>arduino</span></div>
         </div>
-        <div class="kpi"><b>TÜBİTAK</b><small lang="tr">2209-B desteği</small><small lang="en">2209-B grant</small></div>
+        <div class="kpi"><b>2209-B</b><small lang="tr">TÜBİTAK desteği</small><small lang="en">TÜBİTAK grant</small></div>
       </li>
     </ul>
   </div>
@@ -343,29 +438,29 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
   <div class="wrap">
     <div class="side">
       <p class="eyebrow" lang="tr">Nasıl çalışıyorum</p><p class="eyebrow" lang="en">How a project runs</p>
-      <h2 lang="tr">Dört adım, her adımda çıkabilirsiniz.</h2>
+      <h2 lang="tr">Dört adım, her adımdan sonra durabilirsiniz.</h2>
       <h2 lang="en">Four steps, and you can stop after any of them.</h2>
     </div>
     <ol class="steps">
       <li>
-        <h3 lang="tr">Numune</h3><h3 lang="en">Samples</h3>
-        <p lang="tr">Hatalı ve hatasız parçalarınızı görüyorum. Kamera, lens ve ışık buna göre seçiliyor; çoğu hata daha burada çözülür.</p>
-        <p lang="en">I look at your good and bad parts. Camera, lens and lighting are chosen here; most problems get solved at this stage.</p>
+        <h3 lang="tr">Keşif</h3><h3 lang="en">Discovery</h3>
+        <p lang="tr">Problemi sahada görüyorum: veri, cihazlar, insanlar, kısıtlar. Çoğu yanlış yatırım burada önlenir.</p>
+        <p lang="en">I look at the problem where it lives: data, devices, people, constraints. Most wrong investments get prevented here.</p>
       </li>
       <li>
         <h3 lang="tr">Pilot</h3><h3 lang="en">Pilot</h3>
-        <p lang="tr">İki haftada ilk model ve yazılı doğruluk raporu. Hangi hata türü, hangi oranda yakalanıyor: rakamla.</p>
-        <p lang="en">Within two weeks, a first model and a written accuracy report. Which defect types are caught, at what rate, in numbers.</p>
+        <p lang="tr">Sabit kapsamlı, kısa bir pilot: neyin çalıştığını, hangi doğrulukla ve hangi donanımla, rakamla görürsünüz.</p>
+        <p lang="en">A short, fixed-scope pilot: what works, at what accuracy, on which hardware, in numbers.</p>
       </li>
       <li>
-        <h3 lang="tr">Hat entegrasyonu</h3><h3 lang="en">Line integration</h3>
-        <p lang="tr">PLC ve konveyör tetikleme, operatör arayüzü, uç cihaz kurulumu. Sistem hattın hızında çalışana kadar buradayım.</p>
-        <p lang="en">PLC and conveyor triggering, operator interface, edge device setup. I stay until the system keeps up with the line.</p>
+        <h3 lang="tr">Geliştirme ve entegrasyon</h3><h3 lang="en">Build and integrate</h3>
+        <p lang="tr">Model, arayüz, cihaz ve mevcut sistemlerle bağlantı. Sistem gerçek yükte çalışana kadar buradayım.</p>
+        <p lang="en">Model, interface, devices and the links to your existing systems. I stay until it runs under real load.</p>
       </li>
       <li>
         <h3 lang="tr">Devir teslim</h3><h3 lang="en">Handover</h3>
-        <p lang="tr">Dokümantasyon, yeni parça için yeniden eğitim akışı ve isteğe bağlı bakım anlaşması.</p>
-        <p lang="en">Documentation, a retraining flow for new parts, and optional maintenance.</p>
+        <p lang="tr">Dokümantasyon, ekibinize eğitim, yeniden eğitim akışı ve isteğe bağlı bakım.</p>
+        <p lang="en">Documentation, training for your team, a retraining flow and optional maintenance.</p>
       </li>
     </ol>
   </div>
@@ -382,11 +477,19 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
       <div class="row">
         <span class="k" lang="tr">Deneyim</span><span class="k" lang="en">Experience</span>
         <div>
-          <p class="v"><b lang="tr">Kurucu ortak</b><b lang="en">Co-founder</b> · Elanus Robotics <span class="sub" lang="tr">Görüntü işleme sistemleri, özel makine ve mühendislik danışmanlığı · 2025 –</span><span class="sub" lang="en">Image-processing systems, custom machinery and engineering consulting · 2025 –</span></p>
-          <p class="v"><b lang="tr">Ar-Ge bilgisayarlı görü ve yapay zekâ mühendisi</b><b lang="en">R&amp;D computer vision and AI engineer</b> · Alpplas Endüstriyel Yatırımlar <span class="sub" lang="tr">Özelleştirilebilir, arayüzlü bilgisayarlı görü sistemi; endüstriyel kamera API'leri; Lera Developer Framework'e katkı · 2023 – 2025</span><span class="sub" lang="en">Customisable GUI-based machine-vision platform; industrial camera APIs; contributions to the Lera Developer Framework · 2023 – 2025</span></p>
+          <p class="v"><b lang="tr">Kurucu ortak ve yapay zekâ mühendisi</b><b lang="en">Co-founder and AI engineer</b> · <a href="https://elanusrobotics.com" rel="noopener" target="_blank">Elanus Robotics</a> <span class="sub" lang="tr">Endüstriyel otomasyon, görüntü işleme, IoT ve özel makine: ürünlerin yazılım ve yapay zekâ tarafı · Kasım 2023 –</span><span class="sub" lang="en">Industrial automation, machine vision, IoT and custom machinery: the software and AI side of the products · November 2023 –</span></p>
+          <p class="v"><b lang="tr">Ar-Ge bilgisayarlı görü ve yapay zekâ mühendisi</b><b lang="en">R&amp;D computer vision and AI engineer</b> · Alpplas Endüstriyel Yatırımlar <span class="sub" lang="tr">Özelleştirilebilir, arayüzlü bilgisayarlı görü platformu; endüstriyel kamera API'leri; Lera Developer Framework'e katkı · 2023 – 2025</span><span class="sub" lang="en">Customisable GUI-based machine-vision platform; industrial camera APIs; contributions to the Lera Developer Framework · 2023 – 2025</span></p>
           <p class="v"><b lang="tr">Stajyer</b><b lang="en">Intern</b> · Alpplas Endüstriyel Yatırımlar <span class="sub" lang="tr">Veri seti hazırlama ve model optimizasyonu; Alpasist sinyal dinleme sisteminin Linux'a taşınması · 2022 – 2023</span><span class="sub" lang="en">Dataset preparation and model optimisation; ported the Alpasist signal-listening system to Linux · 2022 – 2023</span></p>
           <p class="v"><b lang="tr">Yapay zekâ laboratuvarı proje koordinatörü</b><b lang="en">AI lab project coordinator</b> · Nişantaşı Üniversitesi <span class="sub" lang="tr">Proje planlama, ekip yönetimi, makine öğrenmesi eğitim dokümantasyonu · 2021 – 2022</span><span class="sub" lang="en">Project planning, team management, machine-learning course material · 2021 – 2022</span></p>
         </div>
+      </div>
+      <div class="row">
+        <span class="k" lang="tr">Konuşmalar</span><span class="k" lang="en">Talks</span>
+        <p class="v"><b>Orchestrating Vision Agents: Real-Time Tracking of Industrial Safety and Operational Performance</b> <span class="sub" lang="tr"><a href="https://globalai.community/chapters/istanbul/events/agentcon-istanbul/" rel="noopener" target="_blank">AgentCon İstanbul</a>, AI Agents World Tour · Nişantaşı Üniversitesi NeoTech Kampüs · 7 Şubat 2026</span><span class="sub" lang="en"><a href="https://globalai.community/chapters/istanbul/events/agentcon-istanbul/" rel="noopener" target="_blank">AgentCon Istanbul</a>, AI Agents World Tour · Nişantaşı University NeoTech Campus · 7 February 2026</span></p>
+      </div>
+      <div class="row">
+        <span class="k" lang="tr">Yayın</span><span class="k" lang="en">Publication</span>
+        <p class="v"><b>Extraction of Actual Faults with Adjusting the Pixel Width Parameter to Remove Undesired Noise Pixels in the Image (RPW)</b> <span class="sub">International Journal on Engineering, Science and Technology · 2023</span></p>
       </div>
       <div class="row">
         <span class="k" lang="tr">Eğitim</span><span class="k" lang="en">Education</span>
@@ -396,12 +499,8 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
         </div>
       </div>
       <div class="row">
-        <span class="k" lang="tr">Yayın</span><span class="k" lang="en">Publication</span>
-        <p class="v"><b>Extraction of Actual Faults with Adjusting the Pixel Width Parameter to Remove Undesired Noise Pixels in the Image (RPW)</b> <span class="sub">International Journal on Engineering, Science and Technology · 2023</span></p>
-      </div>
-      <div class="row">
         <span class="k" lang="tr">Araçlar</span><span class="k" lang="en">Tools</span>
-        <p class="tools"><span>Python</span><span>C++</span><span>C#</span><span>PyTorch</span><span>TensorFlow</span><span>OpenCV</span><span>YOLO</span><span>CUDA</span><span>Qt / PyQt</span><span>Nvidia Jetson</span><span>Coral TPU</span><span>Linux</span><span>SQL</span><span>PLC</span><span>Git</span></p>
+        <p class="tools"><span>Python</span><span>C++</span><span>C#</span><span>PyTorch</span><span>TensorFlow</span><span>OpenCV</span><span>YOLO</span><span>CUDA</span><span>LLM &amp; agents</span><span>Qt / PyQt</span><span>Nvidia Jetson</span><span>Coral TPU</span><span>PLC / Modbus TCP</span><span>GSM / IoT</span><span>Linux</span><span>SQL</span><span>Google Cloud</span><span>Git</span></p>
       </div>
     </div>
   </div>
@@ -415,10 +514,17 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
       <h2 lang="en">Patience, timing and good light.</h2>
     </div>
     <div class="about">
-      <img src="assets/photo.jpg" alt="Gizem Keskin" width="96" height="96" loading="lazy">
-      <div>
-        <p lang="tr">Bilgisayar ve mekatronik mühendisliği okudum; ilk işimden beri üretim hattındayım. Modelin tek başına bir şey çözmediğini orada öğrendim: kamera, ışık ve algoritma birlikte tasarlanınca sistem çalışır.</p>
-        <p lang="en">I studied computer and mechatronics engineering and have worked on production lines since my first job. That's where I learned a model solves nothing on its own: the system works when the camera, the lighting and the algorithm are designed together.</p>
+      <figure class="photo">
+        <img src="assets/photo.jpg" alt="Gizem Keskin, AgentCon İstanbul 2026 sahnesinde konuşurken" width="900" height="1235" loading="lazy">
+        <span class="pbox" style="left:35.3%;top:52.9%;width:25%;height:39.3%" aria-hidden="true"><i></i><b>speaker 0.99</b></span>
+        <figcaption lang="tr">AgentCon İstanbul · 7 Şubat 2026 · Nişantaşı Üniversitesi NeoTech Kampüs</figcaption>
+        <figcaption lang="en">AgentCon Istanbul · 7 February 2026 · Nişantaşı University NeoTech Campus</figcaption>
+      </figure>
+      <div class="txt">
+        <p lang="tr">Bilgisayar ve mekatronik mühendisliği okudum; ilk işimden beri üretim hattındayım. Alpplas'ta çalışırken, Kasım 2023'te Elanus Robotics'i kurdum: fabrikalardan tankerlere, atölyelerden servislere, sahada çalışan sistemler.</p>
+        <p lang="en">I studied computer and mechatronics engineering and have worked on production lines since my first job. While at Alpplas, in November 2023, I co-founded Elanus Robotics: systems that run in the field, from factories to tankers, workshops to service centres.</p>
+        <p lang="tr">Modelin tek başına bir şey çözmediğini orada öğrendim: kamera, ışık, sensör ve algoritma birlikte tasarlanınca sistem çalışır. Şubat 2026'da AgentCon İstanbul'da, Microsoft ve Google'dan konuşmacılarla aynı sahnede, görü ajanlarıyla iş güvenliği takibini anlattım.</p>
+        <p lang="en">That's where I learned a model solves nothing on its own: the system works when camera, light, sensors and algorithm are designed together. In February 2026 I spoke at AgentCon Istanbul, sharing the stage with speakers from Microsoft and Google, on tracking workplace safety with vision agents.</p>
         <p lang="tr">Lisanslı aikido sporcusuyum; işin çoğu sabır ve zamanlama. Yapay zekânın felsefesini okurum; Turing ve Minsky masamdan eksik olmaz.</p>
         <p lang="en">I'm a licensed aikido practitioner, which is mostly patience and timing. I read the philosophy of AI; Turing and Minsky never leave my desk.</p>
       </div>
@@ -432,12 +538,13 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
       <p class="eyebrow" lang="tr">İletişim</p><p class="eyebrow" lang="en">Contact</p>
     </div>
     <div>
-      <p class="big" lang="tr">Hattınızda kameranın yakalaması gereken bir şey mi var? <a href="mailto:gizem3keskin@gmail.com?subject=Kalite%20kontrol%20projesi">Yazın</a>, 20 dakikada konuşalım.</p>
-      <p class="big" lang="en">Something on your line a camera should be catching? <a href="mailto:gizem3keskin@gmail.com?subject=Vision%20project">Write to me</a> and let's talk for 20 minutes.</p>
+      <p class="big" lang="tr">Yapay zekâ, görüntü işleme ya da yazılım tarafında bir işiniz mi var? <a href="mailto:gizem3keskin@gmail.com?subject=Proje">Yazın</a>, 20 dakikada konuşalım.</p>
+      <p class="big" lang="en">Have something in AI, computer vision or software? <a href="mailto:gizem3keskin@gmail.com?subject=Project">Write to me</a> and let's talk for 20 minutes.</p>
       <ul class="links">
         <li><a href="mailto:gizem3keskin@gmail.com">gizem3keskin@gmail.com</a></li>
         <li><a href="https://www.linkedin.com/in/gizemkskn/" rel="me noopener" target="_blank">linkedin/gizemkskn</a></li>
         <li><a href="https://github.com/GizemKskn" rel="me noopener" target="_blank">github/GizemKskn</a></li>
+        <li><a href="https://elanusrobotics.com" rel="noopener" target="_blank">elanusrobotics.com</a></li>
       </ul>
     </div>
   </div>
@@ -448,8 +555,8 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
 <footer class="foot">
   <div class="wrap">
     <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
-    <span lang="tr">Bu sayfa, hat kamerasının parçaya baktığı gibi bakılarak tasarlandı.</span>
-    <span lang="en">This page was designed to be looked at the way a line camera looks at a part.</span>
+    <span lang="tr">Bu sayfa, bir kameranın parçaya baktığı gibi bakılarak tasarlandı.</span>
+    <span lang="en">This page was designed to be looked at the way a camera looks at a part.</span>
   </div>
 </footer>
 
@@ -458,7 +565,7 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
 (function(){
   var root=document.documentElement;
   var btns=document.querySelectorAll('.lang button');
-  var titles={tr:'Gizem Keskin — Bilgisayarlı görü ve yapay zekâ mühendisi',en:'Gizem Keskin — Computer vision & AI engineer'};
+  var titles={tr:'Gizem Keskin — Yapay zekâ ve yazılım mühendisi',en:'Gizem Keskin — AI & software engineer'};
   function set(l,save){
     root.setAttribute('data-lang',l); root.setAttribute('lang',l);
     document.title=titles[l]||'Gizem Keskin';
@@ -556,7 +663,6 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
     ctx.lineWidth=1;
     ctx.strokeStyle=C.ink;ctx.fillStyle=C.ground;
     if(k.ng&&k.mode==='missing'){
-      // pads only: the part is not there
       ctx.fillStyle=C.line;
       if(k.type==='cap'){ctx.beginPath();ctx.arc(k.cx-b.w*0.28,k.cy,2,0,7);ctx.arc(k.cx+b.w*0.28,k.cy,2,0,7);ctx.fill()}
       else{ctx.fillRect(b.x-3,k.cy-2,4,4);ctx.fillRect(b.x+b.w-1,k.cy-2,4,4)}
@@ -596,21 +702,17 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
     if(el>SWEEP+HOLD){t0=now;el=0;cycle++;layout()}
     var p=Math.min(el/SWEEP,1), x=W*p;
     ctx.clearRect(0,0,W,H);
-    // board grid
     ctx.fillStyle=C.line;
     for(var gx=W*0.09;gx<W*0.92;gx+=W*0.0415)for(var gy=H*0.13;gy<H*0.88;gy+=H*0.0592){ctx.fillRect(Math.round(gx),Math.round(gy),1,1)}
-    // parts
     var ok=0,ng=0;
     comps.forEach(function(k){drawComp(k)});
     comps.forEach(function(k){ var b=bounds(k); if(b.x+b.w<x){drawBox(k); if(k.ng)ng++;else ok++} });
-    // scan line
     if(p<1){
       var g=ctx.createLinearGradient(x-26,0,x,0);
       g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,C.acc);
       ctx.globalAlpha=0.16;ctx.fillStyle=g;ctx.fillRect(x-26,0,26,H);ctx.globalAlpha=1;
       ctx.strokeStyle=C.acc;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(Math.round(x)+0.5,0);ctx.lineTo(Math.round(x)+0.5,H);ctx.stroke();
     }
-    // frame corners
     ctx.strokeStyle=C.mute;ctx.lineWidth=1;
     var i=8,L=12;
     ctx.beginPath();
@@ -619,7 +721,6 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
     ctx.moveTo(W-i,H-i-L);ctx.lineTo(W-i,H-i);ctx.lineTo(W-i-L,H-i);
     ctx.moveTo(i+L,H-i);ctx.lineTo(i,H-i);ctx.lineTo(i,H-i-L);
     ctx.stroke();
-    // crosshair at centre
     ctx.strokeStyle=C.line;ctx.beginPath();ctx.moveTo(W/2-6,H/2);ctx.lineTo(W/2+6,H/2);ctx.moveTo(W/2,H/2-6);ctx.lineTo(W/2,H/2+6);ctx.stroke();
     if(hud) hud.innerHTML='<b>OK '+ok+'</b> · <em>NG '+ng+'</em>';
     if(!reduce) requestAnimationFrame(frame);
