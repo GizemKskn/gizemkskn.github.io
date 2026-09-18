@@ -340,8 +340,8 @@ document.documentElement.setAttribute('data-lang',l);document.documentElement.se
     // decisions
     var ok=0,ng=0,verdict='OK';
     if(mode==='thr'){
-      var med=0; if(comps.length){var ratios=comps.map(function(c){return c.w/c.h}).sort(function(a,b){return a-b});med=ratios[Math.floor(ratios.length/2)]}
-      comps.forEach(function(c){var r=c.w/c.h; c.ng=(comps.length>3&&(r>med*1.6||r<med/1.6)); if(c.ng){c.why='rotated?';ng++}else ok++});
+      /* parts on this board are placed landscape or square; a clearly portrait blob is a rotated part */
+      comps.forEach(function(c){var r=c.w/c.h; c.ng=(state.src!=='upload'&&comps.length>3&&r<0.7); if(c.ng){c.why='rotated?';ng++}else ok++});
       if(p.expect>0&&comps.length!==p.expect){verdict='NG';}
       if(ng>0)verdict='NG';
     }else if(mode==='diff'){
