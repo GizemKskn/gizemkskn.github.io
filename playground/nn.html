@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sinir ağı oyun alanı · Gizem Keskin</title>
+<meta name="title-tr" content="Sinir ağı oyun alanı · Gizem Keskin">
+<meta name="title-en" content="Neural network playground · Gizem Keskin">
+<meta name="description" content="Küçük bir sinir ağını tarayıcıda eğitin: veri seti, katmanlar, aktivasyon, öğrenme hızı. Karar sınırının nasıl oluştuğunu izleyin.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.two{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}
+.stage{aspect-ratio:1/1}
+.stage canvas{width:100%;height:100%}
+.panel{border:1px solid var(--line);border-radius:4px;background:var(--bg2);padding:10px;display:grid;gap:10px;align-content:start}
+.panel canvas{width:100%;height:auto;display:block}
+.panel .eyebrow{margin:0}
+.layers{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.layers .n{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:4px;font:500 .72rem var(--font-m)}
+.layers .n span{padding:5px 8px;min-width:2.2em;text-align:center;font-variant-numeric:tabular-nums}
+.layers .n button,.layers>button{appearance:none;border:0;background:transparent;color:var(--ink2);font:500 .8rem var(--font-m);padding:5px 8px;cursor:pointer}
+.layers>button{border:1px solid var(--line);border-radius:4px}
+.layers .n button:hover,.layers>button:hover{color:var(--acc)}
+@media (max-width:640px){.two{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>nn 0.98</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="../blog/" data-nav="blog">Blog</a>
+        <a href="./" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Playground · 03</p>
+    <h1 lang="tr">Sinir ağı oyun alanı</h1>
+    <h1 lang="en">Neural network playground</h1>
+    <p class="lede" lang="tr">İki boyutlu noktaları turuncu ve mavi diye ayırmayı öğrenen küçük bir ağ. Katman ekleyin, aktivasyonu değiştirin, öğrenme hızıyla oynayın; karar sınırının nasıl büküldüğünü ve kaybın nasıl düştüğünü izleyin. Bir görüntü modelinin yaptığı da bu, sadece 2 yerine milyonlarca girdiyle.</p>
+    <p class="lede" lang="en">A small network learning to separate two-dimensional points into orange and blue. Add layers, change the activation, play with the learning rate; watch the decision boundary bend and the loss drop. An image model does the same thing, with millions of inputs instead of two.</p>
+  </div>
+</section>
+
+<div class="wrap pg">
+  <div>
+    <div class="two">
+      <div class="stage">
+        <canvas id="cv" width="420" height="420"></canvas>
+        <div class="hud">
+          <span class="tl" id="hud-ep">epoch 0</span>
+          <span class="tr" id="hud-loss">loss —</span>
+          <span class="bl" id="hud-acc"><b>train —</b> · <em>test —</em></span>
+          <span class="br" id="hud-net">2 → 4 → 4 → 1</span>
+        </div>
+      </div>
+      <div class="panel">
+        <p class="eyebrow" lang="tr">Ağ ve ağırlıklar</p><p class="eyebrow" lang="en">Network and weights</p>
+        <canvas id="net" width="300" height="220"></canvas>
+        <p class="eyebrow" lang="tr">Kayıp</p><p class="eyebrow" lang="en">Loss</p>
+        <canvas id="lossc" width="300" height="90"></canvas>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <p class="notice" style="margin-top:16px" lang="tr">İpuçları: <b>Daireler</b> için tek gizli katman yeter. <b>XOR</b> tek nöronlu ağa imkânsızdır; iki nöron yeter. <b>Spiral</b> için ya derin bir ağ ya da x², y², sin(x) gibi elle üretilmiş özellikler gerekir; bu, "özellik mühendisliği" ile "derin öğrenme" arasındaki tarihî tartışmanın kendisidir. Öğrenme hızını 3'e çekin, kaybın nasıl zıpladığını görün; 0,003'e çekin, nasıl süründüğünü.</p>
+    <p class="notice" style="margin-top:16px" lang="en">Hints: one hidden layer is enough for <b>circles</b>. <b>XOR</b> is impossible for a single neuron; two are enough. The <b>spiral</b> needs either a deep network or hand-made features such as x², y², sin(x); that is the historical argument between "feature engineering" and "deep learning" in one picture. Push the learning rate to 3 and watch the loss bounce; drop it to 0.003 and watch it crawl.</p>
+  </div>
+
+  <aside class="ctl">
+    <h2 lang="tr">Ayarlar</h2><h2 lang="en">Settings</h2>
+    <div class="grp">
+      <div class="btns">
+        <button type="button" class="btn sm" id="play"><span lang="tr">Eğit</span><span lang="en">Train</span></button>
+        <button type="button" class="btn sm ghost" id="step"><span lang="tr">1 epoch</span><span lang="en">1 epoch</span></button>
+        <button type="button" class="btn sm ghost" id="reset"><span lang="tr">Sıfırla</span><span lang="en">Reset</span></button>
+      </div>
+    </div>
+    <div class="grp">
+      <label><span lang="tr">Veri seti</span><span lang="en">Dataset</span></label>
+      <div class="seg" id="ds" role="group">
+        <button type="button" data-d="circle" aria-pressed="true"><span lang="tr">Daireler</span><span lang="en">Circles</span></button>
+        <button type="button" data-d="xor" aria-pressed="false">XOR</button>
+        <button type="button" data-d="gauss" aria-pressed="false"><span lang="tr">İki küme</span><span lang="en">Two blobs</span></button>
+        <button type="button" data-d="spiral" aria-pressed="false"><span lang="tr">Spiral</span><span lang="en">Spiral</span></button>
+      </div>
+      <label for="noise"><span lang="tr">Gürültü</span><span lang="en">Noise</span><output id="noise-o">10</output></label>
+      <input type="range" id="noise" min="0" max="50" step="5" value="10">
+    </div>
+    <div class="grp">
+      <label><span lang="tr">Gizli katmanlar (nöron sayısı)</span><span lang="en">Hidden layers (neurons)</span></label>
+      <div class="layers" id="layers"></div>
+      <label for="act"><span lang="tr">Aktivasyon</span><span lang="en">Activation</span></label>
+      <select id="act"><option value="tanh" selected>tanh</option><option value="relu">ReLU</option><option value="sigmoid">sigmoid</option></select>
+      <label for="lr"><span lang="tr">Öğrenme hızı</span><span lang="en">Learning rate</span></label>
+      <select id="lr"><option>0.003</option><option>0.01</option><option>0.03</option><option selected>0.1</option><option>0.3</option><option>1</option><option>3</option></select>
+    </div>
+    <div class="grp">
+      <label><span lang="tr">Girdi özellikleri</span><span lang="en">Input features</span></label>
+      <label class="chk"><input type="checkbox" id="fx" checked disabled>x</label>
+      <label class="chk"><input type="checkbox" id="fy" checked disabled>y</label>
+      <label class="chk"><input type="checkbox" id="fx2">x²</label>
+      <label class="chk"><input type="checkbox" id="fy2">y²</label>
+      <label class="chk"><input type="checkbox" id="fxy">x·y</label>
+      <label class="chk"><input type="checkbox" id="fsx">sin(x)</label>
+      <label class="chk"><input type="checkbox" id="fsy">sin(y)</label>
+    </div>
+  </aside>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Saf JavaScript; kütüphane yok, sunucu yok.</span>
+    <span lang="en">Plain JavaScript; no library, no server.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var cv=$('cv'),ctx=cv.getContext('2d'),netc=$('net'),nctx=netc.getContext('2d'),lc=$('lossc'),lctx=lc.getContext('2d');
+  var S=420,seed=7,state={ds:'circle',hidden:[4,4],playing:false,epoch:0,losses:[],data:[],test:[],net:null};
+  var C={};function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+  function theme(){C={a:css('--ok'),b:css('--ng'),acc:css('--acc'),ink:css('--ink'),mute:css('--mute'),line:css('--line'),bg:css('--bg'),bg2:css('--bg2')}}
+  function rnd(){seed=(seed*48271)%2147483647;return (seed-1)/2147483646}
+  function gauss(){var u=1-rnd(),v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+  /* ---------- data ---------- */
+  function genData(){
+    var n=240,noise=+$('noise').value/100,pts=[],i;
+    if(state.ds==='circle'){for(i=0;i<n;i++){var r=i<n/2?rnd()*0.45:0.7+rnd()*0.3,a=rnd()*Math.PI*2,x=r*Math.cos(a)+gauss()*noise*0.5,y=r*Math.sin(a)+gauss()*noise*0.5;pts.push({x:x,y:y,l:i<n/2?1:-1})}}
+    else if(state.ds==='xor'){for(i=0;i<n;i++){var x=rnd()*2-1,y=rnd()*2-1;x+=x>0?0.08:-0.08;y+=y>0?0.08:-0.08;var l=(x*y>0)?1:-1;pts.push({x:x+gauss()*noise*0.5,y:y+gauss()*noise*0.5,l:l})}}
+    else if(state.ds==='gauss'){for(i=0;i<n;i++){var l=i<n/2?1:-1;pts.push({x:l*0.5+gauss()*(0.18+noise*0.6),y:l*0.5+gauss()*(0.18+noise*0.6),l:l})}}
+    else{for(i=0;i<n;i++){var l=i<n/2?1:-1,t=(i%(n/2))/(n/2)*3.2*Math.PI+ (l>0?0:Math.PI),r=(i%(n/2))/(n/2)*0.95;var x=r*Math.sin(t)+gauss()*noise*0.6,y=r*Math.cos(t)+gauss()*noise*0.6;pts.push({x:x,y:y,l:l})}}
+    // shuffle + split
+    for(i=pts.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1)),t2=pts[i];pts[i]=pts[j];pts[j]=t2}
+    var cut=Math.floor(pts.length*0.8);state.data=pts.slice(0,cut);state.test=pts.slice(cut);
+  }
+  function feats(x,y){var f=[x,y];if($('fx2').checked)f.push(x*x);if($('fy2').checked)f.push(y*y);if($('fxy').checked)f.push(x*y);if($('fsx').checked)f.push(Math.sin(3*x));if($('fsy').checked)f.push(Math.sin(3*y));return f}
+  /* ---------- network ---------- */
+  function act(v,t){return t==='relu'?(v>0?v:0):t==='sigmoid'?1/(1+Math.exp(-v)):Math.tanh(v)}
+  function dact(o,t){return t==='relu'?(o>0?1:0):t==='sigmoid'?o*(1-o):1-o*o}
+  function build(){
+    var sizes=[feats(0,0).length].concat(state.hidden,[1]),L=[];
+    for(var l=1;l<sizes.length;l++){var W=[],b=[];for(var j=0;j<sizes[l];j++){var row=[];for(var i=0;i<sizes[l-1];i++)row.push(gauss()*Math.sqrt(1/sizes[l-1]));W.push(row);b.push(0)}L.push({W:W,b:b,out:[],delta:[]})}
+    state.net={sizes:sizes,L:L};state.epoch=0;state.losses=[];
+    $('hud-net').textContent=sizes.join(' → ');
+  }
+  function forward(f){
+    var net=state.net,t=$('act').value,a=f;
+    for(var l=0;l<net.L.length;l++){var lay=net.L[l],o=[];for(var j=0;j<lay.W.length;j++){var s=lay.b[j],w=lay.W[j];for(var i=0;i<w.length;i++)s+=w[i]*a[i];o.push(l===net.L.length-1?Math.tanh(s):act(s,t))}lay.inp=a;lay.out=o;a=o}
+    return a[0];
+  }
+  function trainEpoch(){
+    var net=state.net,t=$('act').value,lr=+$('lr').value,data=state.data,loss=0;
+    for(var n=0;n<data.length;n++){
+      var p=data[n],f=feats(p.x,p.y),y=forward(f),e=y-p.l;loss+=e*e;
+      // backprop (MSE on tanh output)
+      var last=net.L.length-1;net.L[last].delta=[e*(1-y*y)];
+      for(var l=last-1;l>=0;l--){var lay=net.L[l],nxt=net.L[l+1],d=[];for(var j=0;j<lay.W.length;j++){var s=0;for(var k=0;k<nxt.W.length;k++)s+=nxt.W[k][j]*nxt.delta[k];d.push(s*dact(lay.out[j],t))}lay.delta=d}
+      for(var l2=0;l2<net.L.length;l2++){var la=net.L[l2];for(var j2=0;j2<la.W.length;j2++){var g=la.delta[j2]*lr/ Math.sqrt(data.length)*3;for(var i2=0;i2<la.W[j2].length;i2++)la.W[j2][i2]-=g*la.inp[i2];la.b[j2]-=g}}
+    }
+    state.epoch++;var ml=loss/data.length;state.losses.push(ml);if(state.losses.length>300)state.losses.shift();
+    return ml;
+  }
+  function accuracy(set){var c=0;for(var i=0;i<set.length;i++){var p=set[i];if((forward(feats(p.x,p.y))>0?1:-1)===p.l)c++}return set.length?c/set.length:0}
+  /* ---------- drawing ---------- */
+  function hex2rgb(h){h=h.replace('#','');if(h.length===3)h=h.split('').map(function(c){return c+c}).join('');return [parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)]}
+  function draw(){
+    var G=60,img=ctx.createImageData(G,G),d=img.data,ca=hex2rgb(C.a),cb=hex2rgb(C.b),bg=hex2rgb(C.bg2);
+    for(var gy=0;gy<G;gy++)for(var gx=0;gx<G;gx++){var x=(gx+0.5)/G*2-1,y=1-(gy+0.5)/G*2,v=forward(feats(x,y)),a=Math.min(1,Math.abs(v))*0.55,c=v>0?ca:cb,i=(gy*G+gx)*4;d[i]=bg[0]*(1-a)+c[0]*a;d[i+1]=bg[1]*(1-a)+c[1]*a;d[i+2]=bg[2]*(1-a)+c[2]*a;d[i+3]=255}
+    var tmp=document.createElement('canvas');tmp.width=G;tmp.height=G;tmp.getContext('2d').putImageData(img,0,0);
+    ctx.imageSmoothingEnabled=true;ctx.clearRect(0,0,S,S);ctx.drawImage(tmp,0,0,S,S);
+    ctx.strokeStyle=C.line;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(S/2+0.5,0);ctx.lineTo(S/2+0.5,S);ctx.moveTo(0,S/2+0.5);ctx.lineTo(S,S/2+0.5);ctx.stroke();
+    function pt(p,hollow){var px=(p.x+1)/2*S,py=(1-p.y)/2*S;ctx.beginPath();ctx.arc(px,py,3.2,0,7);ctx.fillStyle=p.l>0?C.a:C.b;ctx.strokeStyle=C.bg;ctx.lineWidth=1;if(hollow){ctx.stroke();ctx.fillStyle=C.bg;ctx.fill();ctx.strokeStyle=p.l>0?C.a:C.b;ctx.stroke()}else{ctx.fill();ctx.stroke()}}
+    state.data.forEach(function(p){pt(p,false)});state.test.forEach(function(p){pt(p,true)});
+    drawNet();drawLoss();
+    var tr=accuracy(state.data),te=accuracy(state.test),L=document.documentElement.getAttribute('data-lang')||'tr';
+    $('hud-ep').textContent='epoch '+state.epoch;$('hud-loss').textContent='loss '+(state.losses.length?state.losses[state.losses.length-1].toFixed(3):'—');
+    $('hud-acc').innerHTML='<b>train '+(tr*100).toFixed(0)+'%</b> · <em>test '+(te*100).toFixed(0)+'%</em>';
+    var np=0;state.net.L.forEach(function(l){np+=l.W.length*l.W[0].length+l.b.length});
+    $('stats').innerHTML=(L==='tr'?'parametre <b>':'parameters <b>')+np+'</b>'+(L==='tr'?' · eğitim noktası <b>':' · training points <b>')+state.data.length+'</b>'+(L==='tr'?' · test noktası (içi boş) <b>':' · test points (hollow) <b>')+state.test.length+'</b>';
+  }
+  function drawNet(){
+    var net=state.net,w=netc.width,h=netc.height;nctx.clearRect(0,0,w,h);
+    var cols=net.sizes.length,xs=[],ys=[];
+    for(var c=0;c<cols;c++){xs.push(20+(w-40)*c/(cols-1));var n=net.sizes[c],col=[];for(var j=0;j<n;j++)col.push(h/2+(j-(n-1)/2)*Math.min(26,(h-20)/Math.max(1,n)));ys.push(col)}
+    var maxw=0.001;net.L.forEach(function(l){l.W.forEach(function(r){r.forEach(function(v){if(Math.abs(v)>maxw)maxw=Math.abs(v)})})});
+    for(var l=0;l<net.L.length;l++){var lay=net.L[l];for(var j=0;j<lay.W.length;j++)for(var i=0;i<lay.W[j].length;i++){var v=lay.W[j][i],a=Math.min(1,Math.abs(v)/maxw);nctx.strokeStyle=v>0?C.a:C.b;nctx.globalAlpha=0.15+0.85*a;nctx.lineWidth=0.5+2.5*a;nctx.beginPath();nctx.moveTo(xs[l],ys[l][i]);nctx.lineTo(xs[l+1],ys[l+1][j]);nctx.stroke()}}
+    nctx.globalAlpha=1;
+    for(var c2=0;c2<cols;c2++)for(var k=0;k<ys[c2].length;k++){nctx.beginPath();nctx.arc(xs[c2],ys[c2][k],5,0,7);nctx.fillStyle=C.bg;nctx.fill();nctx.strokeStyle=c2===0||c2===cols-1?C.acc:C.ink;nctx.lineWidth=1.2;nctx.stroke()}
+    nctx.fillStyle=C.mute;nctx.font='9px "IBM Plex Mono", monospace';nctx.textAlign='center';nctx.fillText('in',xs[0],h-4);nctx.fillText('out',xs[cols-1],h-4);
+  }
+  function drawLoss(){
+    var w=lc.width,h=lc.height;lctx.clearRect(0,0,w,h);lctx.strokeStyle=C.line;lctx.beginPath();lctx.moveTo(0,h-10.5);lctx.lineTo(w,h-10.5);lctx.stroke();
+    var L=state.losses;if(L.length<2)return;var mx=Math.max.apply(null,L)||1;lctx.strokeStyle=C.acc;lctx.lineWidth=1.5;lctx.beginPath();
+    for(var i=0;i<L.length;i++){var x=i/(L.length-1)*w,y=h-10-(L[i]/mx)*(h-16);if(i)lctx.lineTo(x,y);else lctx.moveTo(x,y)}lctx.stroke();
+    lctx.fillStyle=C.mute;lctx.font='9px "IBM Plex Mono", monospace';lctx.textAlign='left';lctx.fillText(mx.toFixed(2),2,10);lctx.fillText(L[L.length-1].toFixed(3),2,h-14);
+  }
+  /* ---------- layer editor ---------- */
+  function renderLayers(){
+    var box=$('layers');box.innerHTML='';
+    state.hidden.forEach(function(n,i){var d=document.createElement('span');d.className='n';var m=document.createElement('button');m.textContent='−';m.title='fewer neurons';var s=document.createElement('span');s.textContent=n;var p=document.createElement('button');p.textContent='+';p.title='more neurons';
+      m.addEventListener('click',function(){if(state.hidden[i]>1)state.hidden[i]--;else state.hidden.splice(i,1);rebuild()});p.addEventListener('click',function(){if(state.hidden[i]<8)state.hidden[i]++;rebuild()});d.appendChild(m);d.appendChild(s);d.appendChild(p);box.appendChild(d)});
+    if(state.hidden.length<4){var add=document.createElement('button');add.textContent='+ layer';add.addEventListener('click',function(){state.hidden.push(4);rebuild()});box.appendChild(add)}
+  }
+  function rebuild(){renderLayers();build();draw()}
+  /* ---------- loop ---------- */
+  function loop(){if(!state.playing)return;for(var i=0;i<3;i++)trainEpoch();draw();requestAnimationFrame(loop)}
+  function setPlay(v){state.playing=v;$('play').innerHTML=v?'<span lang="tr">Duraklat</span><span lang="en">Pause</span>':'<span lang="tr">Eğit</span><span lang="en">Train</span>';if(v)loop()}
+  $('play').addEventListener('click',function(){setPlay(!state.playing)});
+  $('step').addEventListener('click',function(){trainEpoch();draw()});
+  $('reset').addEventListener('click',function(){setPlay(false);seed=(seed*31+17)%2147483647;genData();build();draw()});
+  document.querySelectorAll('#ds button').forEach(function(b){b.addEventListener('click',function(){state.ds=b.getAttribute('data-d');document.querySelectorAll('#ds button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});genData();build();draw()})});
+  $('noise').addEventListener('input',function(){$('noise-o').textContent=$('noise').value;genData();build();draw()});
+  ['fx2','fy2','fxy','fsx','fsy'].forEach(function(id){$(id).addEventListener('change',function(){build();draw()})});
+  $('act').addEventListener('change',function(){build();draw()});
+  document.addEventListener('langchange',draw);
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');if(mq.addEventListener)mq.addEventListener('change',function(){theme();draw()});
+  theme();renderLayers();genData();build();draw();
+})();
+</script>
+</body>
+</html>

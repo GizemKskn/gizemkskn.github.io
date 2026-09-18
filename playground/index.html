@@ -6,7 +6,7 @@
 <title>Playground · Gizem Keskin</title>
 <meta name="title-tr" content="Playground · Gizem Keskin">
 <meta name="title-en" content="Playground · Gizem Keskin">
-<meta name="description" content="Tarayıcıda çalışan görüntü işleme ve yapay zekâ demoları: kalite kontrol tezgâhı, canlı nesne ve düşme tespiti.">
+<meta name="description" content="Tarayıcıda çalışan altı küçük araç: görüntü işleme tezgâhı, evrişim çekirdeği, sinir ağı oyun alanı, rakam tanıma, nesne takibi, sensör anomalisi.">
 <meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
@@ -19,9 +19,11 @@
 <script>
 (function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
 if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
-document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l);})();
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
 </script>
+
 <div id="det" aria-hidden="true"><i></i><b>playground 0.98</b></div>
+
 <header class="bar">
   <div class="wrap">
     <a class="brand" href="../">Gizem Keskin</a>
@@ -31,48 +33,81 @@ document.documentElement.setAttribute('data-lang',l);document.documentElement.se
         <a href="../blog/" data-nav="blog">Blog</a>
         <a href="./" data-nav="playground">Playground</a>
       </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
       <div class="lang" role="group" aria-label="Language">
-        <button type="button" data-lang="tr" aria-pressed="true">TR</button>
-        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
       </div>
     </nav>
   </div>
 </header>
+
 <main>
   <section class="page-head">
     <div class="wrap">
       <p class="eyebrow">Playground</p>
       <h1 lang="tr">Anlatmak yerine göstermek.</h1>
       <h1 lang="en">Showing instead of telling.</h1>
-      <p class="lede" lang="tr">İşimde kullandığım fikirlerin küçük, tarayıcıda çalışan halleri. Görüntüler bilgisayarınızdan çıkmaz; sunucu yok, kayıt yok.</p>
-      <p class="lede" lang="en">Small, in-browser versions of the ideas I use at work. Images never leave your computer; no server, no recording.</p>
+      <p class="lede" lang="tr">İşimde kullandığım fikirlerin küçük, tarayıcıda çalışan halleri. Kütüphane yok, sunucu yok, kamera yok; her şey bu sayfaların içinde ve her cihazda aynı sonucu verir. Her araç, yanında o işin fabrikadaki karşılığını anlatır.</p>
+      <p class="lede" lang="en">Small, in-browser versions of the ideas I use at work. No library, no server, no camera; everything lives inside these pages and gives the same result on every device. Each tool explains what its factory counterpart is.</p>
     </div>
   </section>
   <div class="wrap">
     <div class="pgcards">
       <a class="pgcard" href="bench.html" data-det="bench" data-conf="0.99">
-        <span class="m">01 · opencv-style · 640×480</span>
-        <h3 lang="tr">Görüntü işleme tezgâhı</h3><h3 lang="en">Image-processing bench</h3>
-        <p lang="tr">Üretilmiş bir PCB veya baskılı panel üzerinde, ya da kendi görselinizde: bulanıklaştırma, eşikleme, morfoloji, bileşen sayma, referansla karşılaştırma. Her ayar değiştikçe yanında OpenCV kodu güncellenir.</p>
-        <p lang="en">On a generated PCB or printed panel, or your own image: blur, thresholding, morphology, blob counting, reference comparison. The OpenCV code beside it updates as you move the sliders.</p>
-        <span class="m" lang="tr">Kamera gerekmez · her cihazda çalışır</span><span class="m" lang="en">No camera needed · works everywhere</span>
+        <span class="m">01 · <span lang="tr">görüntü işleme</span><span lang="en">image processing</span></span>
+        <h3 lang="tr">Görüntü işleme tezgâhı</h3><h3 lang="en">Inspection bench</h3>
+        <p lang="tr">Üretilmiş bir PCB veya baskılı panel üzerinde, ya da kendi fotoğrafınızda: bulanıklaştırma, eşikleme, morfoloji, bileşen sayma, referansla karşılaştırma. Yanında OpenCV kodu canlı yazılır.</p>
+        <p lang="en">On a generated PCB or printed panel, or your own photo: blur, threshold, morphology, blob counting, reference comparison. The OpenCV code is written live beside it.</p>
+        <span class="m" lang="tr">Fabrikadaki karşılığı: optik kalite kontrol</span><span class="m" lang="en">Factory counterpart: optical inspection</span>
       </a>
-      <a class="pgcard" href="live.html" data-det="live" data-conf="0.97">
-        <span class="m">02 · webcam · tensorflow.js + mediapipe</span>
-        <h3 lang="tr">Canlı tespit</h3><h3 lang="en">Live detection</h3>
-        <p lang="tr">Kameranızla gerçek zamanlı nesne tespiti ve iskelet tabanlı düşme tespiti. İSG sistemindeki mantığın küçük bir örneği: vücut açısı, sanal bölge, alarm.</p>
-        <p lang="en">Real-time object detection and skeleton-based fall detection with your camera. A small version of the logic in the safety system: body angle, virtual zone, alarm.</p>
-        <span class="m" lang="tr">Kamera izni ister · modeller ilk açılışta iner</span><span class="m" lang="en">Asks for camera permission · models download on first use</span>
+      <a class="pgcard" href="conv.html" data-det="conv" data-conf="0.98">
+        <span class="m">02 · <span lang="tr">CNN'in ilk katmanı</span><span lang="en">a CNN's first layer</span></span>
+        <h3 lang="tr">Evrişim çekirdeği</h3><h3 lang="en">Convolution kernel</h3>
+        <p lang="tr">Dokuz sayıyı kendiniz yazın; görüntünün üstünde kaydırılınca ne olduğunu görün. Bulanıklaştırma, keskinleştirme, Sobel, Laplace; önce/sonra çizgisini sürükleyin.</p>
+        <p lang="en">Write the nine numbers yourself and see what happens when they slide over the image. Blur, sharpen, Sobel, Laplacian; drag the before/after line.</p>
+        <span class="m" lang="tr">Fabrikadaki karşılığı: derin öğrenme modelinin gördüğü</span><span class="m" lang="en">Factory counterpart: what a deep model sees</span>
+      </a>
+      <a class="pgcard" href="nn.html" data-det="nn" data-conf="0.98">
+        <span class="m">03 · <span lang="tr">geri yayılım</span><span lang="en">backpropagation</span></span>
+        <h3 lang="tr">Sinir ağı oyun alanı</h3><h3 lang="en">Neural network playground</h3>
+        <p lang="tr">Küçük bir ağı canlı eğitin: veri seti, katmanlar, aktivasyon, öğrenme hızı, elle üretilmiş özellikler. Karar sınırının bükülüşünü ve kayıp eğrisini izleyin.</p>
+        <p lang="en">Train a small network live: dataset, layers, activation, learning rate, hand-made features. Watch the decision boundary bend and the loss curve fall.</p>
+        <span class="m" lang="tr">Fabrikadaki karşılığı: model eğitimi ve aşırı öğrenme</span><span class="m" lang="en">Factory counterpart: training and overfitting</span>
+      </a>
+      <a class="pgcard" href="digits.html" data-det="digits" data-conf="0.97">
+        <span class="m">04 · <span lang="tr">sınıflandırma</span><span lang="en">classification</span></span>
+        <h3 lang="tr">Rakam tanıma</h3><h3 lang="en">Digit recognition</h3>
+        <p lang="tr">Bir rakam çizin; sayfaya gömülü 3.610 parametrelik ağ tanısın. Ağın gördüğü 8×8 görüntüyü ve on olasılığı izleyin; yanıldığında nedenini görün.</p>
+        <p lang="en">Draw a digit; a 3,610-parameter network embedded in the page recognises it. See the 8×8 image the network sees and the ten probabilities; when it fails, see why.</p>
+        <span class="m" lang="tr">Fabrikadaki karşılığı: OCR ve sembol kontrolü</span><span class="m" lang="en">Factory counterpart: OCR and symbol checks</span>
+      </a>
+      <a class="pgcard" href="tracking.html" data-det="tracking" data-conf="0.98">
+        <span class="m">05 · <span lang="tr">çok nesne takibi</span><span lang="en">multi-object tracking</span></span>
+        <h3 lang="tr">Tespit takip değildir</h3><h3 lang="en">Detection is not tracking</h3>
+        <p lang="tr">Gürültülü, eksik ve yanlış tespitlerden kimlik üreten bir takipçi simülasyonu. Dedektörü bozun; tahmin, eşleştirme ve kayıp hafızasının ne işe yaradığını görün.</p>
+        <p lang="en">A tracker simulation that produces identities from noisy, missing and false detections. Break the detector; see what prediction, matching and lost-memory are for.</p>
+        <span class="m" lang="tr">Fabrikadaki karşılığı: personel ve araç takibi</span><span class="m" lang="en">Factory counterpart: people and vehicle tracking</span>
+      </a>
+      <a class="pgcard" href="anomaly.html" data-det="anomaly" data-conf="0.97">
+        <span class="m">06 · <span lang="tr">zaman serisi</span><span lang="en">time series</span></span>
+        <h3 lang="tr">Sensör verisinde anomali</h3><h3 lang="en">Anomalies in sensor data</h3>
+        <p lang="tr">Yakıt seviyesi, çevrim süresi, sıcaklık: pencere, eşik ve kural seçin; isabet, yanlış alarm ve kaçanı sayın. Basit kuralın nerede yetip nerede yetmediğini görün.</p>
+        <p lang="en">Fuel level, cycle time, temperature: choose window, threshold and rule; count hits, false alarms and misses. See where a simple rule is enough and where it isn't.</p>
+        <span class="m" lang="tr">Fabrikadaki karşılığı: IoT izleme ve alarm</span><span class="m" lang="en">Factory counterpart: IoT monitoring and alarms</span>
       </a>
     </div>
   </div>
 </main>
+
 <footer class="foot">
   <div class="wrap">
     <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
-    <span lang="tr">Her şey tarayıcınızda çalışır.</span><span lang="en">Everything runs in your browser.</span>
+    <span lang="tr">Tamamı tarayıcıda çalışır; hiçbir veri sunucuya gitmez.</span>
+    <span lang="en">Runs entirely in the browser; no data goes to a server.</span>
   </div>
 </footer>
+
 <script src="../assets/site.js"></script>
 </body>
 </html>

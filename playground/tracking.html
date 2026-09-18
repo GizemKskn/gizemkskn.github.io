@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nesne takibi · Gizem Keskin</title>
+<meta name="title-tr" content="Nesne takibi · Gizem Keskin">
+<meta name="title-en" content="Object tracking · Gizem Keskin">
+<meta name="description" content="Tespit ile takip aynı şey değildir. Gürültülü, eksik ve yanlış tespitlerden kimlik üreten bir takipçi simülasyonu: tahmin, eşleştirme, kayıp yönetimi.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage{aspect-ratio:16/10}
+.stage canvas{width:100%;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font:400 .7rem var(--font-m);color:var(--mute);letter-spacing:.03em}
+.legend i{display:inline-block;width:12px;height:8px;border:1px solid var(--mute);vertical-align:middle;margin-right:6px}
+.legend i.gt{border:0;background:color-mix(in srgb,var(--ink) 25%,transparent);border-radius:50%;width:10px;height:10px}
+.legend i.tr{border-color:var(--acc)}
+.legend i.fp{border-color:var(--ng);border-style:dashed}
+</style>
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>tracking 0.98</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="../blog/" data-nav="blog">Blog</a>
+        <a href="./" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Playground · 05</p>
+    <h1 lang="tr">Tespit takip değildir</h1>
+    <h1 lang="en">Detection is not tracking</h1>
+    <p class="lede" lang="tr">Bir dedektör her karede kutular verir; kimlik vermez. Kimlik, takipçinin işidir: bir sonraki konumu tahmin et, yeni kutuları eski izlerle eşleştir, kaybolanı bir süre hafızada tut. Burada gerçek nesneler gri, dedektörün gürültülü çıktısı ince gri kutular, takipçinin izleri mavi. Dedektörü bozun; takipçinin ne kadar dayandığını izleyin.</p>
+    <p class="lede" lang="en">A detector gives boxes every frame; it gives no identities. Identity is the tracker's job: predict the next position, match new boxes to old tracks, keep lost ones in memory for a while. Here the real objects are grey, the detector's noisy output is thin grey boxes, the tracker's tracks are blue. Break the detector and watch how long the tracker holds.</p>
+  </div>
+</section>
+
+<div class="wrap pg">
+  <div>
+    <div class="stage">
+      <canvas id="cv" width="640" height="400"></canvas>
+      <div class="hud">
+        <span class="tl" id="hud-f">frame 0</span>
+        <span class="tr" id="hud-t">tracks 0</span>
+        <span class="bl" id="hud-m"><b>matched 0%</b> · <em>id switches 0</em></span>
+        <span class="br">iou · const-velocity</span>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="gt"></i><span lang="tr">gerçek nesne</span><span lang="en">true object</span></span>
+      <span><i></i><span lang="tr">tespit (gürültülü)</span><span lang="en">detection (noisy)</span></span>
+      <span><i class="tr"></i><span lang="tr">iz ve kimlik</span><span lang="en">track and ID</span></span>
+      <span><i class="fp"></i><span lang="tr">yanlış tespit</span><span lang="en">false detection</span></span>
+    </div>
+    <div class="stats" id="stats"></div>
+    <p class="notice" style="margin-top:16px" lang="tr">Ne izlemeli: <b>Tahmin</b>'i kapatın; nesneler hızlanınca eşleştirme kopar ve kimlikler değişir. <b>Kaçırma oranını</b> %40'a çıkarın; "kayıp hafızası" sayesinde izler hâlâ tutar, hafızayı 0 yapınca her kaçırmada yeni kimlik doğar. <b>Yanlış tespit</b>'i artırın; onay için iki kare bekleyen takipçi bunları iz yapmaz. Gerçek sistemlerde (ByteTrack, SORT) mantık aynıdır; Kalman filtresi ve Macar eşleştirmesi bunun daha titiz halidir.</p>
+    <p class="notice" style="margin-top:16px" lang="en">What to watch: turn <b>prediction</b> off; as objects speed up, matching breaks and IDs change. Raise the <b>miss rate</b> to 40%; thanks to "lost memory" tracks still hold, set memory to 0 and every miss spawns a new ID. Increase <b>false detections</b>; a tracker that waits two frames for confirmation doesn't turn them into tracks. Real systems (ByteTrack, SORT) use the same logic; a Kalman filter and Hungarian matching are its more rigorous form.</p>
+  </div>
+
+  <aside class="ctl">
+    <h2 lang="tr">Ayarlar</h2><h2 lang="en">Settings</h2>
+    <div class="grp">
+      <div class="btns">
+        <button type="button" class="btn sm" id="play"><span lang="tr">Duraklat</span><span lang="en">Pause</span></button>
+        <button type="button" class="btn sm ghost" id="reset"><span lang="tr">Yeni sahne</span><span lang="en">New scene</span></button>
+      </div>
+    </div>
+    <div class="grp">
+      <label><span lang="tr">Sahne</span><span lang="en">Scene</span></label>
+      <label for="n"><span lang="tr">Nesne sayısı</span><span lang="en">Objects</span><output id="n-o">6</output></label>
+      <input type="range" id="n" min="2" max="14" step="1" value="6">
+      <label for="spd"><span lang="tr">Hız</span><span lang="en">Speed</span><output id="spd-o">2.0</output></label>
+      <input type="range" id="spd" min="0.5" max="6" step="0.5" value="2">
+    </div>
+    <div class="grp">
+      <label><span lang="tr">Dedektör</span><span lang="en">Detector</span></label>
+      <label for="noise"><span lang="tr">Konum gürültüsü (px)</span><span lang="en">Position noise (px)</span><output id="noise-o">4</output></label>
+      <input type="range" id="noise" min="0" max="20" step="1" value="4">
+      <label for="miss"><span lang="tr">Kaçırma oranı</span><span lang="en">Miss rate</span><output id="miss-o">15%</output></label>
+      <input type="range" id="miss" min="0" max="60" step="5" value="15">
+      <label for="fp"><span lang="tr">Yanlış tespit / kare</span><span lang="en">False detections / frame</span><output id="fp-o">0.2</output></label>
+      <input type="range" id="fp" min="0" max="2" step="0.1" value="0.2">
+    </div>
+    <div class="grp">
+      <label><span lang="tr">Takipçi</span><span lang="en">Tracker</span></label>
+      <label class="chk"><input type="checkbox" id="pred" checked><span lang="tr">Sabit hız tahmini</span><span lang="en">Constant-velocity prediction</span></label>
+      <label for="iou"><span lang="tr">Eşleşme eşiği (IoU)</span><span lang="en">Match threshold (IoU)</span><output id="iou-o">0.30</output></label>
+      <input type="range" id="iou" min="0.05" max="0.8" step="0.05" value="0.3">
+      <label for="lost"><span lang="tr">Kayıp hafızası (kare)</span><span lang="en">Lost memory (frames)</span><output id="lost-o">20</output></label>
+      <input type="range" id="lost" min="0" max="60" step="5" value="20">
+      <label for="hits"><span lang="tr">Onay için kare</span><span lang="en">Frames to confirm</span><output id="hits-o">2</output></label>
+      <input type="range" id="hits" min="1" max="5" step="1" value="2">
+      <label class="chk"><input type="checkbox" id="trails" checked><span lang="tr">İz kuyruğu</span><span lang="en">Trails</span></label>
+    </div>
+  </aside>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Simülasyon; kamera yok, veri yok, sunucu yok.</span>
+    <span lang="en">Simulation; no camera, no data, no server.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var cv=$('cv'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  var C={};function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+  function theme(){C={ink:css('--ink'),ink2:css('--ink2'),mute:css('--mute'),line:css('--line'),acc:css('--acc'),ng:css('--ng'),ok:css('--ok'),bg:css('--bg')}}
+  var seed=11;function rnd(){seed=(seed*48271)%2147483647;return (seed-1)/2147483646}
+  function gauss(){var u=1-rnd(),v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+  var st={objs:[],tracks:[],nextId:1,frame:0,playing:true,switches:0,matchedFrames:0,gtFrames:0};
+  function P(){return {n:+$('n').value,spd:+$('spd').value,noise:+$('noise').value,miss:+$('miss').value/100,fp:+$('fp').value,pred:$('pred').checked,iou:+$('iou').value,lost:+$('lost').value,hits:+$('hits').value,trails:$('trails').checked}}
+  function newScene(){
+    var p=P();st.objs=[];st.tracks=[];st.nextId=1;st.frame=0;st.switches=0;st.matchedFrames=0;st.gtFrames=0;
+    for(var i=0;i<p.n;i++){var a=rnd()*Math.PI*2;st.objs.push({x:40+rnd()*(W-80),y:40+rnd()*(H-80),vx:Math.cos(a),vy:Math.sin(a),w:26+rnd()*22,h:26+rnd()*22,lastId:0,trail:[]})}
+  }
+  function stepObjs(p){
+    st.objs.forEach(function(o){
+      var a=Math.atan2(o.vy,o.vx)+gauss()*0.06;o.vx=Math.cos(a);o.vy=Math.sin(a);
+      o.x+=o.vx*p.spd;o.y+=o.vy*p.spd;
+      if(o.x<o.w/2){o.x=o.w/2;o.vx=Math.abs(o.vx)}if(o.x>W-o.w/2){o.x=W-o.w/2;o.vx=-Math.abs(o.vx)}
+      if(o.y<o.h/2){o.y=o.h/2;o.vy=Math.abs(o.vy)}if(o.y>H-o.h/2){o.y=H-o.h/2;o.vy=-Math.abs(o.vy)}
+      o.trail.push([o.x,o.y]);if(o.trail.length>40)o.trail.shift();
+    });
+  }
+  function detect(p){
+    var dets=[];
+    st.objs.forEach(function(o,i){if(rnd()<p.miss)return;dets.push({x:o.x+gauss()*p.noise,y:o.y+gauss()*p.noise,w:o.w*(1+gauss()*0.08),h:o.h*(1+gauss()*0.08),gt:i,fp:false})});
+    var k=p.fp;while(k>0){if(rnd()<Math.min(1,k))dets.push({x:20+rnd()*(W-40),y:20+rnd()*(H-40),w:20+rnd()*30,h:20+rnd()*30,gt:-1,fp:true});k-=1}
+    return dets;
+  }
+  function iou(a,b){var ax0=a.x-a.w/2,ay0=a.y-a.h/2,ax1=a.x+a.w/2,ay1=a.y+a.h/2,bx0=b.x-b.w/2,by0=b.y-b.h/2,bx1=b.x+b.w/2,by1=b.y+b.h/2;var iw=Math.max(0,Math.min(ax1,bx1)-Math.max(ax0,bx0)),ih=Math.max(0,Math.min(ay1,by1)-Math.max(ay0,by0)),inter=iw*ih;return inter/(a.w*a.h+b.w*b.h-inter)}
+  function track(dets,p){
+    // 1. predict
+    st.tracks.forEach(function(t){if(p.pred){t.px=t.x+t.vx;t.py=t.y+t.vy}else{t.px=t.x;t.py=t.y}});
+    // 2. greedy IoU association (Hungarian would be optimal; greedy is what many edge trackers do)
+    var pairs=[];st.tracks.forEach(function(t,ti){dets.forEach(function(d,di){var v=iou({x:t.px,y:t.py,w:t.w,h:t.h},d);if(v>=p.iou)pairs.push([v,ti,di])})});
+    pairs.sort(function(a,b){return b[0]-a[0]});
+    var usedT={},usedD={};
+    pairs.forEach(function(pr){var ti=pr[1],di=pr[2];if(usedT[ti]||usedD[di])return;usedT[ti]=1;usedD[di]=1;var t=st.tracks[ti],d=dets[di];
+      var nvx=d.x-t.x,nvy=d.y-t.y;t.vx=t.vx*0.6+nvx*0.4;t.vy=t.vy*0.6+nvy*0.4;t.x=d.x;t.y=d.y;t.w=t.w*0.7+d.w*0.3;t.h=t.h*0.7+d.h*0.3;t.lost=0;t.hits++;if(t.hits>=p.hits)t.confirmed=true;t.gt=d.gt;t.trail.push([t.x,t.y]);if(t.trail.length>40)t.trail.shift()});
+    // 3. unmatched tracks age
+    st.tracks.forEach(function(t,ti){if(usedT[ti])return;t.lost++;if(p.pred){t.x=t.px;t.y=t.py}t.gt=-1});
+    st.tracks=st.tracks.filter(function(t){return t.confirmed?t.lost<=p.lost:t.lost===0});
+    // 4. new tracks
+    dets.forEach(function(d,di){if(usedD[di])return;st.tracks.push({id:0,x:d.x,y:d.y,vx:0,vy:0,w:d.w,h:d.h,hits:1,lost:0,confirmed:p.hits<=1,gt:d.gt,trail:[[d.x,d.y]]})});
+    st.tracks.forEach(function(t){if(t.confirmed&&!t.id)t.id=st.nextId++});
+    // metrics: id switches per ground-truth object, matched coverage
+    st.objs.forEach(function(o,i){st.gtFrames++;var t=null;for(var k=0;k<st.tracks.length;k++){var tr=st.tracks[k];if(tr.confirmed&&tr.gt===i&&tr.lost===0){t=tr;break}}
+      if(t){st.matchedFrames++;if(o.lastId&&o.lastId!==t.id)st.switches++;o.lastId=t.id}});
+  }
+  function draw(dets,p){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=C.line;for(var gx=0;gx<W;gx+=32)for(var gy=0;gy<H;gy+=32)ctx.fillRect(gx,gy,1,1);
+    st.objs.forEach(function(o){ctx.fillStyle=C.ink;ctx.globalAlpha=0.18;ctx.beginPath();ctx.ellipse(o.x,o.y,o.w/2,o.h/2,0,0,7);ctx.fill();ctx.globalAlpha=1});
+    ctx.lineWidth=1;dets.forEach(function(d){ctx.strokeStyle=d.fp?C.ng:C.mute;ctx.setLineDash(d.fp?[4,3]:[]);ctx.strokeRect(Math.round(d.x-d.w/2)+0.5,Math.round(d.y-d.h/2)+0.5,Math.round(d.w),Math.round(d.h))});ctx.setLineDash([]);
+    ctx.font='500 10px "IBM Plex Mono", monospace';ctx.textBaseline='bottom';
+    st.tracks.forEach(function(t){if(!t.confirmed)return;var col=t.lost?C.mute:C.acc;
+      if(p.trails&&t.trail.length>1){ctx.strokeStyle=col;ctx.globalAlpha=0.5;ctx.beginPath();t.trail.forEach(function(q,i){if(i)ctx.lineTo(q[0],q[1]);else ctx.moveTo(q[0],q[1])});ctx.stroke();ctx.globalAlpha=1}
+      var x=t.x-t.w/2-4,y=t.y-t.h/2-4,w=t.w+8,h=t.h+8;ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.setLineDash(t.lost?[3,3]:[]);ctx.strokeRect(x,y,w,h);ctx.setLineDash([]);
+      var lab='id '+t.id+(t.lost?' · lost '+t.lost:'');var tw=ctx.measureText(lab).width+6;ctx.fillStyle=col;ctx.fillRect(x,y-13,tw,13);ctx.fillStyle=C.bg;ctx.fillText(lab,x+3,y-1)});
+  }
+  function frame(){
+    if(!st.playing)return;var p=P();st.frame++;stepObjs(p);var dets=detect(p);track(dets,p);draw(dets,p);
+    var L=document.documentElement.getAttribute('data-lang')||'tr',conf=st.tracks.filter(function(t){return t.confirmed}).length,cov=st.gtFrames?st.matchedFrames/st.gtFrames:0;
+    $('hud-f').textContent='frame '+st.frame;$('hud-t').textContent='tracks '+conf;$('hud-m').innerHTML='<b>matched '+(cov*100).toFixed(0)+'%</b> · <em>id switches '+st.switches+'</em>';
+    $('stats').innerHTML=(L==='tr'?'tespit <b>':'detections <b>')+dets.length+'</b>'+(L==='tr'?' · doğru nesne <b>':' · true objects <b>')+st.objs.length+'</b>'+(L==='tr'?' · onaylı iz <b>':' · confirmed tracks <b>')+conf+'</b>'+(L==='tr'?' · kimlik değişimi <b>':' · id switches <b>')+st.switches+'</b>'+(L==='tr'?' · üretilen kimlik <b>':' · ids created <b>')+(st.nextId-1)+'</b>';
+    setTimeout(function(){requestAnimationFrame(frame)},1000/30);
+  }
+  $('play').addEventListener('click',function(){st.playing=!st.playing;$('play').innerHTML=st.playing?'<span lang="tr">Duraklat</span><span lang="en">Pause</span>':'<span lang="tr">Devam</span><span lang="en">Resume</span>';if(st.playing)frame()});
+  $('reset').addEventListener('click',function(){seed=(seed*31+17)%2147483647;newScene()});
+  [['n',function(v){return v}],['spd',function(v){return (+v).toFixed(1)}],['noise',function(v){return v}],['miss',function(v){return v+'%'}],['fp',function(v){return (+v).toFixed(1)}],['iou',function(v){return (+v).toFixed(2)}],['lost',function(v){return v}],['hits',function(v){return v}]].forEach(function(e){var el=$(e[0]);el.addEventListener('input',function(){$(e[0]+'-o').textContent=e[1](el.value);if(e[0]==='n')newScene()})});
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');if(mq.addEventListener)mq.addEventListener('change',theme);
+  theme();newScene();frame();
+})();
+</script>
+</body>
+</html>

@@ -173,7 +173,7 @@
             <img src="assets/work/isg-cam-2.jpg" alt="Depo kamerasında kişiler üzerinde tespit kutuları ve güvenlik alanı" loading="lazy">
             <img src="assets/work/isg-cam-1.jpg" alt="Depo kamerasında çalışanların takip edildiği görüntü" loading="lazy">
             <img src="assets/work/isg-dashboard.jpg" alt="İSG takip panelinin ekran görüntüsü" loading="lazy">
-            <figcaption lang="tr">Kamera analizi ve yönetim paneli · <a href="playground/live.html">canlı demoyu dene</a></figcaption><figcaption lang="en">Camera analytics and dashboard · <a href="playground/live.html">try the live demo</a></figcaption>
+            <figcaption lang="tr">Kamera analizi ve yönetim paneli · <a href="playground/tracking.html">takip simülasyonunu dene</a></figcaption><figcaption lang="en">Camera analytics and dashboard · <a href="playground/tracking.html">try the tracking simulation</a></figcaption>
           </figure>
         </div>
         <div class="kpi"><b lang="tr">CCTV → YZ</b><b lang="en">CCTV → AI</b><small lang="tr">mevcut kameralarla</small><small lang="en">with existing cameras</small></div>
@@ -376,8 +376,8 @@
       <p class="eyebrow">Playground</p>
       <h2 lang="tr">Tarayıcınızda deneyin.</h2>
       <h2 lang="en">Try it in your browser.</h2>
-      <p class="note" lang="tr">Anlatmak yerine göstermek: iki küçük araç, hiçbir şey sunucuya gitmez.</p>
-      <p class="note" lang="en">Showing beats telling: two small tools, nothing leaves your browser.</p>
+      <p class="note" lang="tr">Anlatmak yerine göstermek: altı küçük araç, hepsi tarayıcıda, hiçbir şey sunucuya gitmez.</p>
+      <p class="note" lang="en">Showing beats telling: six small tools, all in the browser, nothing leaves it.</p>
     </div>
     <div class="pgcards" style="padding-block:0">
       <a class="pgcard" href="playground/bench.html">
@@ -386,11 +386,23 @@
         <p lang="tr">Eşikleme, morfoloji, bileşen sayma ve referans karşılaştırma ile bir kalite kontrol hattı kurun; yanında OpenCV kodu yazılsın.</p>
         <p lang="en">Build an inspection pipeline with thresholding, morphology, blob counting and reference comparison, with the OpenCV code written beside it.</p>
       </a>
-      <a class="pgcard" href="playground/live.html">
-        <span class="m">02 · webcam</span>
-        <h3 lang="tr">Canlı tespit</h3><h3 lang="en">Live detection</h3>
-        <p lang="tr">Kameranızla nesne tespiti ve iskelet tabanlı düşme tespiti; İSG sistemindeki mantığın küçük bir örneği.</p>
-        <p lang="en">Object detection and skeleton-based fall detection with your camera; a small version of the logic in the safety system.</p>
+      <a class="pgcard" href="playground/nn.html">
+        <span class="m">03 · backprop</span>
+        <h3 lang="tr">Sinir ağı oyun alanı</h3><h3 lang="en">Neural network playground</h3>
+        <p lang="tr">Küçük bir ağı canlı eğitin; katman ekleyin, öğrenme hızıyla oynayın, karar sınırının bükülüşünü izleyin.</p>
+        <p lang="en">Train a small network live; add layers, play with the learning rate, watch the decision boundary bend.</p>
+      </a>
+      <a class="pgcard" href="playground/tracking.html">
+        <span class="m">05 · tracking</span>
+        <h3 lang="tr">Tespit takip değildir</h3><h3 lang="en">Detection is not tracking</h3>
+        <p lang="tr">Gürültülü tespitlerden kimlik üreten takipçi simülasyonu; dedektörü bozun, takipçinin dayandığını görün.</p>
+        <p lang="en">A tracker that makes identities out of noisy detections; break the detector and watch the tracker hold.</p>
+      </a>
+      <a class="pgcard" href="playground/">
+        <span class="m">01–06</span>
+        <h3 lang="tr">Hepsi</h3><h3 lang="en">All six</h3>
+        <p lang="tr">Görüntü işleme tezgâhı, evrişim çekirdeği, rakam tanıma, sensör anomalisi ve diğerleri.</p>
+        <p lang="en">Inspection bench, convolution kernel, digit recognition, sensor anomalies and the rest.</p>
       </a>
     </div>
   </div>

@@ -7,8 +7,13 @@ index.html                 ana sayfa (hizmetler, işler, süreç, özgeçmiş, h
 blog/index.html            yazı listesi
 blog/<slug>.html           yazılar (TR + EN aynı dosyada)
 playground/index.html      playground girişi
-playground/bench.html      görüntü işleme tezgâhı (tamamen tarayıcıda çalışır)
-playground/live.html       kamera ile nesne ve düşme tespiti (modeller CDN'den iner)
+playground/bench.html      görüntü işleme tezgâhı
+playground/conv.html       evrişim çekirdeği
+playground/nn.html         sinir ağı oyun alanı
+playground/digits.html     rakam tanıma (ağırlıklar sayfaya gömülü, scikit-learn ile eğitildi)
+playground/tracking.html   nesne takibi simülasyonu
+playground/anomaly.html    sensör verisinde anomali
+(hepsi saf JavaScript; kütüphane, sunucu ve kamera yok)
 assets/site.css, site.js   ortak stil ve davranış (dil değiştirme, tespit kutusu)
 assets/work/*.jpg          proje görselleri (Elanus portfolyosundan)
 assets/photo.jpg           AgentCon sahne fotoğrafı
@@ -22,7 +27,7 @@ cd site
 python -m http.server 8080
 ```
 
-Tarayıcıda `http://localhost:8080`. Kamera demosu yerelde de çalışır (localhost güvenli sayılır).
+Tarayıcıda `http://localhost:8080`.
 
 ## Yayın
 

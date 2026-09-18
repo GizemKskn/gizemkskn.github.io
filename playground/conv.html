@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evrişim çekirdeği · Gizem Keskin</title>
+<meta name="title-tr" content="Evrişim çekirdeği · Gizem Keskin">
+<meta name="title-en" content="Convolution kernel · Gizem Keskin">
+<meta name="description" content="Bir görüntünün üstünde 3×3 çekirdeği kendiniz yazın: bulanıklaştırma, keskinleştirme, Sobel, Laplace. CNN'lerin ilk katmanının yaptığı iş, tarayıcıda.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage{aspect-ratio:4/3;cursor:ew-resize}
+.stage canvas{width:100%;height:100%;object-fit:contain}
+.kgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.kgrid input{width:100%;font:500 .9rem var(--font-m);text-align:center;padding:8px 4px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);font-variant-numeric:tabular-nums}
+.kgrid input.pos{border-color:var(--ok)}.kgrid input.neg{border-color:var(--ng)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--ink2);font:500 .7rem var(--font-m);letter-spacing:.04em;padding:6px 9px;border-radius:4px;cursor:pointer}
+.presets button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ctl .file{font:400 .8rem var(--font-b);color:var(--ink2)}
+.ctl .file input{display:block;margin-top:6px;font:inherit;max-width:100%}
+.hint{font:400 .74rem/1.5 var(--font-m);color:var(--mute);letter-spacing:.02em;margin:0}
+</style>
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>conv 0.98</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="../blog/" data-nav="blog">Blog</a>
+        <a href="./" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Playground · 02</p>
+    <h1 lang="tr">Evrişim çekirdeği</h1>
+    <h1 lang="en">Convolution kernel</h1>
+    <p class="lede" lang="tr">Bir evrişimli sinir ağının (CNN) ilk katmanı, görüntünün üstünde küçük sayı tablolarını kaydırmaktan ibarettir. Dokuz sayıyı kendiniz yazın; görüntünün nasıl değiştiğini görün. Görüntünün üstünde fareyi sağa sola sürükleyerek önce/sonra çizgisini oynatın.</p>
+    <p class="lede" lang="en">The first layer of a convolutional neural network (CNN) is nothing more than small tables of numbers slid across the image. Write the nine numbers yourself and watch the image change. Drag left and right over the image to move the before/after line.</p>
+  </div>
+</section>
+
+<div class="wrap pg">
+  <div>
+    <div class="stage" id="stage">
+      <canvas id="out" width="640" height="480"></canvas>
+      <div class="hud">
+        <span class="tl" id="hud-src">warehouse · 640×480</span>
+        <span class="tr" id="hud-k">sobel_x</span>
+        <span class="bl" id="hud-l"><b>← <span lang="tr">önce</span><span lang="en">before</span></b></span>
+        <span class="br" id="hud-r"><em><span lang="tr">sonra</span><span lang="en">after</span> →</em></span>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <pre class="code" id="code"></pre>
+    <p class="notice" style="margin-top:16px" lang="tr">Bir CNN bu tabloları kendisi öğrenir: eğitim sırasında yüzlerce çekirdeğin sayıları, hatayı azaltacak yönde küçük adımlarla değişir. İlk katmanda öğrenilenler neredeyse her zaman burada elle yazdıklarınıza benzer: kenarlar, köşeler, yönler. Derin katmanlar bunları birleştirip "pin", "çizik", "eksik komponent" gibi kavramlara varır.</p>
+    <p class="notice" style="margin-top:16px" lang="en">A CNN learns these tables itself: during training the numbers of hundreds of kernels change in small steps that reduce the error. What the first layer learns almost always resembles what you type here by hand: edges, corners, orientations. Deeper layers combine them into concepts like "pin", "scratch", "missing component".</p>
+  </div>
+
+  <aside class="ctl">
+    <h2 lang="tr">Çekirdek</h2><h2 lang="en">Kernel</h2>
+    <div class="grp">
+      <div class="presets" id="presets">
+        <button type="button" data-p="identity">identity</button>
+        <button type="button" data-p="box">box blur</button>
+        <button type="button" data-p="gauss">gaussian</button>
+        <button type="button" data-p="sharpen">sharpen</button>
+        <button type="button" data-p="sobelx" aria-pressed="true">sobel x</button>
+        <button type="button" data-p="sobely">sobel y</button>
+        <button type="button" data-p="laplace">laplacian</button>
+        <button type="button" data-p="emboss">emboss</button>
+        <button type="button" data-p="outline">outline</button>
+      </div>
+      <div class="kgrid" id="kgrid"></div>
+      <label class="chk"><input type="checkbox" id="norm"><span lang="tr">Toplamı 1'e normalize et</span><span lang="en">Normalise to sum 1</span></label>
+      <label class="chk"><input type="checkbox" id="abs" checked><span lang="tr">Mutlak değer (kenar çekirdekleri için)</span><span lang="en">Absolute value (for edge kernels)</span></label>
+      <label class="chk"><input type="checkbox" id="pre"><span lang="tr">Önce hafif Gauss uygula (2 katman)</span><span lang="en">Apply a light Gaussian first (2 layers)</span></label>
+      <label for="gain"><span lang="tr">Kazanç</span><span lang="en">Gain</span><output id="gain-o">1.0</output></label>
+      <input type="range" id="gain" min="0.25" max="4" step="0.25" value="1">
+    </div>
+    <div class="grp">
+      <label><span lang="tr">Görüntü</span><span lang="en">Image</span></label>
+      <div class="seg" id="src" role="group">
+        <button type="button" data-s="warehouse" aria-pressed="true"><span lang="tr">Depo</span><span lang="en">Warehouse</span></button>
+        <button type="button" data-s="tanker" aria-pressed="false"><span lang="tr">Tanker</span><span lang="en">Tanker</span></button>
+        <button type="button" data-s="stage" aria-pressed="false"><span lang="tr">Sahne</span><span lang="en">Stage</span></button>
+        <button type="button" data-s="upload" aria-pressed="false"><span lang="tr">Kendi</span><span lang="en">Yours</span></button>
+      </div>
+      <label class="file" id="filewrap" hidden><span lang="tr">Bir fotoğraf seç (cihazından çıkmaz)</span><span lang="en">Pick a photo (never leaves your device)</span><input type="file" id="file" accept="image/*"></label>
+      <p class="hint" lang="tr">Yeşil kenarlık pozitif, kırmızı kenarlık negatif ağırlık. Çıktı gri seviye; renk kanalları ayrı ayrı evrişimden geçseydi CNN'in yaptığı tam olarak bu olurdu.</p>
+      <p class="hint" lang="en">Green border means positive weight, red means negative. Output is grayscale; run the colour channels separately and you have exactly what a CNN does.</p>
+    </div>
+  </aside>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Tamamı tarayıcıda çalışır; hiçbir görüntü sunucuya gitmez.</span>
+    <span lang="en">Runs entirely in the browser; no image ever leaves your device.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+<script>
+(function(){
+  var W=640,H=480,$=function(id){return document.getElementById(id)};
+  var out=$('out'),octx=out.getContext('2d');
+  var src=document.createElement('canvas');src.width=W;src.height=H;var sctx=src.getContext('2d',{willReadFrequently:true});
+  var gray=null,split=0.5,state={preset:'sobelx',src:'warehouse',userImg:null,name:'warehouse'};
+  var P={identity:[0,0,0,0,1,0,0,0,0],box:[1,1,1,1,1,1,1,1,1],gauss:[1,2,1,2,4,2,1,2,1],sharpen:[0,-1,0,-1,5,-1,0,-1,0],sobelx:[-1,0,1,-2,0,2,-1,0,1],sobely:[-1,-2,-1,0,0,0,1,2,1],laplace:[0,1,0,1,-4,1,0,1,0],emboss:[-2,-1,0,-1,1,1,0,1,2],outline:[-1,-1,-1,-1,8,-1,-1,-1,-1]};
+  var needsNorm={box:true,gauss:true},needsAbs={sobelx:true,sobely:true,laplace:true,outline:true};
+  var IMG={warehouse:'../assets/work/isg-cam-2.jpg',tanker:'../assets/work/adr-sensor-2.jpg',stage:'../assets/photo.jpg'};
+  // kernel grid
+  var kg=$('kgrid'),cells=[];
+  for(var i=0;i<9;i++){var inp=document.createElement('input');inp.type='number';inp.step='0.5';inp.value='0';inp.setAttribute('aria-label','k'+i);kg.appendChild(inp);cells.push(inp);inp.addEventListener('input',function(){state.preset='custom';setSeg('presets','data-p','custom');schedule()})}
+  function setSeg(id,attr,val){document.querySelectorAll('#'+id+' button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute(attr)===val?'true':'false')})}
+  function kernel(){return cells.map(function(c){var v=parseFloat(c.value);return isNaN(v)?0:v})}
+  function applyPreset(p){P[p].forEach(function(v,i){cells[i].value=v});$('norm').checked=!!needsNorm[p];$('abs').checked=!!needsAbs[p];state.preset=p;setSeg('presets','data-p',p)}
+  function loadImage(){
+    var name=state.src;
+    function draw(im){sctx.fillStyle='#444';sctx.fillRect(0,0,W,H);var s=Math.max(W/im.width,H/im.height),dw=im.width*s,dh=im.height*s;sctx.drawImage(im,(W-dw)/2,(H-dh)/2,dw,dh);var d=sctx.getImageData(0,0,W,H).data;gray=new Float32Array(W*H);for(var i=0,j=0;i<d.length;i+=4,j++)gray[j]=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000;$('hud-src').textContent=state.name+' · '+W+'×'+H;run()}
+    if(name==='upload'){if(state.userImg)draw(state.userImg);else{sctx.fillStyle='#777';sctx.fillRect(0,0,W,H);gray=new Float32Array(W*H).fill(120);run()}return}
+    var im=new Image();im.onload=function(){draw(im)};im.src=IMG[name];
+  }
+  function conv(g,k,absv){
+    var o=new Float32Array(W*H),x,y;
+    for(y=1;y<H-1;y++)for(x=1;x<W-1;x++){var i=y*W+x;var v=k[0]*g[i-W-1]+k[1]*g[i-W]+k[2]*g[i-W+1]+k[3]*g[i-1]+k[4]*g[i]+k[5]*g[i+1]+k[6]*g[i+W-1]+k[7]*g[i+W]+k[8]*g[i+W+1];o[i]=absv?Math.abs(v):v}
+    return o;
+  }
+  function run(){
+    if(!gray)return;
+    var t0=performance.now(),k=kernel(),sum=k.reduce(function(a,b){return a+b},0);
+    if($('norm').checked&&Math.abs(sum)>1e-6)k=k.map(function(v){return v/sum});
+    var g=gray;
+    if($('pre').checked){var gk=P.gauss.map(function(v){return v/16});g=conv(g,gk,false)}
+    var absv=$('abs').checked,gain=+$('gain').value,r=conv(g,k,absv);
+    var id=octx.createImageData(W,H),d=id.data,sx=Math.round(split*W),cnt=0,acc=0;
+    for(var y=0;y<H;y++)for(var x=0;x<W;x++){var i=y*W+x,j=i*4;var v;
+      if(x<sx){v=gray[i]}else{v=r[i]*gain;if(!absv&&state.preset!=='identity'&&state.preset!=='box'&&state.preset!=='gauss'&&state.preset!=='sharpen'&&sum<0.5&&sum>-0.5)v+=128;acc+=Math.abs(r[i]);cnt++}
+      v=v<0?0:v>255?255:v;d[j]=d[j+1]=d[j+2]=v;d[j+3]=255}
+    octx.putImageData(id,0,0);
+    octx.strokeStyle='rgba(124,141,255,0.9)';octx.lineWidth=1;octx.beginPath();octx.moveTo(sx+0.5,0);octx.lineTo(sx+0.5,H);octx.stroke();
+    var L=document.documentElement.getAttribute('data-lang')||'tr';
+    $('hud-k').textContent=state.preset;
+    $('stats').innerHTML=(L==='tr'?'çekirdek toplamı <b>':'kernel sum <b>')+sum.toFixed(2)+'</b>'+(L==='tr'?' · ortalama tepki <b>':' · mean response <b>')+(cnt?(acc/cnt).toFixed(1):'0')+'</b>'+(L==='tr'?' · süre <b>':' · time <b>')+(performance.now()-t0).toFixed(1)+' ms</b>';
+    code(k,absv,gain);
+    cells.forEach(function(c){var v=parseFloat(c.value)||0;c.className=v>0?'pos':v<0?'neg':''});
+  }
+  function code(k,absv,gain){
+    var rows=[k.slice(0,3),k.slice(3,6),k.slice(6,9)].map(function(r){return '['+r.map(function(v){return (Math.round(v*1000)/1000)}).join(', ')+']'});
+    var lines=['<span class="k">import</span> cv2, numpy <span class="k">as</span> np','gray = cv2.imread(<span class="c">"'+state.name+'.jpg"</span>, cv2.IMREAD_GRAYSCALE)'];
+    if($('pre').checked)lines.push('gray = cv2.GaussianBlur(gray, (3, 3), 0)');
+    lines.push('k = np.array(['+rows.join(',\n              ')+'], dtype=np.float32)');
+    lines.push('out = cv2.filter2D(gray.astype(np.float32), -1, k)');
+    if(absv)lines.push('out = np.abs(out)');
+    if(gain!==1)lines.push('out = out * '+gain);
+    lines.push('out = np.clip(out, 0, 255).astype(np.uint8)');
+    lines.push('<span class="c"># PyTorch karşılığı / equivalent: nn.Conv2d(1, 1, 3, bias=False) with weight = k</span>');
+    $('code').innerHTML=lines.join('\n');
+  }
+  var raf=0;function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(run)}
+  document.querySelectorAll('#presets button').forEach(function(b){b.addEventListener('click',function(){applyPreset(b.getAttribute('data-p'));schedule()})});
+  document.querySelectorAll('#src button').forEach(function(b){b.addEventListener('click',function(){state.src=b.getAttribute('data-s');state.name=state.src==='upload'?'your_image':state.src;setSeg('src','data-s',state.src);$('filewrap').hidden=state.src!=='upload';loadImage()})});
+  $('file').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;var url=URL.createObjectURL(f),im=new Image();im.onload=function(){state.userImg=im;URL.revokeObjectURL(url);loadImage()};im.src=url});
+  ['norm','abs','pre'].forEach(function(id){$(id).addEventListener('change',schedule)});
+  $('gain').addEventListener('input',function(){$('gain-o').textContent=(+$('gain').value).toFixed(2);schedule()});
+  var stage=$('stage'),dragging=false;
+  function setSplit(e){var r=out.getBoundingClientRect();split=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width));schedule()}
+  stage.addEventListener('pointerdown',function(e){dragging=true;setSplit(e)});
+  window.addEventListener('pointermove',function(e){if(dragging)setSplit(e)});
+  window.addEventListener('pointerup',function(){dragging=false});
+  document.addEventListener('langchange',schedule);
+  applyPreset('sobelx');loadImage();
+})();
+</script>
+</body>
+</html>

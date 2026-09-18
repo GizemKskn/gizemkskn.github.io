@@ -81,7 +81,7 @@ document.documentElement.setAttribute('data-lang',l);document.documentElement.se
 
 <h2>Düşme tespiti nasıl çalışır</h2>
 <p>Omuz orta noktası ile kalça orta noktası arasındaki çizginin dikeyle yaptığı açıya bakıyoruz. Ayakta duran kişide bu açı sıfıra yakındır; eğilende artar; yerde yatanda doksana yaklaşır. Açı tek başına yetmez: eğilip kutu alan da bir an için büyük açı verir. Bu yüzden iki şey daha: açının ne kadar hızla değiştiği (düşme hızlıdır, eğilme yavaş) ve ne kadar sürdüğü. Eşik aşılıp yarım saniyeden uzun sürerse olay açılır.</p>
-<p>Playground'daki <a href="../playground/live.html">canlı demo</a> bu hesabın sadeleştirilmiş halini kendi kameranızda çalıştırır: açı, eşik, süre, sanal alan. Gerçek sistemde bunun üstüne takip, çoklu kamera ve ajan katmanı gelir.</p>
+<p>Bu hesabın altında bir de takip katmanı var: kim, hangi kimlikle, kaç karedir görünüyor. Playground'daki <a href="../playground/tracking.html">takip simülasyonu</a>, gürültülü tespitlerden kimlik üretmenin neden ayrı bir iş olduğunu gösterir. Gerçek sistemde bunun üstüne çoklu kamera ve ajan katmanı gelir.</p>
 
 <h2>Gizlilik, baştan</h2>
 <ul>
@@ -116,7 +116,7 @@ document.documentElement.setAttribute('data-lang',l);document.documentElement.se
 
 <h2>How fall detection works</h2>
 <p>We look at the angle between vertical and the line from the shoulder midpoint to the hip midpoint. On a standing person it's near zero; bending increases it; lying on the floor approaches ninety. The angle alone isn't enough: someone bending to lift a box also gives a large angle for a moment. So two more things: how fast the angle changed (falls are fast, bending is slow) and how long it lasted. If the threshold is exceeded for longer than half a second, an event opens.</p>
-<p>The <a href="../playground/live.html">live demo</a> in the playground runs a simplified version of this computation on your own camera: angle, threshold, duration, virtual zone. The real system adds tracking, multiple cameras and the agent layer on top.</p>
+<p>Underneath this computation sits a tracking layer: who, with which identity, visible for how many frames. The <a href="../playground/tracking.html">tracking simulation</a> in the playground shows why producing identities from noisy detections is a job of its own. The real system adds multiple cameras and the agent layer on top.</p>
 
 <h2>Privacy, from the start</h2>
 <ul>

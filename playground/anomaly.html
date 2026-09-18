@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sensör verisinde anomali · Gizem Keskin</title>
+<meta name="title-tr" content="Sensör verisinde anomali · Gizem Keskin">
+<meta name="title-en" content="Anomalies in sensor data · Gizem Keskin">
+<meta name="description" content="Yakıt seviyesi, çevrim süresi, sıcaklık: gerçek sensör sinyallerine benzeyen verilerde anomali tespiti. Pencere, eşik ve kural seçin; isabet ve yanlış alarmı sayın.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage{aspect-ratio:16/8}
+.stage canvas{width:100%;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font:400 .7rem var(--font-m);color:var(--mute);letter-spacing:.03em}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-right:6px}
+.legend i.a{background:var(--ng)}.legend i.d{border:1.5px solid var(--acc)}.legend i.b{background:color-mix(in srgb,var(--acc) 18%,transparent);border-radius:2px;width:14px}
+.conf{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.conf div{border:1px solid var(--line);border-radius:4px;padding:8px 10px}
+.conf b{display:block;font:500 1.3rem/1.1 var(--font-d);font-variant-numeric:tabular-nums}
+.conf small{font:400 .64rem var(--font-m);color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.conf .tp b{color:var(--ok)}.conf .fp b,.conf .fn b{color:var(--ng)}
+</style>
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>anomaly 0.98</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="../blog/" data-nav="blog">Blog</a>
+        <a href="./" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Playground · 06</p>
+    <h1 lang="tr">Sensör verisinde anomali</h1>
+    <h1 lang="en">Anomalies in sensor data</h1>
+    <p class="lede" lang="tr">Bir tankerin yakıt seviyesi, bir hattın çevrim süresi, bir fırının sıcaklığı: sinyal akar, arada bir şey ters gider. Kural basit görünür ("normalden çok sapınca alarm ver"), ama pencereyi ve eşiği yanlış seçince ya her şeye alarm verirsiniz ya hiçbir şeye. Kaydırıcılarla oynayın; isabet ve yanlış alarm sayısını izleyin.</p>
+    <p class="lede" lang="en">A tanker's fuel level, a line's cycle time, a kiln's temperature: the signal flows and now and then something goes wrong. The rule looks simple ("alarm when it deviates too far from normal"), but choose the window and threshold badly and you alarm on everything or on nothing. Move the sliders; watch the hits and false alarms.</p>
+  </div>
+</section>
+
+<div class="wrap pg">
+  <div>
+    <div class="stage">
+      <canvas id="cv" width="800" height="400"></canvas>
+      <div class="hud">
+        <span class="tl" id="hud-sig">fuel_level · 600 samples</span>
+        <span class="tr" id="hud-rule">rolling z · w=40 · k=3.0</span>
+        <span class="bl" id="hud-c"><b>TP 0</b> · <em>FP 0</em></span>
+        <span class="br" id="hud-ms">0.0 ms</span>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="a"></i><span lang="tr">gerçek anomali</span><span lang="en">true anomaly</span></span>
+      <span><i class="d"></i><span lang="tr">tespit</span><span lang="en">detection</span></span>
+      <span><i class="b"></i><span lang="tr">normal bant (ortalama ± k·σ)</span><span lang="en">normal band (mean ± k·σ)</span></span>
+    </div>
+    <div class="conf">
+      <div class="tp"><b id="tp">0</b><small lang="tr">isabet</small><small lang="en">hits</small></div>
+      <div class="fp"><b id="fp">0</b><small lang="tr">yanlış alarm</small><small lang="en">false alarms</small></div>
+      <div class="fn"><b id="fn">0</b><small lang="tr">kaçan</small><small lang="en">missed</small></div>
+      <div><b id="f1">–</b><small>F1</small></div>
+    </div>
+    <p class="notice" style="margin-top:16px" lang="tr">Basit z-skoru çoğu sahada yeter ve açıklanabilir: "son 40 ölçümün ortalamasından 3 standart sapma uzak". Yetmediği yer, normalin kendisinin değiştiği sinyallerdir: yakıt zaten azalır, sıcaklık günlük döngüyle iner çıkar. O zaman ya <b>fark kuralı</b> (ani sıçrama) ya da bir zaman serisi modeli (LSTM, mevsimsel ayrıştırma) devreye girer. Alpplas'taki personel takibinde cycle time için LSTM kullanmamızın sebebi buydu: normal, vardiyaya ve ürüne göre değişiyordu.</p>
+    <p class="notice" style="margin-top:16px" lang="en">A simple z-score is enough in most fields and it's explainable: "3 standard deviations away from the mean of the last 40 readings". Where it fails is signals whose normal itself changes: fuel goes down anyway, temperature rises and falls with the daily cycle. Then either a <b>difference rule</b> (sudden jump) or a time-series model (LSTM, seasonal decomposition) takes over. That's why we used an LSTM for cycle time in the personnel tracking at Alpplas: normal changed with the shift and the product.</p>
+  </div>
+
+  <aside class="ctl">
+    <h2 lang="tr">Ayarlar</h2><h2 lang="en">Settings</h2>
+    <div class="grp">
+      <label><span lang="tr">Sinyal</span><span lang="en">Signal</span></label>
+      <div class="seg" id="sig" role="group">
+        <button type="button" data-s="fuel" aria-pressed="true"><span lang="tr">Yakıt</span><span lang="en">Fuel</span></button>
+        <button type="button" data-s="cycle" aria-pressed="false"><span lang="tr">Çevrim süresi</span><span lang="en">Cycle time</span></button>
+        <button type="button" data-s="temp" aria-pressed="false"><span lang="tr">Sıcaklık</span><span lang="en">Temperature</span></button>
+      </div>
+      <label for="noise"><span lang="tr">Gürültü</span><span lang="en">Noise</span><output id="noise-o">1.0</output></label>
+      <input type="range" id="noise" min="0.2" max="3" step="0.2" value="1">
+      <div class="btns"><button type="button" class="btn sm ghost" id="regen"><span lang="tr">Yeni sinyal</span><span lang="en">New signal</span></button></div>
+    </div>
+    <div class="grp">
+      <label><span lang="tr">Kural</span><span lang="en">Rule</span></label>
+      <div class="seg" id="rule" role="group">
+        <button type="button" data-r="z" aria-pressed="true">z-score</button>
+        <button type="button" data-r="diff" aria-pressed="false"><span lang="tr">fark</span><span lang="en">diff</span></button>
+        <button type="button" data-r="both" aria-pressed="false"><span lang="tr">ikisi</span><span lang="en">both</span></button>
+      </div>
+      <label for="win"><span lang="tr">Pencere (örnek)</span><span lang="en">Window (samples)</span><output id="win-o">40</output></label>
+      <input type="range" id="win" min="5" max="150" step="5" value="40">
+      <label for="k"><span lang="tr">Eşik k (σ)</span><span lang="en">Threshold k (σ)</span><output id="k-o">3.0</output></label>
+      <input type="range" id="k" min="1" max="6" step="0.25" value="3">
+      <label for="dk"><span lang="tr">Fark eşiği (σ)</span><span lang="en">Diff threshold (σ)</span><output id="dk-o">4.0</output></label>
+      <input type="range" id="dk" min="1" max="10" step="0.5" value="4">
+      <label class="chk"><input type="checkbox" id="robust"><span lang="tr">Medyan ve MAD kullan (dayanıklı)</span><span lang="en">Use median and MAD (robust)</span></label>
+    </div>
+  </aside>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Üretilmiş veri; gerçek müşteri verisi değildir.</span>
+    <span lang="en">Generated data; not real customer data.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var cv=$('cv'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height,N=600;
+  var C={};function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+  function theme(){C={ink:css('--ink'),ink2:css('--ink2'),mute:css('--mute'),line:css('--line'),acc:css('--acc'),ng:css('--ng'),ok:css('--ok'),bg:css('--bg')}}
+  var seed=2024;function rnd(){seed=(seed*48271)%2147483647;return (seed-1)/2147483646}
+  function gauss(){var u=1-rnd(),v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+  var st={sig:'fuel',rule:'z',x:[],anom:[],unit:'L',name:'fuel_level'};
+  function gen(){
+    var noise=+$('noise').value,x=new Float64Array(N),an=[],i;
+    if(st.sig==='fuel'){st.unit='L';st.name='fuel_level';var v=380;for(i=0;i<N;i++){v-=0.35+rnd()*0.2;if(i>0&&rnd()<0.012&&v<200){v=360+rnd()*30}x[i]=v+gauss()*1.2*noise}
+      // thefts: sudden drops
+      [140,330,470].forEach(function(t){t+=Math.floor(rnd()*30);var d=25+rnd()*30;for(i=t;i<N;i++)x[i]-=d;an.push(t)});
+    }else if(st.sig==='cycle'){st.unit='s';st.name='cycle_time';var base=38;for(i=0;i<N;i++){base+=gauss()*0.02;x[i]=base+Math.sin(i/45)*0.6+gauss()*0.9*noise}
+      [90,210,300,420,520].forEach(function(t){t+=Math.floor(rnd()*30);var d=6+rnd()*10,len=1+Math.floor(rnd()*3);for(i=t;i<t+len;i++)x[i]+=d;an.push(t)});
+      for(i=380;i<N;i++)x[i]+=Math.min(4,(i-380)*0.02); // slow drift after 380: the hard one
+    }else{st.unit='°C';st.name='kiln_temp';for(i=0;i<N;i++){x[i]=180+12*Math.sin(i/95*2*Math.PI)+gauss()*1.5*noise}
+      [120,260,400,530].forEach(function(t){t+=Math.floor(rnd()*25);var d=(rnd()<0.5?-1:1)*(10+rnd()*8),len=2+Math.floor(rnd()*4);for(i=t;i<t+len;i++)x[i]+=d;an.push(t)});
+    }
+    st.x=x;st.anom=an;
+  }
+  function median(a){var b=Array.prototype.slice.call(a).sort(function(p,q){return p-q}),m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2}
+  function detect(){
+    var w=+$('win').value,k=+$('k').value,dk=+$('dk').value,robust=$('robust').checked,rule=st.rule,x=st.x,mean=new Float64Array(N),sd=new Float64Array(N),flag=new Uint8Array(N),i,j;
+    for(i=1;i<N;i++){
+      var s=Math.max(0,i-w),seg=x.subarray(s,i),m,d;
+      if(robust){m=median(seg);var dev=new Float64Array(seg.length);for(j=0;j<seg.length;j++)dev[j]=Math.abs(seg[j]-m);d=1.4826*median(dev)+1e-6}
+      else{var su=0;for(j=0;j<seg.length;j++)su+=seg[j];m=su/seg.length;var v=0;for(j=0;j<seg.length;j++)v+=(seg[j]-m)*(seg[j]-m);d=Math.sqrt(v/Math.max(1,seg.length-1))+1e-6}
+      mean[i]=m;sd[i]=d;
+      if(i<Math.min(w,10)) continue;
+      var z=Math.abs(x[i]-m)/d,df=Math.abs(x[i]-x[i-1])/d;
+      var fz=z>k,fd=df>dk;
+      flag[i]=(rule==='z'&&fz)||(rule==='diff'&&fd)||(rule==='both'&&(fz||fd))?1:0;
+    }
+    // score: a detection within ±4 samples of a true anomaly onset counts once; other flags are false alarms (consecutive flags count as one alarm)
+    var tp=0,fp=0,used={},alarms=[];for(i=0;i<N;i++){if(flag[i]&&!(i>0&&flag[i-1]))alarms.push(i)}
+    alarms.forEach(function(a){var hit=-1;st.anom.forEach(function(t,ti){if(Math.abs(a-t)<=4&&!used[ti])hit=ti});if(hit>=0){used[hit]=1;tp++}else fp++});
+    var fn=st.anom.length-tp,prec=tp+fp?tp/(tp+fp):0,rec=st.anom.length?tp/st.anom.length:0,f1=prec+rec?2*prec*rec/(prec+rec):0;
+    return {mean:mean,sd:sd,flag:flag,tp:tp,fp:fp,fn:fn,f1:f1,alarms:alarms,k:k,w:w};
+  }
+  function draw(r){
+    ctx.clearRect(0,0,W,H);var x=st.x,pad={l:44,r:12,t:16,b:22},pw=W-pad.l-pad.r,ph=H-pad.t-pad.b;
+    var mn=Infinity,mx=-Infinity;for(var i=0;i<N;i++){if(x[i]<mn)mn=x[i];if(x[i]>mx)mx=x[i]}var rng=(mx-mn)||1;mn-=rng*0.08;mx+=rng*0.08;rng=mx-mn;
+    var X=function(i){return pad.l+i/(N-1)*pw},Y=function(v){return pad.t+(1-(v-mn)/rng)*ph};
+    // grid + axis labels
+    ctx.strokeStyle=C.line;ctx.lineWidth=1;ctx.font='9px "IBM Plex Mono", monospace';ctx.fillStyle=C.mute;ctx.textAlign='right';
+    for(var g=0;g<=4;g++){var v=mn+rng*g/4,y=Math.round(Y(v))+0.5;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();ctx.fillText(v.toFixed(0)+' '+st.unit,pad.l-6,y+3)}
+    // band
+    ctx.fillStyle=C.acc;ctx.globalAlpha=0.14;ctx.beginPath();var started=false;
+    for(i=0;i<N;i++){if(!r.sd[i])continue;var yy=Y(r.mean[i]+r.k*r.sd[i]);if(!started){ctx.moveTo(X(i),yy);started=true}else ctx.lineTo(X(i),yy)}
+    for(i=N-1;i>=0;i--){if(!r.sd[i])continue;ctx.lineTo(X(i),Y(r.mean[i]-r.k*r.sd[i]))}ctx.closePath();ctx.fill();ctx.globalAlpha=1;
+    // signal
+    ctx.strokeStyle=C.ink;ctx.lineWidth=1.2;ctx.beginPath();for(i=0;i<N;i++){if(i)ctx.lineTo(X(i),Y(x[i]));else ctx.moveTo(X(i),Y(x[i]))}ctx.stroke();
+    // true anomalies
+    st.anom.forEach(function(t){ctx.fillStyle=C.ng;ctx.beginPath();ctx.arc(X(t),Y(x[t]),4,0,7);ctx.fill();ctx.strokeStyle=C.ng;ctx.globalAlpha=0.35;ctx.beginPath();ctx.moveTo(X(t)+0.5,pad.t);ctx.lineTo(X(t)+0.5,H-pad.b);ctx.stroke();ctx.globalAlpha=1});
+    // detections
+    r.alarms.forEach(function(a){ctx.strokeStyle=C.acc;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(X(a),Y(x[a]),6,0,7);ctx.stroke()});
+    ctx.fillStyle=C.mute;ctx.textAlign='left';ctx.fillText('t →',pad.l,H-6);ctx.textAlign='right';ctx.fillText(N+' samples',W-pad.r,H-6);
+  }
+  function run(){
+    var t0=performance.now(),r=detect();draw(r);
+    $('tp').textContent=r.tp;$('fp').textContent=r.fp;$('fn').textContent=r.fn;$('f1').textContent=r.f1.toFixed(2);
+    $('hud-c').innerHTML='<b>TP '+r.tp+'</b> · <em>FP '+r.fp+'</em>';$('hud-sig').textContent=st.name+' · '+N+' samples';
+    $('hud-rule').textContent=(st.rule==='z'?'rolling z':st.rule==='diff'?'diff':'z + diff')+' · w='+r.w+' · k='+r.k.toFixed(1)+($('robust').checked?' · mad':'');
+    $('hud-ms').textContent=(performance.now()-t0).toFixed(1)+' ms';
+  }
+  function setSeg(id,attr,val){document.querySelectorAll('#'+id+' button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute(attr)===val?'true':'false')})}
+  document.querySelectorAll('#sig button').forEach(function(b){b.addEventListener('click',function(){st.sig=b.getAttribute('data-s');setSeg('sig','data-s',st.sig);if(st.sig==='fuel'){st.rule='diff';setSeg('rule','data-r','diff')}gen();run()})});
+  document.querySelectorAll('#rule button').forEach(function(b){b.addEventListener('click',function(){st.rule=b.getAttribute('data-r');setSeg('rule','data-r',st.rule);run()})});
+  $('regen').addEventListener('click',function(){seed=(seed*31+17)%2147483647;gen();run()});
+  $('noise').addEventListener('input',function(){$('noise-o').textContent=(+$('noise').value).toFixed(1);gen();run()});
+  [['win',function(v){return v}],['k',function(v){return (+v).toFixed(1)}],['dk',function(v){return (+v).toFixed(1)}]].forEach(function(e){$(e[0]).addEventListener('input',function(){$(e[0]+'-o').textContent=e[1]($(e[0]).value);run()})});
+  $('robust').addEventListener('change',run);
+  document.addEventListener('langchange',run);
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');if(mq.addEventListener)mq.addEventListener('change',function(){theme();run()});
+  theme();st.rule='diff';setSeg('rule','data-r','diff');gen();run();
+})();
+</script>
+</body>
+</html>
