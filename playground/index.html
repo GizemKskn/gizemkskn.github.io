@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Playground · Gizem Keskin</title>
+<meta name="title-tr" content="Playground · Gizem Keskin">
+<meta name="title-en" content="Playground · Gizem Keskin">
+<meta name="description" content="Tarayıcıda çalışan görüntü işleme ve yapay zekâ demoları: kalite kontrol tezgâhı, canlı nesne ve düşme tespiti.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l);})();
+</script>
+<div id="det" aria-hidden="true"><i></i><b>playground 0.98</b></div>
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="../blog/" data-nav="blog">Blog</a>
+        <a href="./" data-nav="playground">Playground</a>
+      </div>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+<main>
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Playground</p>
+      <h1 lang="tr">Anlatmak yerine göstermek.</h1>
+      <h1 lang="en">Showing instead of telling.</h1>
+      <p class="lede" lang="tr">İşimde kullandığım fikirlerin küçük, tarayıcıda çalışan halleri. Görüntüler bilgisayarınızdan çıkmaz; sunucu yok, kayıt yok.</p>
+      <p class="lede" lang="en">Small, in-browser versions of the ideas I use at work. Images never leave your computer; no server, no recording.</p>
+    </div>
+  </section>
+  <div class="wrap">
+    <div class="pgcards">
+      <a class="pgcard" href="bench.html" data-det="bench" data-conf="0.99">
+        <span class="m">01 · opencv-style · 640×480</span>
+        <h3 lang="tr">Görüntü işleme tezgâhı</h3><h3 lang="en">Image-processing bench</h3>
+        <p lang="tr">Üretilmiş bir PCB veya baskılı panel üzerinde, ya da kendi görselinizde: bulanıklaştırma, eşikleme, morfoloji, bileşen sayma, referansla karşılaştırma. Her ayar değiştikçe yanında OpenCV kodu güncellenir.</p>
+        <p lang="en">On a generated PCB or printed panel, or your own image: blur, thresholding, morphology, blob counting, reference comparison. The OpenCV code beside it updates as you move the sliders.</p>
+        <span class="m" lang="tr">Kamera gerekmez · her cihazda çalışır</span><span class="m" lang="en">No camera needed · works everywhere</span>
+      </a>
+      <a class="pgcard" href="live.html" data-det="live" data-conf="0.97">
+        <span class="m">02 · webcam · tensorflow.js + mediapipe</span>
+        <h3 lang="tr">Canlı tespit</h3><h3 lang="en">Live detection</h3>
+        <p lang="tr">Kameranızla gerçek zamanlı nesne tespiti ve iskelet tabanlı düşme tespiti. İSG sistemindeki mantığın küçük bir örneği: vücut açısı, sanal bölge, alarm.</p>
+        <p lang="en">Real-time object detection and skeleton-based fall detection with your camera. A small version of the logic in the safety system: body angle, virtual zone, alarm.</p>
+        <span class="m" lang="tr">Kamera izni ister · modeller ilk açılışta iner</span><span class="m" lang="en">Asks for camera permission · models download on first use</span>
+      </a>
+    </div>
+  </div>
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Her şey tarayıcınızda çalışır.</span><span lang="en">Everything runs in your browser.</span>
+  </div>
+</footer>
+<script src="../assets/site.js"></script>
+</body>
+</html>

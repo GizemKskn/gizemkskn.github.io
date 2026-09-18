@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Canlı demo · Gizem Keskin</title>
+<meta name="title-tr" content="Canlı demo · Gizem Keskin">
+<meta name="title-en" content="Live demo · Gizem Keskin">
+<meta name="description" content="Kameranla tarayıcıda çalışan nesne tespiti ve poz tabanlı düşme tespiti. Hiçbir görüntü cihazından çıkmaz.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage{aspect-ratio:4/3;background:#0b0c0d}
+.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.stage .msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:#cfd3d0;font:400 .9rem/1.5 var(--font-b)}
+.stage .msg .mono{display:block;margin-top:8px;font-size:.7rem;color:#8b9290;letter-spacing:.04em}
+.alert{display:inline-flex;align-items:center;gap:8px;font:500 .8rem var(--font-m);letter-spacing:.06em;padding:6px 10px;border-radius:4px;border:1px solid var(--line)}
+.alert.warn{color:var(--ng);border-color:var(--ng)}
+.alert.fine{color:var(--ok);border-color:var(--ok)}
+.views{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.ctl p.hint{font:400 .74rem/1.5 var(--font-m);color:var(--mute);letter-spacing:.02em;margin:0}
+</style>
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>live 0.97</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="../blog/" data-nav="blog">Blog</a>
+        <a href="./" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Playground · 02</p>
+    <h1 lang="tr">Canlı demo: kameranla</h1>
+    <h1 lang="en">Live demo: with your camera</h1>
+    <p class="lede" lang="tr">Fabrikada kurduğum sistemlerin iki temel parçası, tarayıcında: nesne tespiti ve poz tabanlı düşme / bölge ihlali tespiti. Modeller cihazına iner ve orada çalışır; görüntü hiçbir yere gönderilmez. İlk açılışta model indirmek birkaç saniye sürer.</p>
+    <p class="lede" lang="en">Two building blocks of the systems I put on factory floors, in your browser: object detection and pose-based fall / zone-violation detection. Models download to your device and run there; no video is sent anywhere. The first load takes a few seconds.</p>
+  </div>
+</section>
+
+<div class="wrap pg">
+  <div>
+    <div class="views">
+      <div class="seg" id="tab" role="group" aria-label="Demo">
+        <button type="button" data-t="obj" aria-pressed="true"><span lang="tr">Nesne tespiti</span><span lang="en">Object detection</span></button>
+        <button type="button" data-t="pose" aria-pressed="false"><span lang="tr">Düşme ve bölge</span><span lang="en">Fall and zone</span></button>
+      </div>
+      <span class="alert" id="alert">—</span>
+    </div>
+    <div class="stage">
+      <video id="video" playsinline muted autoplay></video>
+      <canvas id="ov"></canvas>
+      <div class="msg" id="msg"><div><span lang="tr">Kamerayı başlatmak için sağdaki düğmeye bas.</span><span lang="en">Press the button on the right to start the camera.</span><span class="mono" id="msg2"></span></div></div>
+      <div class="hud">
+        <span class="tl" id="hud-src">cam · —</span>
+        <span class="tr" id="hud-model">model · —</span>
+        <span class="bl" id="hud-count"><b>0</b></span>
+        <span class="br" id="hud-fps">0.0 fps</span>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <p class="notice" style="margin-top:16px" lang="tr">Fabrikadaki gerçek sistemlerde bu iki parça bir ajan katmanıyla birleşir: kim, nerede, ne kadar süredir; kural ihlalinde kime, hangi kanaldan haber verilir. AgentCon İstanbul'da anlattığım mimari <a href="../blog/cctv-guvenlik-ajani.html">blogda</a>.</p>
+    <p class="notice" style="margin-top:16px" lang="en">In the real systems these two pieces sit under an agent layer: who, where, for how long; and who gets notified through which channel when a rule is broken. The architecture I presented at AgentCon Istanbul is <a href="../blog/cctv-guvenlik-ajani.html">on the blog</a>.</p>
+  </div>
+
+  <aside class="ctl">
+    <h2 lang="tr">Kamera</h2><h2 lang="en">Camera</h2>
+    <div class="grp">
+      <div class="btns">
+        <button type="button" class="btn sm" id="start"><span lang="tr">Kamerayı başlat</span><span lang="en">Start camera</span></button>
+        <button type="button" class="btn sm ghost" id="flip"><span lang="tr">Kamerayı çevir</span><span lang="en">Flip camera</span></button>
+      </div>
+      <p class="hint" lang="tr">Tarayıcı izin isteyecek. Kamera yoksa veya izin vermezsen demo çalışmaz; görüntü yalnızca senin ekranında kalır.</p>
+      <p class="hint" lang="en">The browser will ask for permission. Without a camera or permission the demo cannot run; the video stays on your screen only.</p>
+    </div>
+    <div class="grp" id="grp-obj">
+      <label for="conf"><span lang="tr">Güven eşiği</span><span lang="en">Confidence threshold</span><output id="conf-o">0.50</output></label>
+      <input type="range" id="conf" min="0.2" max="0.9" step="0.05" value="0.5">
+      <label class="chk"><input type="checkbox" id="onlyperson"><span lang="tr">Sadece insan</span><span lang="en">People only</span></label>
+    </div>
+    <div class="grp" id="grp-pose" hidden>
+      <label for="fallang"><span lang="tr">Düşme açısı (dikeyden)</span><span lang="en">Fall angle (from vertical)</span><output id="fallang-o">55°</output></label>
+      <input type="range" id="fallang" min="30" max="80" step="5" value="55">
+      <label class="chk"><input type="checkbox" id="zone" checked><span lang="tr">Sanal güvenlik bölgesi (sağ)</span><span lang="en">Virtual safety zone (right)</span></label>
+      <label class="chk"><input type="checkbox" id="skel" checked><span lang="tr">İskeleti çiz</span><span lang="en">Draw skeleton</span></label>
+      <p class="hint" lang="tr">Omuz-kalça çizgisinin dikeyle açısı eşiği aşar ve yarım saniye sürerse "düşme". Kalça sanal bölgeye girerse "bölge ihlali".</p>
+      <p class="hint" lang="en">"Fall" when the shoulder-hip line exceeds the angle threshold for half a second. "Zone violation" when the hips enter the virtual zone.</p>
+    </div>
+    <div class="grp">
+      <p class="hint" lang="tr">Modeller: COCO-SSD (TensorFlow.js) ve MediaPipe Pose. Tarayıcıda WebGL ile çalışır; telefonda daha yavaştır.</p>
+      <p class="hint" lang="en">Models: COCO-SSD (TensorFlow.js) and MediaPipe Pose. They run on WebGL in the browser; phones are slower.</p>
+    </div>
+  </aside>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Tamamı tarayıcıda çalışır; görüntü cihazından çıkmaz.</span>
+    <span lang="en">Runs entirely in the browser; video never leaves your device.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var video=$('video'),ov=$('ov'),ctx=ov.getContext('2d');
+  var state={tab:'obj',facing:'environment',stream:null,running:false,model:null,pose:null,loading:false,fallSince:0,fps:0,frames:0,ft:0};
+  var colors={};
+  function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+  function theme(){colors={ok:css('--ok'),ng:css('--ng'),acc:css('--acc')}}
+  var lang=function(){return document.documentElement.getAttribute('data-lang')||'tr'};
+  var T={
+    starting:{tr:'Kamera açılıyor…',en:'Starting camera…'},
+    loading:{tr:'Model indiriliyor…',en:'Downloading model…'},
+    nocam:{tr:'Kameraya erişilemedi. İzin verildi mi?',en:'Could not access the camera. Was permission granted?'},
+    nomodel:{tr:'Model yüklenemedi. İnternet bağlantısı gerekiyor.',en:'Model failed to load. An internet connection is needed.'},
+    fine:{tr:'NORMAL',en:'NORMAL'},fall:{tr:'DÜŞME',en:'FALL'},zone:{tr:'BÖLGE İHLALİ',en:'ZONE VIOLATION'},bend:{tr:'EĞİLME',en:'BENDING'},none:{tr:'KİŞİ YOK',en:'NO PERSON'}
+  };
+  function msg(key,extra){var m=$('msg');if(!key){m.hidden=true;return}m.hidden=false;m.querySelector('div').innerHTML='<span>'+T[key][lang()]+'</span><span class="mono">'+(extra||'')+'</span>'}
+  function loadScript(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.onload=res;s.onerror=function(){rej(new Error('load '+src))};document.head.appendChild(s)})}
+
+  async function startCam(){
+    if(state.stream){state.stream.getTracks().forEach(function(t){t.stop()})}
+    msg('starting');
+    try{
+      state.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facing,width:{ideal:640},height:{ideal:480}},audio:false});
+    }catch(e){msg('nocam',e.name||'');return false}
+    video.srcObject=state.stream;
+    await new Promise(function(r){video.onloadedmetadata=function(){video.play();r()}});
+    ov.width=video.videoWidth||640;ov.height=video.videoHeight||480;
+    $('hud-src').textContent='cam · '+ov.width+'×'+ov.height;
+    return true;
+  }
+  async function ensureModel(){
+    if(state.tab==='obj'&&state.model)return true;
+    if(state.tab==='pose'&&state.pose)return true;
+    if(state.loading)return false;
+    state.loading=true;msg('loading');
+    try{
+      if(state.tab==='obj'){
+        if(!window.tf)await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js');
+        if(!window.cocoSsd)await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js');
+        state.model=await cocoSsd.load({base:'lite_mobilenet_v2'});
+        $('hud-model').textContent='model · coco-ssd lite';
+      }else{
+        if(!window.Pose)await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js');
+        var pose=new Pose({locateFile:function(f){return 'https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/'+f}});
+        pose.setOptions({modelComplexity:0,smoothLandmarks:true,enableSegmentation:false,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
+        pose.onResults(onPose);
+        await pose.initialize();
+        state.pose=pose;
+        $('hud-model').textContent='model · mediapipe pose';
+      }
+    }catch(e){state.loading=false;msg('nomodel',String(e.message||e).slice(0,80));return false}
+    state.loading=false;msg(null);return true;
+  }
+  function tick(now){
+    state.frames++; if(now-state.ft>1000){state.fps=state.frames*1000/(now-state.ft);state.frames=0;state.ft=now;$('hud-fps').textContent=state.fps.toFixed(1)+' fps'}
+  }
+  function box(x,y,w,h,col,label){
+    var m=0;ctx.lineWidth=1.5;ctx.strokeStyle=col;ctx.strokeRect(x-m+0.5,y-m+0.5,w+2*m,h+2*m);
+    // corner ticks
+    var L=10;ctx.lineWidth=3;ctx.beginPath();
+    ctx.moveTo(x,y+L);ctx.lineTo(x,y);ctx.lineTo(x+L,y); ctx.moveTo(x+w-L,y);ctx.lineTo(x+w,y);ctx.lineTo(x+w,y+L);
+    ctx.moveTo(x+w,y+h-L);ctx.lineTo(x+w,y+h);ctx.lineTo(x+w-L,y+h); ctx.moveTo(x+L,y+h);ctx.lineTo(x,y+h);ctx.lineTo(x,y+h-L);ctx.stroke();
+    ctx.font='500 12px "IBM Plex Mono", monospace';ctx.textBaseline='bottom';
+    var tw=ctx.measureText(label).width+8;ctx.fillStyle=col;ctx.fillRect(x,y-16,tw,16);ctx.fillStyle='#fff';ctx.fillText(label,x+4,y-2);
+  }
+  async function loopObj(){
+    if(!state.running||state.tab!=='obj')return;
+    var t=performance.now();
+    try{
+      var preds=await state.model.detect(video);
+      var conf=+$('conf').value,only=$('onlyperson').checked,n=0;
+      ctx.clearRect(0,0,ov.width,ov.height);
+      preds.forEach(function(p){ if(p.score<conf)return; if(only&&p.class!=='person')return; n++;
+        var b=p.bbox; box(b[0],b[1],b[2],b[3],p.class==='person'?colors.acc:colors.ok,p.class+' '+p.score.toFixed(2)); });
+      $('hud-count').innerHTML='<b>'+n+'</b>';
+      var a=$('alert');a.textContent=n?(lang()==='tr'?n+' nesne':n+' objects'):'—';a.className='alert';
+      $('stats').innerHTML=(lang()==='tr'?'tespit <b>':'detections <b>')+n+'</b> · '+(lang()==='tr'?'çıkarım <b>':'inference <b>')+(performance.now()-t).toFixed(0)+' ms</b> · <b>'+preds.length+'</b> '+(lang()==='tr'?'aday':'candidates');
+    }catch(e){}
+    tick(performance.now());
+    requestAnimationFrame(loopObj);
+  }
+  var poseBusy=false;
+  async function loopPose(){
+    if(!state.running||state.tab!=='pose')return;
+    if(!poseBusy){poseBusy=true;try{await state.pose.send({image:video})}catch(e){}poseBusy=false}
+    tick(performance.now());
+    requestAnimationFrame(loopPose);
+  }
+  var CONN=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28]];
+  function onPose(res){
+    var Wd=ov.width,Hd=ov.height;ctx.clearRect(0,0,Wd,Hd);
+    var useZone=$('zone').checked, zx=Wd*0.68;
+    if(useZone){ctx.setLineDash([6,4]);ctx.strokeStyle=colors.ng;ctx.lineWidth=1;ctx.strokeRect(zx+0.5,10.5,Wd-zx-11,Hd-21);ctx.setLineDash([]);ctx.font='500 11px "IBM Plex Mono", monospace';ctx.fillStyle=colors.ng;ctx.fillText(lang()==='tr'?'yasak bölge':'restricted zone',zx+8,26)}
+    var lm=res.poseLandmarks, a=$('alert'), L=lang();
+    if(!lm){a.textContent=T.none[L];a.className='alert';$('hud-count').innerHTML='<b>0</b>';state.fallSince=0;return}
+    var P=function(i){return {x:lm[i].x*Wd,y:lm[i].y*Hd,v:lm[i].visibility||0}};
+    var s1=P(11),s2=P(12),h1=P(23),h2=P(24);
+    var S={x:(s1.x+s2.x)/2,y:(s1.y+s2.y)/2},Hh={x:(h1.x+h2.x)/2,y:(h1.y+h2.y)/2};
+    var ang=Math.atan2(Math.abs(S.x-Hh.x),Math.max(1,Hh.y-S.y))*180/Math.PI; if(Hh.y-S.y<0)ang=180-ang;
+    var thr=+$('fallang').value, now=performance.now(), status='fine';
+    if(ang>thr){if(!state.fallSince)state.fallSince=now; if(now-state.fallSince>500)status='fall'}else{state.fallSince=0; if(ang>thr*0.6)status='bend'}
+    var inZone=useZone&&Hh.x>zx;
+    if(inZone&&status!=='fall')status='zone';
+    // skeleton
+    if($('skel').checked){ctx.strokeStyle=status==='fine'?colors.ok:colors.ng;ctx.lineWidth=2;CONN.forEach(function(c){var p=P(c[0]),q=P(c[1]);if(p.v<0.4||q.v<0.4)return;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke()});
+      ctx.fillStyle=ctx.strokeStyle;for(var i=11;i<=28;i++){var p=P(i);if(p.v<0.4)continue;ctx.beginPath();ctx.arc(p.x,p.y,3,0,7);ctx.fill()}}
+    // bbox of visible landmarks
+    var minx=Wd,miny=Hd,maxx=0,maxy=0;for(var j=0;j<lm.length;j++){if((lm[j].visibility||0)<0.4)continue;var x=lm[j].x*Wd,y=lm[j].y*Hd;if(x<minx)minx=x;if(x>maxx)maxx=x;if(y<miny)miny=y;if(y>maxy)maxy=y}
+    var col=status==='fine'?colors.ok:colors.ng;
+    var label='person · '+(status==='fine'?'ok':status)+' · '+ang.toFixed(0)+'°';
+    if(maxx>minx)box(minx-8,miny-8,maxx-minx+16,maxy-miny+16,col,label);
+    a.textContent=T[status][L];a.className='alert '+(status==='fine'?'fine':'warn');
+    $('hud-count').innerHTML='<b>1</b>';
+    $('stats').innerHTML=(L==='tr'?'gövde açısı <b>':'torso angle <b>')+ang.toFixed(0)+'°</b> · '+(L==='tr'?'eşik <b>':'threshold <b>')+thr+'°</b>'+(useZone?(L==='tr'?' · bölge <b>':' · zone <b>')+(inZone?(L==='tr'?'içeride':'inside'):(L==='tr'?'dışarıda':'outside'))+'</b>':'');
+  }
+  async function start(){
+    theme();
+    if(!(await startCam()))return;
+    if(!(await ensureModel()))return;
+    state.running=true;
+    if(state.tab==='obj')loopObj();else loopPose();
+  }
+  $('start').addEventListener('click',start);
+  $('flip').addEventListener('click',function(){state.facing=state.facing==='user'?'environment':'user';if(state.stream)start()});
+  document.querySelectorAll('#tab button').forEach(function(b){b.addEventListener('click',async function(){
+    state.tab=b.getAttribute('data-t');
+    document.querySelectorAll('#tab button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+    $('grp-obj').hidden=state.tab!=='obj';$('grp-pose').hidden=state.tab!=='pose';
+    ctx.clearRect(0,0,ov.width,ov.height);$('alert').textContent='—';$('alert').className='alert';
+    if(state.stream){state.running=false;if(await ensureModel()){state.running=true;if(state.tab==='obj')loopObj();else loopPose()}}
+  })});
+  $('conf').addEventListener('input',function(){$('conf-o').textContent=(+$('conf').value).toFixed(2)});
+  $('fallang').addEventListener('input',function(){$('fallang-o').textContent=$('fallang').value+'°'});
+  document.addEventListener('langchange',function(){if(!state.stream)msg(null),($('msg').hidden=false)});
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');if(mq.addEventListener)mq.addEventListener('change',theme);
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){$('start').disabled=true;msg('nocam','getUserMedia')}
+  theme();
+})();
+</script>
+</body>
+</html>

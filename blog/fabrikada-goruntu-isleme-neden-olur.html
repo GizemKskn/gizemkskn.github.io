@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fabrikada görüntü işleme projeleri neden ölür · Gizem Keskin</title>
+<meta name="title-tr" content="Fabrikada görüntü işleme projeleri neden ölür · Gizem Keskin">
+<meta name="title-en" content="Why machine-vision projects die on the factory floor · Gizem Keskin">
+<meta name="description" content="Işık modelden önce gelir, hatalı örnek her zaman azdır, hat laboratuvar değildir. Beş üretim sisteminden çıkan kontrol listesi.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Why machine-vision projects die on the factory floor">
+<meta property="og:image" content="https://www.gizemkeskin.com/assets/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>post 0.98</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="./" data-nav="blog">Blog</a>
+        <a href="../playground/" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Blog · 2026-09-05</p>
+    <h1 lang="tr">Fabrikada görüntü işleme projeleri neden ölür</h1>
+    <h1 lang="en">Why machine-vision projects die on the factory floor</h1>
+  </div>
+</section>
+
+<div class="wrap">
+<article class="post">
+
+<div lang="tr">
+<p class="kicker">Üç yılda beş görsel kontrol sistemini üretime aldım. Hiçbiri ilk denemede çalışmadı. Ölen projelerin sebebi neredeyse hiçbir zaman model değildi. Üç şey vardı: ışık, veri ve hat.</p>
+
+<h2>1. Işık, modelden önce gelir</h2>
+<p>Lazer baskılı plastik panolarda 0,1 mm'lik baskı hatalarını yakalamamız gerekiyordu. İlk kurulumda kamera ve lens iyiydi, model de iyiydi; hataların yarısını göremiyorduk. Sebep parlamaydı: panonun yüzeyi ışığı öyle yansıtıyordu ki hata olan yer ile olmayan yer aynı gri değere düşüyordu. Model "görmüyor" değildi, görüntüde görülecek bir şey yoktu.</p>
+<p>Çözüm yazılımda değildi. Işığın açısını düşürdük, polarize filtre ekledik, pozlamayı kısalttık. Aynı model, aynı kod; hatalar bir anda görünür oldu. O günden beri kuralım şu: <strong>ışığı değiştirmek modeli değiştirmekten on kat ucuzdur.</strong> Bir görüntü işleme projesinde ilk hafta model eğitmeye değil, ışık ve lens denemeye gider.</p>
+<ul>
+<li>Yüzey kusurları (çizik, çapak) için düşük açılı ışık; kusur gölge yapar.</li>
+<li>Parlak yüzeylerde kubbe (dome) ışık veya polarize filtre; parlamayı öldürür.</li>
+<li>Hareketli parçada kısa pozlama ve strobe; bulanıklık modelden değil hareketten gelir.</li>
+<li>Her kurulumda çevre ışığını kapat; fabrika penceresinden giren güneş saat 15'te sistemi bozar.</li>
+</ul>
+
+<h2>2. Hatalı örnek her zaman azdır</h2>
+<p>Bir üretim hattı iyi çalışır; zaten bu yüzden hattır. Yüz parçadan doksan dokuzu sağlamdır. Derin öğrenme modeli eğitmek için "bin hatalı örnek" istediğinizde üretim müdürü size iki haftada beş tane getirir. Bu, veri toplamayı beklerken projelerin öldüğü yerdir.</p>
+<p>Bizim yaklaşımımız şu oldu: <strong>klasik yöntemlerle başla, derin öğrenmeyi gerektiği yerde ekle.</strong> Baskı kontrolünde referans karşılaştırma (altın parça ile piksel farkı), komponent kontrolünde eşikleme ve bağlı bileşen analizi ilk günden çalışır ve hiç hatalı örnek istemez. Model, klasik yöntemin kararsız kaldığı bölgeler için gelir: gölge mi çizik mi, toz mu delik mi.</p>
+<p>Hatalı örnek gerektiğinde de üretmek mümkün: sağlam parçanın fotoğrafına çizik yapıştırmak, bir komponenti silmek, döndürmek. Sentetik hata gerçek hatanın yerini tutmaz ama modelin ilk sürümünü ayağa kaldırır. Sonra hattın kenarına bir "hata kutusu" koyarsınız; operatör ayırdığı her parçayı oraya atar. Üç ayda gerçek veri setiniz olur.</p>
+
+<h2>3. Hat, laboratuvar değildir</h2>
+<p>Laboratuvarda yüzde doksan dokuz doğrulukla çalışan sistem hatta ilk gün kapatılır. Sebep doğruluk değil, yanlış reddir. Sistem sağlam parçayı "hatalı" dediğinde operatör ona güvenmeyi bırakır; iki gün sonra sistem kapalıdır, kimse size söylemez. <strong>Yanlış red oranı, operatörün sabrından düşük olmak zorundadır.</strong> Bizde yüzde birin üstü kabul edilmedi.</p>
+<p>Diğer hat gerçekleri:</p>
+<ul>
+<li>Titreşim: konveyör çalışınca kamera da titrer. Kamera ayağı hat gövdesine değil zemine bağlanır.</li>
+<li>Tetikleme: fotosel ile kamera arasındaki gecikme milisaniye cinsinden ölçülür ve sabittir; değilse parça çerçevenin dışında çekilir.</li>
+<li>Süre: karar, parçanın bir sonraki istasyona varmasından önce verilmelidir. Bizim hatlarda bu yüzlerce milisaniyeydi; Jetson üzerinde model ve ön işleme buna göre kırpıldı.</li>
+<li>Arayüz: operatör hatanın nerede olduğunu görmek ister. Kırmızı kutu çizmeyen sistem, doğru olsa da inandırıcı değildir.</li>
+<li>PLC: sonuç, bir bit olarak PLC'ye gitmiyorsa sistem "çalışıyor" sayılmaz.</li>
+</ul>
+
+<h2>Kontrol listesi</h2>
+<table>
+<tr><th>Aşama</th><th>Soru</th></tr>
+<tr><td>Numune</td><td>En küçük hatayı, ışığı ayarlayarak çıplak gözle görebildim mi?</td></tr>
+<tr><td>Kamera</td><td>Hata en az 3–5 piksel genişliğinde mi? Değilse lens veya çözünürlük.</td></tr>
+<tr><td>Yöntem</td><td>Klasik yöntem (eşik, fark, kenar) ne kadarını çözüyor? Modele gerçekten gerek var mı?</td></tr>
+<tr><td>Veri</td><td>Hatalı örnek kaç tane? Sentetik üretim planı var mı? Hata kutusu kondu mu?</td></tr>
+<tr><td>Hat</td><td>Tetikleme gecikmesi ölçüldü mü? Karar süresi hattın çevrim süresinin altında mı?</td></tr>
+<tr><td>Kabul</td><td>Yanlış red oranı için operatörle bir sayı üzerinde anlaştık mı?</td></tr>
+</table>
+
+<p class="end">Model tek başına hiçbir şey çözmez. Kamera, ışık, veri ve hat birlikte tasarlanınca sistem çalışır. Playground'daki <a href="../playground/bench.html">tezgâhta</a> klasik akışı kendiniz deneyebilirsiniz: eşik, morfoloji, bağlı bileşen, karar.</p>
+</div>
+
+<div lang="en">
+<p class="kicker">In three years I put five visual inspection systems into production. None of them worked on the first try. The reason a project died was almost never the model. It was one of three things: light, data, or the line.</p>
+
+<h2>1. Light comes before the model</h2>
+<p>We had to catch 0.1 mm print defects on laser-printed plastic panels. In the first setup the camera and lens were fine and the model was fine; we still missed half the defects. The cause was glare: the panel surface reflected light such that defective and sound areas landed on the same grey value. The model wasn't "failing to see"; there was nothing in the image to see.</p>
+<p>The fix wasn't in software. We lowered the light angle, added a polarising filter, shortened the exposure. Same model, same code; the defects appeared. Since then my rule is: <strong>changing the light is ten times cheaper than changing the model.</strong> The first week of a vision project goes to lighting and lens trials, not to training.</p>
+<ul>
+<li>Low-angle light for surface defects (scratches, flash); the defect casts a shadow.</li>
+<li>Dome lighting or a polariser on shiny surfaces; it kills glare.</li>
+<li>Short exposure and a strobe on moving parts; blur comes from motion, not from the model.</li>
+<li>Block ambient light in every installation; the sun through a factory window breaks the system at three in the afternoon.</li>
+</ul>
+
+<h2>2. Defective samples are always scarce</h2>
+<p>A production line works well; that is why it is a line. Ninety-nine parts out of a hundred are fine. When you ask for "a thousand defective samples" to train a deep-learning model, the production manager brings you five in two weeks. This is where projects die waiting for data.</p>
+<p>Our approach became: <strong>start with classical methods, add deep learning where it is needed.</strong> Golden-reference comparison (pixel difference against a known-good part) for print inspection, thresholding and connected-component analysis for component checks work from day one and need no defective samples. The model comes in for the regions where the classical method is undecided: shadow or scratch, dust or hole.</p>
+<p>When you do need defective samples, you can make them: paste a scratch onto a good part, erase a component, rotate one. Synthetic defects don't replace real ones, but they get the first version of the model on its feet. Then you put a "defect box" at the end of the line; the operator drops every rejected part into it. In three months you have a real dataset.</p>
+
+<h2>3. The line is not a lab</h2>
+<p>A system with 99% accuracy in the lab gets switched off on its first day on the line. The reason isn't accuracy, it's false rejects. When the system calls a good part "defective", the operator stops trusting it; two days later it's turned off and nobody tells you. <strong>The false-reject rate has to be lower than the operator's patience.</strong> Above one percent was not accepted where I worked.</p>
+<p>Other realities of the line:</p>
+<ul>
+<li>Vibration: when the conveyor runs, the camera shakes. The camera stand is bolted to the floor, not to the line body.</li>
+<li>Triggering: the delay between the photocell and the camera is measured in milliseconds and must be constant; otherwise the part is captured outside the frame.</li>
+<li>Time: the decision must be made before the part reaches the next station. On our lines that was a few hundred milliseconds; model and preprocessing on the Jetson were trimmed to fit.</li>
+<li>Interface: the operator wants to see where the defect is. A system that doesn't draw the red box isn't convincing, even when it's right.</li>
+<li>PLC: if the result doesn't reach the PLC as a bit, the system doesn't count as "working".</li>
+</ul>
+
+<h2>Checklist</h2>
+<table>
+<tr><th>Stage</th><th>Question</th></tr>
+<tr><td>Samples</td><td>Could I see the smallest defect with my own eyes by adjusting the light?</td></tr>
+<tr><td>Camera</td><td>Is the defect at least 3–5 pixels wide? If not, lens or resolution.</td></tr>
+<tr><td>Method</td><td>How much does a classical method (threshold, diff, edges) solve? Is a model really needed?</td></tr>
+<tr><td>Data</td><td>How many defective samples? Is there a synthetic-defect plan? Is the defect box in place?</td></tr>
+<tr><td>Line</td><td>Was trigger latency measured? Is decision time below the line's cycle time?</td></tr>
+<tr><td>Acceptance</td><td>Did we agree on a false-reject number with the operator?</td></tr>
+</table>
+
+<p class="end">A model solves nothing on its own. The system works when camera, light, data and line are designed together. You can try the classical flow yourself on the <a href="../playground/bench.html">bench</a> in the playground: threshold, morphology, connected components, decision.</p>
+</div>
+
+<nav class="post-nav">
+  <a href="./"><span lang="tr">← Tüm yazılar</span><span lang="en">← All posts</span></a>
+  <a href="fiksturuz-pcb-kontrolu.html"><span lang="tr">Sonraki: Fikstürsüz PCB kontrolü →</span><span lang="en">Next: Fixture-free PCB inspection →</span></a>
+</nav>
+</article>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Yazılar Türkçe ve İngilizce; sağ üstten değiştir.</span>
+    <span lang="en">Posts are in Turkish and English; switch at the top right.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+</body>
+</html>

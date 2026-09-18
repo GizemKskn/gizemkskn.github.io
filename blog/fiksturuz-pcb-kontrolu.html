@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fikstürsüz PCB kontrolü · Gizem Keskin</title>
+<meta name="title-tr" content="Fikstürsüz PCB kontrolü · Gizem Keskin">
+<meta name="title-en" content="Fixture-free PCB inspection · Gizem Keskin">
+<meta name="description" content="Kart her seferinde başka yerde ve biraz dönük geliyorsa: tetikleme, hizalama, ROI ve karar. Konveyör üzerinde optik kontrol hattının içi.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fixture-free PCB inspection on a moving conveyor">
+<meta property="og:image" content="https://www.gizemkeskin.com/assets/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>post 0.98</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="./" data-nav="blog">Blog</a>
+        <a href="../playground/" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Blog · 2026-09-12</p>
+    <h1 lang="tr">Fikstürsüz PCB kontrolü: konveyör üzerinde, hareket halinde</h1>
+    <h1 lang="en">Fixture-free PCB inspection on a moving conveyor</h1>
+  </div>
+</section>
+
+<div class="wrap">
+<article class="post">
+
+<figure>
+<svg class="schem" viewBox="0 0 640 150" role="img" aria-label="Pipeline: trigger, capture, align, ROI, check, decide">
+  <g fill="none" stroke="currentColor">
+    <rect class="p" x="8" y="40" width="92" height="56" rx="3"/>
+    <rect class="p" x="116" y="40" width="92" height="56" rx="3"/>
+    <rect class="p" x="224" y="40" width="92" height="56" rx="3"/>
+    <rect class="p" x="332" y="40" width="92" height="56" rx="3"/>
+    <rect class="p" x="440" y="40" width="92" height="56" rx="3"/>
+    <rect class="acc" x="548" y="40" width="84" height="56" rx="3"/>
+    <path class="m" d="M100 68h16M208 68h16M316 68h16M424 68h16M532 68h16"/>
+  </g>
+  <g class="tk" font-size="10" text-anchor="middle">
+    <text x="54" y="63">fotosel</text><text x="54" y="78">+ strobe</text>
+    <text x="162" y="63">kare</text><text x="162" y="78">200 µs</text>
+    <text x="270" y="63">hizalama</text><text x="270" y="78">ORB + H</text>
+    <text x="378" y="63">ROI listesi</text><text x="378" y="78">altın kart</text>
+    <text x="486" y="63">kontroller</text><text x="486" y="78">klasik + model</text>
+    <text x="590" y="63">OK / NG</text><text x="590" y="78">→ PLC</text>
+  </g>
+  <g class="t" font-size="9" text-anchor="middle">
+    <text x="54" y="118">1</text><text x="162" y="118">2</text><text x="270" y="118">3</text><text x="378" y="118">4</text><text x="486" y="118">5</text><text x="590" y="118">6</text>
+  </g>
+</svg>
+<figcaption lang="tr">Akış: tetik, kare, hizalama, ROI, kontroller, karar. Hizalama adımı olmadan gerisi çalışmaz.</figcaption>
+<figcaption lang="en">Flow: trigger, frame, alignment, ROIs, checks, decision. Without the alignment step nothing after it works.</figcaption>
+</figure>
+
+<div lang="tr">
+<p class="kicker">Klasik optik kontrol (AOI) kartı bir fikstüre oturtur: konum belli, açı belli, her ROI sabit. Bizim hatta fikstür yoktu ve olmayacaktı; kartlar konveyörde geliyor, her seferinde birkaç santim başka yerde ve birkaç derece dönük. Sistem buna rağmen her komponentin varlığını, yönünü, pin sayısını, üstündeki yazıyı ve rengini kontrol edecekti. Bunu nasıl kurduğumuzu anlatıyorum.</p>
+
+<h2>1. Tetikleme ve kare</h2>
+<p>Konveyör durmaz. Kart fotoselin önünden geçtiği anda kamera tetiklenir; pozlama hareket bulanıklığını yenecek kadar kısa tutulur ve o kısa sürede yeterli ışık için strobe kullanılır. Tetik ile kare arasındaki gecikme sabit olmalı; biz bunu kameranın donanım tetik girişiyle çözdük, yazılım tetiği ile değil. Yazılım tetiği işletim sisteminin keyfine kalır ve kart bazen çerçevenin kenarında çıkar.</p>
+
+<h2>2. Hizalama: her şeyin dayandığı adım</h2>
+<p>Fikstür yoksa fikstürü yazılımda kurarsınız. Hatasız bir "altın kart" görüntüsü referans olur; gelen her kare bu referansa hizalanır. Bunun için kartın kendisindeki sabit özellikleri kullandık: fiducial işaretler varsa onlar, yoksa delikler, köşeler, serigrafi yazıları. ORB ile özellik noktaları, eşleştirme, RANSAC ile homografi; sonra kare referans koordinat sistemine çevrilir. Bu adımdan sonra kart "her seferinde aynı yerde" görünür ve ROI'ler sabit kalır.</p>
+<pre><code>orb = cv2.ORB_create(2000)
+k1, d1 = orb.detectAndCompute(golden, None)
+k2, d2 = orb.detectAndCompute(frame, None)
+m = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True).match(d1, d2)
+m = sorted(m, key=lambda x: x.distance)[:300]
+src = np.float32([k2[x.trainIdx].pt for x in m])
+dst = np.float32([k1[x.queryIdx].pt for x in m])
+H, inl = cv2.findHomography(src, dst, cv2.RANSAC, 3.0)
+aligned = cv2.warpPerspective(frame, H, (golden.shape[1], golden.shape[0]))</code></pre>
+<p>İki uyarı: birincisi, homografi kalitesini ölçmeden devam etmeyin; inlier sayısı düşükse kareyi reddedin ve tekrar çekin. İkincisi, komponentlerin kendisini özellik noktası olarak kullanmayın; eksik komponent hizalamayı da bozar ve hatayı gizler. Sabit olan şey karttır, üstündekiler değil.</p>
+
+<h2>3. ROI listesi</h2>
+<p>Altın kart üzerinde her komponent için bir kutu, kutunun tipi ve beklenen özellikleri: "C12, elektrolitik kondansatör, polarite işareti solda, 2 pin, üstte 470µF yazısı". Bu liste CAD verisinden ya da bir kez elle çizilerek çıkar. Kart başına yüzlerce ROI olur; her biri bağımsız bir küçük kontrol problemidir. İyi tarafı şu: küçük problemler klasik yöntemlerle çözülür ve hiç hatalı örnek istemez.</p>
+
+<h2>4. Kontroller</h2>
+<ul>
+<li><strong>Varlık/yokluk:</strong> ROI'de eşikleme ve alan; komponent yoksa sadece pedler kalır ve alan düşer. Playground'daki <a href="../playground/bench.html">tezgâh</a> tam bu akışı gösterir.</li>
+<li><strong>Yön:</strong> polarite işaretinin (çentik, nokta, şerit) beklenen tarafta olup olmadığı; şablon eşleme, dört yön için dört skor.</li>
+<li><strong>Pin sayısı:</strong> soket ROI'sinde bağlı bileşen sayısı; eksik pin eksik bileşen demektir.</li>
+<li><strong>Yazı ve sembol:</strong> OCR; komponent üstündeki değer ve kart üstündeki serigrafi. Fontu ve yönü bilinen yazıda OCR güvenilirdir, bilinmeyende değil.</li>
+<li><strong>Renk:</strong> HSV uzayında ortalama ve dağılım; yanlış değerdeki direnç renk bantlarıyla yakalanır.</li>
+</ul>
+<p>Klasik yöntemlerin kararsız kaldığı ROI'ler için bir sınıflandırıcı eğittik (bu iş için geliştirdiğimiz modele AlpVisionNet dedik). Modelin işi tüm kartı anlamak değil, "bu 64×64'lük kutu doğru mu yanlış mı" demek. Küçük problem, küçük model, hızlı çıkarım.</p>
+
+<h2>5. Karar ve operatör</h2>
+<p>Her ROI'nin sonucu birleşir: bir ROI bile NG ise kart NG. Sonuç PLC'ye bit olarak gider, operatörün ekranında kart görüntüsü ve kırmızı kutular belirir. Operatörün gördüğü kutu, sistemin ikna gücüdür; "NG" yazan bir satır kimseyi ikna etmez.</p>
+
+<h2>Öğrendiklerim</h2>
+<ul>
+<li>Hizalama hatası bütün ROI'leri kaydırır ve her şeyi NG yapar. Hizalamanın kendisi de bir kalite kontrolüdür; ölçün, eşik koyun.</li>
+<li>Işık burada da modelden önce gelir. Parlak lehim ve mat plastik aynı karede; ışığı ikisinin de okunabildiği yere getirmek zaman alır.</li>
+<li>Yüzlerce küçük kontrol, tek büyük modelden daha iyi açıklanır. "Neden NG?" sorusuna "C12'de polarite ters" demek, "model 0.71 verdi" demekten değerlidir.</li>
+</ul>
+<p class="end">Bu yazıdaki yaklaşım, plastik parça ve LED buton kontrollerinde de aynı: hizala, ROI çıkar, klasik yöntemle kontrol et, modeli gerektiği yerde ekle. Farklı olan sadece ışık ve ROI listesidir.</p>
+</div>
+
+<div lang="en">
+<p class="kicker">Classic automated optical inspection (AOI) puts the board in a fixture: known position, known angle, every ROI fixed. Our line had no fixture and wasn't going to get one; boards arrived on the conveyor a few centimetres off and a few degrees rotated every time. The system still had to check every component's presence, orientation, pin count, marking and colour. Here is how we built it.</p>
+
+<h2>1. Trigger and frame</h2>
+<p>The conveyor doesn't stop. The camera fires the moment the board passes the photocell; the exposure is kept short enough to beat motion blur, and a strobe supplies enough light for that short window. The delay between trigger and frame must be constant; we solved this with the camera's hardware trigger input, not a software trigger. A software trigger is at the mercy of the operating system, and the board sometimes ends up at the edge of the frame.</p>
+
+<h2>2. Alignment: the step everything rests on</h2>
+<p>If there is no fixture, you build the fixture in software. A known-good "golden board" image becomes the reference; every incoming frame is aligned to it. For this we used fixed features of the board itself: fiducials where they exist, otherwise holes, corners, silkscreen text. ORB keypoints, matching, homography with RANSAC; then the frame is warped into the reference coordinate system. After this step the board appears "in the same place every time" and the ROIs stay fixed.</p>
+<pre><code>orb = cv2.ORB_create(2000)
+k1, d1 = orb.detectAndCompute(golden, None)
+k2, d2 = orb.detectAndCompute(frame, None)
+m = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True).match(d1, d2)
+m = sorted(m, key=lambda x: x.distance)[:300]
+src = np.float32([k2[x.trainIdx].pt for x in m])
+dst = np.float32([k1[x.queryIdx].pt for x in m])
+H, inl = cv2.findHomography(src, dst, cv2.RANSAC, 3.0)
+aligned = cv2.warpPerspective(frame, H, (golden.shape[1], golden.shape[0]))</code></pre>
+<p>Two warnings. First, don't proceed without measuring homography quality; if the inlier count is low, reject the frame and capture again. Second, don't use the components themselves as keypoints; a missing component then breaks the alignment and hides the defect. The fixed thing is the board, not what sits on it.</p>
+
+<h2>3. The ROI list</h2>
+<p>For every component on the golden board: a box, its type, and what's expected: "C12, electrolytic capacitor, polarity mark on the left, 2 pins, 470µF marking on top". The list comes from CAD data or is drawn once by hand. There are hundreds of ROIs per board; each is an independent little inspection problem. The good news: little problems are solved by classical methods and need no defective samples.</p>
+
+<h2>4. The checks</h2>
+<ul>
+<li><strong>Presence:</strong> threshold and area within the ROI; if the component is missing only the pads remain and the area drops. The <a href="../playground/bench.html">bench</a> in the playground shows exactly this flow.</li>
+<li><strong>Orientation:</strong> is the polarity mark (notch, dot, stripe) on the expected side; template matching, four scores for four orientations.</li>
+<li><strong>Pin count:</strong> connected components in the socket ROI; a missing pin means a missing component.</li>
+<li><strong>Text and symbols:</strong> OCR; the value on the component and the silkscreen on the board. OCR is reliable on text with a known font and orientation, not on unknown text.</li>
+<li><strong>Colour:</strong> mean and spread in HSV; a resistor with the wrong value is caught by its colour bands.</li>
+</ul>
+<p>For ROIs where classical methods were undecided we trained a classifier (we called the model developed for this job AlpVisionNet). Its job is not to understand the whole board but to say "is this 64×64 box right or wrong". Small problem, small model, fast inference.</p>
+
+<h2>5. Decision and operator</h2>
+<p>All ROI results combine: if even one ROI is NG, the board is NG. The result goes to the PLC as a bit, and the operator's screen shows the board image with red boxes. The box the operator sees is the system's credibility; a line that just says "NG" convinces nobody.</p>
+
+<h2>What I learned</h2>
+<ul>
+<li>An alignment error shifts every ROI and makes everything NG. Alignment is itself a quality check; measure it, put a threshold on it.</li>
+<li>Light comes before the model here too. Shiny solder and matte plastic in the same frame; getting the light to where both are readable takes time.</li>
+<li>Hundreds of small checks are explained better than one big model. Answering "why NG?" with "C12 polarity reversed" is worth more than "the model said 0.71".</li>
+</ul>
+<p class="end">The approach in this post is the same for the plastic-part and LED-button inspections: align, extract ROIs, check with classical methods, add a model where needed. Only the lighting and the ROI list change.</p>
+</div>
+
+<nav class="post-nav">
+  <a href="fabrikada-goruntu-isleme-neden-olur.html"><span lang="tr">← Önceki: Projeler neden ölür</span><span lang="en">← Previous: Why projects die</span></a>
+  <a href="./"><span lang="tr">Tüm yazılar</span><span lang="en">All posts</span></a>
+  <a href="cctv-guvenlik-ajani.html"><span lang="tr">Sonraki: CCTV'yi güvenlik ajanına çevirmek →</span><span lang="en">Next: CCTV into a safety agent →</span></a>
+</nav>
+</article>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Yazılar Türkçe ve İngilizce; sağ üstten değiştir.</span>
+    <span lang="en">Posts are in Turkish and English; switch at the top right.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+</body>
+</html>

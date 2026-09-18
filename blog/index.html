@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blog · Gizem Keskin</title>
+<meta name="title-tr" content="Blog · Gizem Keskin">
+<meta name="title-en" content="Blog · Gizem Keskin">
+<meta name="description" content="Sahadan notlar: görüntü işleme, yapay zekâ ve uç cihazlar üzerine, gerçek projelerden öğrendiklerim.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>blog 0.98</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="./" data-nav="blog">Blog</a>
+        <a href="../playground/" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Blog</p>
+    <h1 lang="tr">Sahadan notlar.</h1>
+    <h1 lang="en">Notes from the field.</h1>
+    <p class="lede" lang="tr">Görüntü işleme, yapay zekâ ve uç cihazlar üzerine, gerçek projelerde öğrendiklerim. Teori değil; hangi ışık, hangi kamera, neden çalışmadı, nasıl çalıştı.</p>
+    <p class="lede" lang="en">What I've learned about computer vision, AI and edge devices on real projects. Not theory; which light, which camera, why it failed, how it eventually worked.</p>
+  </div>
+</section>
+
+<div class="wrap" style="padding-block:0 clamp(48px,7vw,92px)">
+  <ul class="posts">
+    <li data-det="post_cctv_agent" data-conf="0.98">
+      <span class="dt">2026-09-18</span>
+      <div>
+        <h3><a href="cctv-guvenlik-ajani.html"><span lang="tr">Mevcut CCTV'yi iş güvenliği ajanına çevirmek</span><span lang="en">Turning existing CCTV into a workplace-safety agent</span></a></h3>
+        <p lang="tr">Kameralar zaten var, sadece kayıt tutuyorlar. Düşmeyi saniyesinde yakalayan, bölge ihlalini bildiren ve vardiya raporunu kendi yazan bir sistem nasıl kuruldu. AgentCon İstanbul konuşmamın yazılı hali.</p>
+        <p lang="en">The cameras are already there; they only record. How a system that catches a fall within a second, reports zone violations and writes its own shift report was built. The written version of my AgentCon Istanbul talk.</p>
+        <div class="tags"><span>#vision agents</span><span>#pose</span><span>#cctv</span><span>#edge</span></div>
+      </div>
+    </li>
+    <li data-det="post_pcb" data-conf="0.97">
+      <span class="dt">2026-09-12</span>
+      <div>
+        <h3><a href="fiksturuz-pcb-kontrolu.html"><span lang="tr">Fikstürsüz PCB kontrolü: konveyör üzerinde, hareket halinde</span><span lang="en">Fixture-free PCB inspection on a moving conveyor</span></a></h3>
+        <p lang="tr">Kart her seferinde başka yerde ve biraz dönük geliyorsa ne yaparsınız? Tetikleme, hizalama, ROI ve karar: bir optik kontrol hattının içi.</p>
+        <p lang="en">What do you do when every board arrives somewhere else and slightly rotated? Triggering, alignment, ROIs and decisions: the inside of an optical inspection line.</p>
+        <div class="tags"><span>#aoi</span><span>#opencv</span><span>#alignment</span><span>#ocr</span></div>
+      </div>
+    </li>
+    <li data-det="post_why_fail" data-conf="0.97">
+      <span class="dt">2026-09-05</span>
+      <div>
+        <h3><a href="fabrikada-goruntu-isleme-neden-olur.html"><span lang="tr">Fabrikada görüntü işleme projeleri neden ölür</span><span lang="en">Why machine-vision projects die on the factory floor</span></a></h3>
+        <p lang="tr">Üç sebep gördüm: ışık modelden önce gelir, hatalı örnek her zaman azdır, hat laboratuvar değildir. Beş sistemden çıkan kontrol listesi.</p>
+        <p lang="en">Three causes I keep seeing: light comes before the model, defective samples are always scarce, the line is not a lab. A checklist distilled from five systems.</p>
+        <div class="tags"><span>#lighting</span><span>#data</span><span>#deployment</span></div>
+      </div>
+    </li>
+  </ul>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Yazılar Türkçe ve İngilizce; sağ üstten değiştir.</span>
+    <span lang="en">Posts are in Turkish and English; switch at the top right.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+</body>
+</html>

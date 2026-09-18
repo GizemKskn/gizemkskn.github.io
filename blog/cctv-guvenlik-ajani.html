@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mevcut CCTV'yi iş güvenliği ajanına çevirmek · Gizem Keskin</title>
+<meta name="title-tr" content="Mevcut CCTV'yi iş güvenliği ajanına çevirmek · Gizem Keskin">
+<meta name="title-en" content="Turning existing CCTV into a workplace-safety agent · Gizem Keskin">
+<meta name="description" content="Kameralar zaten var, sadece kayıt tutuyorlar. Düşmeyi saniyesinde yakalayan, bölge ihlalini bildiren ve vardiya raporunu kendi yazan sistemin mimarisi. AgentCon İstanbul 2026.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Turning existing CCTV into a workplace-safety agent">
+<meta property="og:image" content="https://www.gizemkeskin.com/assets/work/isg-cam-2.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>post 0.98</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="./" data-nav="blog">Blog</a>
+        <a href="../playground/" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Blog · 2026-09-18 · AgentCon İstanbul</p>
+    <h1 lang="tr">Mevcut CCTV'yi iş güvenliği ajanına çevirmek</h1>
+    <h1 lang="en">Turning existing CCTV into a workplace-safety agent</h1>
+  </div>
+</section>
+
+<div class="wrap">
+<article class="post">
+
+<figure>
+<img src="../assets/work/isg-cam-2.jpg" alt="Depo kamerasında kişiler üzerinde tespit kutuları ve sanal güvenlik alanı" loading="lazy">
+<figcaption lang="tr">Depodaki mevcut kamera, aynı görüntü: kişiler, poz, sanal alan. Kamera değişmedi, arkasındaki yazılım değişti.</figcaption>
+<figcaption lang="en">The warehouse's existing camera, same view: people, pose, virtual zone. The camera didn't change; the software behind it did.</figcaption>
+</figure>
+
+<div lang="tr">
+<p class="kicker">Şubat 2026'da AgentCon İstanbul'da anlattığım sistemin yazılı hali. Başlangıç noktası basit bir gözlem: her fabrikada onlarca kamera var ve hepsi sadece kayıt tutuyor. Biri düştüğünde görüntü ertesi gün izleniyor. Kameralar zaten oradaysa, neden o anda haber vermesinler?</p>
+
+<h2>Neden "ajan"?</h2>
+<p>Bir düşme tespit modeli tek başına bir ürün değildir. Düşme tespit edildi; sonra? Kim haber alacak, hangi kanaldan, kaç saniye içinde? Aynı kişi beş dakikadır yerde mi yatıyor, yoksa eğilip bir şey mi alıyor? Bugün üçüncü kez aynı köşede "bölge ihlali" veriliyorsa bu bir alışkanlık mı, bir tasarım hatası mı? Bu soruların cevabı algı modelinde değil, üstündeki katmandadır. O katmana ajan diyoruz: olayları bağlama oturtan, kural uygulayan, karar veren ve raporlayan yazılım.</p>
+
+<h2>Mimari</h2>
+<ol>
+<li><strong>Kameralar.</strong> Mevcut IP kameralar, RTSP akışı. Yeni kamera yok; olsa da eski kameraların çözünürlüğü ve açısı çoğu zaman yeter. Yetmediği yerde önce kamerayı çevirir, sonra değiştirirsiniz.</li>
+<li><strong>Uç işlem.</strong> Tesiste bir uç cihaz (bizde Nvidia Jetson) akışları alır; görüntü tesisten çıkmaz. Bulut yalnızca olayları ve özetleri görür.</li>
+<li><strong>Algı.</strong> Kişi tespiti, çok nesne takibi (her kişiye bir kimlik, yüz değil) ve iskelet çıkarımı. İskelet, yüz tanımadan çok daha az veriyle çok daha fazla şey söyler: duruş, açı, hız.</li>
+<li><strong>Olay motoru.</strong> Kurallar: gövde açısı eşiği aşıp yarım saniyeden uzun sürerse düşme; kalça sanal alanın içindeyse bölge ihlali; kötü duruş belirli süreyi geçerse ergonomi uyarısı. Tek kare karar vermez; süre ve hız karar verir.</li>
+<li><strong>Ajan katmanı.</strong> LLM tabanlı bir orkestrasyon: olayları alır, bağlamı toplar (hangi kamera, hangi vardiya, kaçıncı tekrar), kime ve nasıl bildirileceğine karar verir, olay kaydını açar, vardiya sonunda raporu yazar. Aynı katman tekrar eden yanlış alarmları gruplar ve "bu köşe hep alarm veriyor, sanal alan yanlış çizilmiş olabilir" der.</li>
+<li><strong>Panel.</strong> Web tabanlı; anlık durum, olay listesi, kamera görüntüsü, rapor arşivi.</li>
+</ol>
+
+<h2>Düşme tespiti nasıl çalışır</h2>
+<p>Omuz orta noktası ile kalça orta noktası arasındaki çizginin dikeyle yaptığı açıya bakıyoruz. Ayakta duran kişide bu açı sıfıra yakındır; eğilende artar; yerde yatanda doksana yaklaşır. Açı tek başına yetmez: eğilip kutu alan da bir an için büyük açı verir. Bu yüzden iki şey daha: açının ne kadar hızla değiştiği (düşme hızlıdır, eğilme yavaş) ve ne kadar sürdüğü. Eşik aşılıp yarım saniyeden uzun sürerse olay açılır.</p>
+<p>Playground'daki <a href="../playground/live.html">canlı demo</a> bu hesabın sadeleştirilmiş halini kendi kameranızda çalıştırır: açı, eşik, süre, sanal alan. Gerçek sistemde bunun üstüne takip, çoklu kamera ve ajan katmanı gelir.</p>
+
+<h2>Gizlilik, baştan</h2>
+<ul>
+<li>Yüz tanıma yok. Kişiler takip kimliğiyle izlenir, isimle değil.</li>
+<li>Görüntü tesisten çıkmaz; uç cihazda işlenir. Buluta olay ve özet gider.</li>
+<li>Kayıt yalnızca olay anında ve olayın etrafındaki birkaç saniye için tutulur.</li>
+<li>Çalışanlar sistemi bilir; panel İSG ekibinin elindedir, yönetimin gözetleme aracı değildir.</li>
+</ul>
+<p>Bunlar etik tercihler olduğu kadar pratik tercihlerdir: gözetleme aracı gibi kurulan sistemi çalışanlar sabote eder, güvenlik aracı gibi kurulanı sahiplenir.</p>
+
+<h2>Alpplas'tan Elanus'a</h2>
+<p>Bu sistemin kökü, Alpplas'ta kurduğum çok kameralı personel ve aktivite takibinde. Orada image alignment ile geniş alanı tek koordinat sistemine oturtmuş, LSTM ile hareket akışından cycle time hesaplamış, pose estimation ile düşme ve kötü duruş tespit etmiştik. Elanus'ta bunu ürüne çevirirken iki şey ekledik: mevcut CCTV ile çalışma zorunluluğu (yeni kamera satmıyoruz) ve ajan katmanı (alarm üretmek yetmez, alarmı yönetmek gerekir).</p>
+
+<p class="end">Kısacası: kamera zaten var, model artık ucuz; değer, olayı bağlama oturtan ve doğru kişiye doğru zamanda haber veren katmanda. Sorularınız varsa <a href="../#contact">yazın</a>; benzer bir tesis için neyin gerekip neyin gerekmediğini yarım saatte konuşabiliriz.</p>
+</div>
+
+<div lang="en">
+<p class="kicker">The written version of the system I presented at AgentCon Istanbul in February 2026. It starts from a simple observation: every factory has dozens of cameras and all of them only record. When someone falls, the footage is watched the next day. If the cameras are already there, why don't they speak up at that moment?</p>
+
+<h2>Why "agent"?</h2>
+<p>A fall-detection model is not a product on its own. A fall was detected; then what? Who gets notified, through which channel, within how many seconds? Has the same person been lying there for five minutes, or did they bend down to pick something up? If the same corner has raised "zone violation" three times today, is that a habit or a design mistake? The answers to these questions don't live in the perception model; they live in the layer above it. We call that layer the agent: software that puts events in context, applies rules, decides and reports.</p>
+
+<h2>Architecture</h2>
+<ol>
+<li><strong>Cameras.</strong> Existing IP cameras, RTSP streams. No new cameras; even old ones usually have enough resolution and angle. Where they don't, you turn the camera first and replace it second.</li>
+<li><strong>Edge processing.</strong> An edge device on site (an Nvidia Jetson in our case) takes the streams; video never leaves the facility. The cloud only sees events and summaries.</li>
+<li><strong>Perception.</strong> Person detection, multi-object tracking (an ID per person, not a face) and skeleton extraction. A skeleton says far more with far less data than face recognition: posture, angle, speed.</li>
+<li><strong>Event engine.</strong> Rules: fall when the torso angle exceeds the threshold for longer than half a second; zone violation when the hips are inside a virtual area; ergonomics warning when bad posture lasts beyond a limit. A single frame never decides; duration and speed decide.</li>
+<li><strong>Agent layer.</strong> LLM-based orchestration: it takes events, gathers context (which camera, which shift, which repetition), decides who to notify and how, opens the incident record, and writes the shift report at the end. The same layer groups repeated false alarms and says "this corner keeps alarming, the virtual zone may be drawn wrong".</li>
+<li><strong>Dashboard.</strong> Web-based; live status, event list, camera view, report archive.</li>
+</ol>
+
+<h2>How fall detection works</h2>
+<p>We look at the angle between vertical and the line from the shoulder midpoint to the hip midpoint. On a standing person it's near zero; bending increases it; lying on the floor approaches ninety. The angle alone isn't enough: someone bending to lift a box also gives a large angle for a moment. So two more things: how fast the angle changed (falls are fast, bending is slow) and how long it lasted. If the threshold is exceeded for longer than half a second, an event opens.</p>
+<p>The <a href="../playground/live.html">live demo</a> in the playground runs a simplified version of this computation on your own camera: angle, threshold, duration, virtual zone. The real system adds tracking, multiple cameras and the agent layer on top.</p>
+
+<h2>Privacy, from the start</h2>
+<ul>
+<li>No face recognition. People are followed by a tracking ID, not by name.</li>
+<li>Video never leaves the site; it's processed on the edge device. Events and summaries go to the cloud.</li>
+<li>Recording is kept only at the moment of an event and for a few seconds around it.</li>
+<li>Workers know about the system; the dashboard belongs to the safety team, not to management as a surveillance tool.</li>
+</ul>
+<p>These are practical choices as much as ethical ones: a system installed like a surveillance tool gets sabotaged by workers; one installed like a safety tool gets adopted by them.</p>
+
+<h2>From Alpplas to Elanus</h2>
+<p>This system's roots are in the multi-camera personnel and activity tracking I built at Alpplas. There we had brought a wide area into one coordinate system with image alignment, computed cycle time from motion flow with an LSTM, and detected falls and bad posture with pose estimation. Turning that into a product at Elanus, we added two things: the obligation to work with existing CCTV (we don't sell cameras) and the agent layer (raising an alarm isn't enough, alarms need managing).</p>
+
+<p class="end">In short: the cameras are already there and models are cheap now; the value is in the layer that puts an event in context and tells the right person at the right time. If you have questions, <a href="../#contact">write to me</a>; for a similar facility we can work out in half an hour what's needed and what isn't.</p>
+</div>
+
+<nav class="post-nav">
+  <a href="fiksturuz-pcb-kontrolu.html"><span lang="tr">← Önceki: Fikstürsüz PCB kontrolü</span><span lang="en">← Previous: Fixture-free PCB inspection</span></a>
+  <a href="./"><span lang="tr">Tüm yazılar</span><span lang="en">All posts</span></a>
+</nav>
+</article>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Yazılar Türkçe ve İngilizce; sağ üstten değiştir.</span>
+    <span lang="en">Posts are in Turkish and English; switch at the top right.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+</body>
+</html>

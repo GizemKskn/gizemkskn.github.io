@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gizem Keskin</title>
+<meta name="title-tr" content="Gizem Keskin — Yapay zekâ ve yazılım mühendisi">
+<meta name="title-en" content="Gizem Keskin — AI & software engineer">
 <meta name="description" content="Gizem Keskin — yapay zekâ ve yazılım mühendisi. Bilgisayarlı görü, makine öğrenmesi, LLM tabanlı ajanlar, IoT ve uç cihazlar. Elanus Robotics kurucu ortağı. Danışmanlık ve proje bazlı çalışma.">
 <meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
@@ -12,193 +14,13 @@
 <meta property="og:title" content="Gizem Keskin — AI & software engineer">
 <meta property="og:description" content="Computer vision, machine learning, LLM-based agents, IoT and edge. Co-founder of Elanus Robotics. Open to consulting and project work.">
 <meta property="og:url" content="https://www.gizemkeskin.com/">
-<meta property="og:image" content="https://www.gizemkeskin.com/assets/photo.jpg">
+<meta property="og:image" content="https://www.gizemkeskin.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
-:root{
-  --bg:#F4F5F3; --bg2:#EBEDEA; --ink:#17191B; --ink2:#4B5157; --mute:#7C8389; --line:#D5D9D4;
-  --acc:#2643D9; --acc-ink:#FFFFFF; --ok:#1E8F57; --ng:#D8342A; --sel:rgba(38,67,217,.16);
-  --font-d:"Bricolage Grotesque",ui-sans-serif,system-ui,"Segoe UI",Helvetica,Arial,sans-serif;
-  --font-b:"Hanken Grotesk",ui-sans-serif,system-ui,"Segoe UI",Helvetica,Arial,sans-serif;
-  --font-m:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  --gutter:clamp(16px,4vw,40px);
-  color-scheme:light;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#101214; --bg2:#171A1D; --ink:#ECEEEB; --ink2:#B3B9B8; --mute:#7E868B; --line:#262B2F;
-    --acc:#7C8DFF; --acc-ink:#0F1116; --ok:#4CCF8A; --ng:#FF6B5E; --sel:rgba(124,141,255,.22);
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#101214; --bg2:#171A1D; --ink:#ECEEEB; --ink2:#B3B9B8; --mute:#7E868B; --line:#262B2F;
-  --acc:#7C8DFF; --acc-ink:#0F1116; --ok:#4CCF8A; --ng:#FF6B5E; --sel:rgba(124,141,255,.22);
-  color-scheme:dark;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.55 var(--font-b);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-::selection{background:var(--sel)}
-img{max-width:100%}
-a{color:inherit;text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--line);text-underline-offset:.2em;transition:text-decoration-color .15s}
-a:hover{text-decoration-color:var(--acc)}
-:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:2px}
-h1,h2,h3{font-weight:500}
-.wrap{max-width:1120px;margin:0 auto;padding-inline:var(--gutter)}
-
-/* language switching: default is Turkish until JS stamps data-lang */
-html:not([data-lang="en"]) [lang="en"]{display:none!important}
-html[data-lang="en"] [lang="tr"]{display:none!important}
-
-/* top bar */
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.bar .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;gap:16px}
-.brand{font:500 1rem var(--font-d);letter-spacing:-.01em;text-decoration:none;white-space:nowrap}
-.bar nav{display:flex;align-items:center;gap:18px}
-.status{display:inline-flex;align-items:center;gap:8px;font:400 .72rem var(--font-m);color:var(--ink2);letter-spacing:.02em;white-space:nowrap}
-.status i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 22%,transparent)}
-.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;font:500 .7rem var(--font-m)}
-.lang button{appearance:none;border:0;background:transparent;color:var(--mute);padding:4px 10px;border-radius:999px;cursor:pointer;font:inherit;letter-spacing:.08em}
-.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-
-/* hero */
-.hero .wrap{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(28px,5vw,72px);align-items:end;padding-block:clamp(48px,8vw,104px) clamp(40px,6vw,80px)}
-.hero h1{font:500 clamp(2.3rem,5.4vw,4.3rem)/1.02 var(--font-d);font-variation-settings:"opsz" 96;letter-spacing:-.025em;margin:0 0 22px;text-wrap:balance;max-width:15ch}
-.hero .lede{max-width:52ch;color:var(--ink2);font-size:1.125rem;margin:0 0 30px}
-.hero .lede b{color:var(--ink);font-weight:500}
-.cta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:6px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);text-decoration:none;font:500 .95rem var(--font-b);transition:background .15s,border-color .15s,color .15s}
-.btn:hover{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
-.btn.ghost{background:transparent;color:var(--ink)}
-.btn.ghost:hover{background:transparent;color:var(--acc)}
-.hero .meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:34px;font:400 .72rem var(--font-m);color:var(--mute);letter-spacing:.04em}
-.hero .meta b{color:var(--ink);font-weight:500}
-
-/* inspection frame (canvas) */
-.frame{position:relative;aspect-ratio:4/3;max-width:100%;border:1px solid var(--line);background:var(--bg2);border-radius:4px;overflow:hidden}
-.frame canvas{display:block;width:100%;height:100%}
-.hud{position:absolute;inset:10px;pointer-events:none;font:400 .64rem/1 var(--font-m);color:var(--mute);letter-spacing:.05em}
-.hud span{position:absolute;white-space:nowrap}
-.hud .tl{top:0;left:0}.hud .tr{top:0;right:0}.hud .bl{bottom:0;left:0}.hud .br{bottom:0;right:0}
-.hud .bl b{color:var(--ok);font-weight:500}.hud .bl em{color:var(--ng);font-style:normal;font-weight:500}
-
-/* sections */
-section.s{border-top:1px solid var(--line)}
-section.s .wrap{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(24px,5vw,72px);padding-block:clamp(48px,7vw,92px)}
-.eyebrow{font:400 .7rem var(--font-m);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:0 0 12px}
-section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing:-.015em;margin:0;text-wrap:balance;max-width:18ch}
-.side .note{color:var(--ink2);margin:16px 0 0;max-width:34ch;font-size:.95rem}
-.side{position:sticky;top:calc(56px + env(safe-area-inset-top,0px) + 32px);align-self:start}
-
-/* services */
-.svc{list-style:none;margin:0;padding:0}
-.svc li{display:grid;gap:6px;padding-block:24px;border-top:1px solid var(--line)}
-.svc li:first-child{border-top:0;padding-top:0}
-.svc h3{font:500 1.25rem/1.25 var(--font-d);margin:0;letter-spacing:-.01em}
-.svc p{margin:0;color:var(--ink2);max-width:60ch}
-.svc .for{font:400 .72rem var(--font-m);color:var(--mute);letter-spacing:.04em;margin-top:6px}
-.modes{margin-top:28px;padding:18px 20px;border:1px solid var(--line);border-radius:6px;display:grid;gap:8px}
-.modes .eyebrow{margin:0}
-.modes ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 0;font-size:.95rem;color:var(--ink)}
-.modes li+li::before{content:"·";color:var(--mute);margin-inline:10px}
-
-/* work */
-.work{list-style:none;margin:0;padding:0}
-.work li{display:grid;grid-template-columns:6rem minmax(0,1fr) 9.5rem;gap:12px 24px;padding-block:26px;border-top:1px solid var(--line)}
-.work li:first-child{border-top:0;padding-top:0}
-.work .yr{font:400 .72rem/1.9 var(--font-m);color:var(--mute);font-variant-numeric:tabular-nums;letter-spacing:.03em}
-.work .yr small{display:block;font-size:.66rem;line-height:1.4;color:var(--mute);opacity:.85}
-.work h3{font:500 1.15rem/1.3 var(--font-d);margin:0 0 6px;letter-spacing:-.01em}
-.work p{margin:0;color:var(--ink2);max-width:58ch}
-.work .tags{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:12px;font:400 .68rem var(--font-m);color:var(--mute);letter-spacing:.03em}
-.work .tags span::before{content:"#";opacity:.55}
-.work .kpi{text-align:right}
-.work .kpi b{display:block;font:500 1.55rem/1.1 var(--font-d);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.work .kpi small{display:block;font:400 .66rem/1.4 var(--font-m);color:var(--mute);letter-spacing:.06em;text-transform:uppercase;margin-top:6px}
-
-/* process (a real sequence, hence numbered) */
-.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 36px;counter-reset:step}
-.steps li{counter-increment:step;display:grid;gap:8px;align-content:start}
-.steps li::before{content:counter(step,decimal-leading-zero);font:400 .7rem var(--font-m);color:var(--acc);letter-spacing:.08em}
-.steps h3{font:500 1.1rem/1.3 var(--font-d);margin:0}
-.steps p{margin:0;color:var(--ink2);font-size:.98rem;max-width:34ch}
-
-/* background rows */
-.rows{display:grid}
-.row{display:grid;grid-template-columns:9rem minmax(0,1fr);gap:6px 24px;padding-block:16px;border-top:1px solid var(--line)}
-.row:first-child{border-top:0;padding-top:0}
-.row .k{font:400 .68rem/1.9 var(--font-m);color:var(--mute);letter-spacing:.08em;text-transform:uppercase}
-.row .v{margin:0}
-.row .v + .v{margin-top:10px}
-.row .v b{font-weight:600}
-.row .v .sub{color:var(--ink2);display:block;font-size:.95rem}
-.tools{display:flex;flex-wrap:wrap;gap:6px 14px;font:400 .78rem var(--font-m);color:var(--ink2);margin:0}
-
-/* about + stage photo with its own detection box */
-.about{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:32px;align-items:start}
-.photo{position:relative;margin:0;max-width:420px}
-.photo img{display:block;width:100%;height:auto;border-radius:4px;border:1px solid var(--line)}
-.photo figcaption{margin-top:10px;font:400 .68rem/1.5 var(--font-m);color:var(--mute);letter-spacing:.04em}
-.pbox{position:absolute;border:1px solid var(--acc);pointer-events:none}
-.pbox::before,.pbox::after,.pbox i::before,.pbox i::after{content:"";position:absolute;width:9px;height:9px;border-color:var(--acc);border-style:solid}
-.pbox i{position:absolute;inset:0}
-.pbox::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
-.pbox::after{top:-1px;right:-1px;border-width:2px 2px 0 0}
-.pbox i::before{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
-.pbox i::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
-.pbox b{position:absolute;left:-1px;bottom:100%;background:var(--acc);color:var(--acc-ink);font:500 .62rem/1 var(--font-m);letter-spacing:.06em;padding:4px 6px;white-space:nowrap}
-.about .txt p{margin:0 0 14px;max-width:58ch}
-.about .txt p:last-child{margin-bottom:0}
-
-/* contact */
-.contact .big{font:500 clamp(1.7rem,3.6vw,2.7rem)/1.12 var(--font-d);letter-spacing:-.02em;margin:0 0 22px;text-wrap:balance;max-width:24ch}
-.contact .big a{text-decoration-thickness:2px;text-decoration-color:var(--acc);text-underline-offset:.1em}
-.links{display:flex;flex-wrap:wrap;gap:8px 24px;font:400 .78rem var(--font-m);letter-spacing:.03em;margin:0;padding:0;list-style:none}
-
-/* footer */
-.foot .wrap{display:flex;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;padding-block:24px calc(24px + env(safe-area-inset-bottom,0px));font:400 .68rem var(--font-m);color:var(--mute);border-top:1px solid var(--line);letter-spacing:.03em}
-
-/* detection overlay — the page inspected the way a line camera would */
-#det{position:fixed;left:0;top:0;z-index:15;pointer-events:none;border:1px solid var(--acc);opacity:0;transition:transform .32s cubic-bezier(.2,.7,.2,1),width .32s cubic-bezier(.2,.7,.2,1),height .32s cubic-bezier(.2,.7,.2,1),opacity .2s;will-change:transform,width,height}
-#det.on{opacity:1}
-#det.instant{transition:opacity .2s}
-#det i{position:absolute;inset:0}
-#det::before,#det::after,#det i::before,#det i::after{content:"";position:absolute;width:10px;height:10px;border-color:var(--acc);border-style:solid}
-#det::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
-#det::after{top:-1px;right:-1px;border-width:2px 2px 0 0}
-#det i::before{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
-#det i::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
-#det b{position:absolute;left:-1px;top:-1px;background:var(--acc);color:var(--acc-ink);font:500 .64rem/1 var(--font-m);letter-spacing:.06em;padding:5px 7px;white-space:nowrap;font-variant-numeric:tabular-nums}
-
-@media (prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  #det{transition:none}
-  .btn,a{transition:none}
-}
-
-@media (max-width:860px){
-  .bar nav{min-width:0}
-  .status{min-width:0}
-  .hero .wrap{grid-template-columns:minmax(0,1fr);align-items:start}
-  section.s .wrap{grid-template-columns:minmax(0,1fr);gap:28px}
-  .side{position:static}
-  .work li{grid-template-columns:minmax(0,1fr);gap:8px}
-  .work .yr small{display:inline;margin-left:8px}
-  .work .kpi{text-align:left;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin-top:4px}
-  .work .kpi small{margin:0}
-  .steps{grid-template-columns:minmax(0,1fr)}
-  .row{grid-template-columns:minmax(0,1fr);gap:4px}
-  .about{grid-template-columns:minmax(0,1fr);gap:24px}
-  .status span{display:none}
-}
-@media (max-width:520px){
-  .hud .tr{display:none}
-}
-</style>
+<link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
 <script>
@@ -215,9 +37,14 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
 
 <header class="bar">
   <div class="wrap">
-    <a class="brand" href="#top">Gizem Keskin</a>
+    <a class="brand" href="./">Gizem Keskin</a>
     <nav>
-      <span class="status"><i></i><span lang="tr">Projelere ve danışmanlığa açık · İstanbul / uzaktan</span><span lang="en">Open to projects and consulting · Istanbul / remote</span></span>
+      <div class="links">
+        <a href="#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="blog/" data-nav="blog">Blog</a>
+        <a href="playground/" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
       <div class="lang" role="group" aria-label="Language">
         <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
         <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
@@ -238,8 +65,8 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
       <div class="cta">
         <a class="btn" href="mailto:gizem3keskin@gmail.com?subject=Proje" lang="tr">Projenizi anlatın →</a>
         <a class="btn" href="mailto:gizem3keskin@gmail.com?subject=Project" lang="en">Tell me about your project →</a>
-        <a class="btn ghost" href="#work" lang="tr">Yaptığım işler</a>
-        <a class="btn ghost" href="#work" lang="en">Selected work</a>
+        <a class="btn ghost" href="playground/" lang="tr">Playground'u dene</a>
+        <a class="btn ghost" href="playground/" lang="en">Try the playground</a>
       </div>
       <div class="meta">
         <span lang="tr"><b>10+</b> sistem sahada</span><span lang="en"><b>10+</b> systems in the field</span>
@@ -316,8 +143,8 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
       <p class="eyebrow" lang="tr">Seçilmiş işler</p><p class="eyebrow" lang="en">Selected work</p>
       <h2 lang="tr">Sahada çalışan sistemler.</h2>
       <h2 lang="en">Systems that run in the field.</h2>
-      <p class="note" lang="tr">Elanus Robotics'te tasarladığım ve yazılımını geliştirdiğim ürünler ile Alpplas Endüstriyel Yatırımlar'da gerçek üretim hatlarına kurduğum sistemler.</p>
-      <p class="note" lang="en">Products I designed and wrote the software for at Elanus Robotics, and systems I commissioned on real production lines at Alpplas Endüstriyel Yatırımlar.</p>
+      <p class="note" lang="tr">Elanus Robotics'te tasarladığım ve yazılımını geliştirdiğim ürünler ile Alpplas Endüstriyel Yatırımlar'da gerçek üretim hatlarına kurduğum sistemler. Alpplas işleri gizlilik gereği fotoğrafsız; şemalar sistemin mantığını gösterir.</p>
+      <p class="note" lang="en">Products I designed and wrote the software for at Elanus Robotics, and systems I commissioned on real production lines at Alpplas Endüstriyel Yatırımlar. Alpplas work is shown as schematics for confidentiality.</p>
     </div>
     <ul class="work">
       <li data-det="ceramic_inspection" data-conf="0.96">
@@ -327,6 +154,11 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
           <p lang="tr">Seramik ve porselende deseni üretim hatasından ayırt eden derin öğrenme sistemi. Ürünün dört yüzeyi kontrollü aydınlatma altında line-scan ve area-scan kameralarla taranıyor; uç cihazda analiz, reject mekanizması ve hata istatistikleri. Aktif Ar-Ge ve pilot uygulama.</p>
           <p lang="en">A deep-learning system that tells decorative pattern from production defects on ceramics and porcelain. All four faces are scanned with line-scan and area-scan cameras under controlled lighting; edge analysis, a reject mechanism and defect statistics. Active R&amp;D and pilot.</p>
           <div class="tags"><span>anomaly detection</span><span>line-scan</span><span>edge</span><span>reject</span></div>
+          <figure>
+            <img src="assets/work/ceramic-linescan.jpg" alt="Hat üzerinde seramik plakaların tarama görüntüsü ve işaretlenmiş hata" loading="lazy">
+            <img src="assets/work/ceramic-tiles.jpg" alt="Seramik plakalarda tespit edilen hataların panel görünümü" loading="lazy">
+            <figcaption lang="tr">Hat görüntüsü ve hata paneli · Elanus pilot</figcaption><figcaption lang="en">Line view and defect panel · Elanus pilot</figcaption>
+          </figure>
         </div>
         <div class="kpi"><b lang="tr">4 yüzey</b><b lang="en">4 faces</b><small lang="tr">desen ve hata ayrımı</small><small lang="en">pattern vs defect</small></div>
       </li>
@@ -337,6 +169,12 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
           <p lang="tr">Mevcut CCTV altyapısını yapay zekâ analizine dönüştüren sistem. Düşmeyi saniyesinde algılıyor, iskelet takibiyle vücut açılarını ve ergonomik riski analiz ediyor, sanal güvenlik alanlarına yetkisiz girişte anlık alarm üretiyor. AgentCon İstanbul 2026'da anlattığım sistem.</p>
           <p lang="en">Turns an existing CCTV setup into AI analysis. Detects a fall within a second, analyses body angles and ergonomic risk through skeleton tracking, and raises instant alarms on unauthorised entry into virtual safety zones. The system I presented at AgentCon Istanbul 2026.</p>
           <div class="tags"><span>skeleton tracking</span><span>vision agents</span><span>cctv</span><span>real-time</span></div>
+          <figure>
+            <img src="assets/work/isg-cam-2.jpg" alt="Depo kamerasında kişiler üzerinde tespit kutuları ve güvenlik alanı" loading="lazy">
+            <img src="assets/work/isg-cam-1.jpg" alt="Depo kamerasında çalışanların takip edildiği görüntü" loading="lazy">
+            <img src="assets/work/isg-dashboard.jpg" alt="İSG takip panelinin ekran görüntüsü" loading="lazy">
+            <figcaption lang="tr">Kamera analizi ve yönetim paneli · <a href="playground/live.html">canlı demoyu dene</a></figcaption><figcaption lang="en">Camera analytics and dashboard · <a href="playground/live.html">try the live demo</a></figcaption>
+          </figure>
         </div>
         <div class="kpi"><b lang="tr">CCTV → YZ</b><b lang="en">CCTV → AI</b><small lang="tr">mevcut kameralarla</small><small lang="en">with existing cameras</small></div>
       </li>
@@ -347,6 +185,10 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
           <p lang="tr">Havacılık bakımı ve ağır sanayi için alet takip sistemi. Her alet NFC kimliğiyle tanımlı; kiosk okutmadan çıkış tamamlanmıyor, alet iş emriyle otomatik eşleşiyor, kullanıcı doğrulanıyor ve zaman damgalı kayıt oluşuyor. FOD riskine karşı dijital ispat.</p>
           <p lang="en">Tool tracking for aviation maintenance and heavy industry. Every tool carries an NFC identity; checkout can't complete without a scan at the kiosk, tools are matched to work orders automatically, users are verified and every event is time-stamped. Digital proof against FOD risk.</p>
           <div class="tags"><span>nfc</span><span>kiosk</span><span>web panel</span><span>work orders</span></div>
+          <figure class="one">
+            <img src="assets/work/toolguard-panel.jpg" alt="ToolGuard web panelinin ekran görüntüsü" loading="lazy">
+            <figcaption lang="tr">Yönetim paneli: kullanıcılar, aletler, iş emirleri</figcaption><figcaption lang="en">Admin panel: users, tools, work orders</figcaption>
+          </figure>
         </div>
         <div class="kpi"><b>NFC</b><small lang="tr">iş emri doğrulama</small><small lang="en">work-order verification</small></div>
       </li>
@@ -357,6 +199,11 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
           <p lang="tr">Araç servislerinde mevcut kameraları operasyon analizine çeviren sistem. Her iş istasyonu ayrı izleniyor, iş emirleri hedef süreyle eşleşiyor, gecikmeler otomatik işaretleniyor; yöneticiye anlık performans paneli ve günlük rapor.</p>
           <p lang="en">Turns the cameras already in a vehicle service centre into an operations analysis tool. Each bay is monitored separately, work orders are matched with target times, delays are flagged automatically; managers get a live dashboard and a daily report.</p>
           <div class="tags"><span>video analytics</span><span>dashboard</span><span>cycle time</span></div>
+          <figure>
+            <img src="assets/work/service-cam.jpg" alt="Servis istasyonu kamerasında araç ve bölge tespiti" loading="lazy">
+            <img src="assets/work/service-dashboard-2.jpg" alt="İstasyon performans panelinin ekran görüntüsü" loading="lazy">
+            <figcaption lang="tr">İstasyon kamerası ve yönetici paneli</figcaption><figcaption lang="en">Bay camera and manager dashboard</figcaption>
+          </figure>
         </div>
         <div class="kpi"><b lang="tr">+1 araç/gün</b><b lang="en">+1 car/day</b><small lang="tr">kapasite potansiyeli</small><small lang="en">capacity potential</small></div>
       </li>
@@ -367,6 +214,25 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
           <p lang="tr">Üretim alanında çok kameralı, derin öğrenme tabanlı takip. Image alignment ile geniş alan; pose estimation ile düşme, tehlikeli bölge ihlali ve kötü duruş tespiti; LSTM ile hareket akışı ve cycle time hesabı.</p>
           <p lang="en">Multi-camera, deep-learning tracking across the production floor. Wide-area coverage through image alignment; pose estimation for falls, danger-zone violations and bad posture; LSTM analysis for motion flow and cycle time.</p>
           <div class="tags"><span>multi-camera</span><span>pose estimation</span><span>lstm</span></div>
+          <figure class="one">
+            <svg class="schem" viewBox="0 0 320 200" role="img" aria-label="Çok kameralı personel takibi şeması">
+              <rect x="16" y="20" width="288" height="160" class="p"/>
+              <path d="M16 20 L96 110 M16 20 L120 40" class="m" stroke-dasharray="3 3"/>
+              <path d="M304 20 L224 110 M304 20 L200 40" class="m" stroke-dasharray="3 3"/>
+              <rect x="12" y="16" width="8" height="8" class="accf"/><rect x="300" y="16" width="8" height="8" class="accf"/>
+              <text x="24" y="14" class="t">cam_1</text><text x="268" y="14" class="t">cam_2</text>
+              <rect x="200" y="112" width="92" height="56" class="ng" stroke-dasharray="4 3"/>
+              <text x="204" y="108" class="ngf">danger_zone</text>
+              <g class="m"><circle cx="80" cy="92" r="5"/><path d="M80 97 v22 M80 104 l-10 10 M80 104 l10 10 M80 119 l-7 14 M80 119 l7 14"/></g>
+              <rect x="66" y="84" width="28" height="52" class="ok"/><text x="66" y="81" class="okf">worker 0.98</text>
+              <g class="m"><circle cx="150" cy="100" r="5"/><path d="M150 105 v22 M150 112 l-9 8 M150 112 l9 8 M150 127 l-6 14 M150 127 l6 14"/></g>
+              <rect x="138" y="92" width="24" height="52" class="ok"/><text x="138" y="89" class="okf">worker 0.97</text>
+              <g class="m"><circle cx="228" cy="152" r="5"/><path d="M233 152 h22 M241 152 l6 -8 M241 152 l6 8 M255 152 l12 -5 M255 152 l12 5"/></g>
+              <rect x="220" y="140" width="52" height="22" class="ng"/><text x="220" y="137" class="ngf">fall 0.94 · alarm</text>
+              <text x="16" y="194" class="t">image alignment · pose · lstm cycle time 38.2 s</text>
+            </svg>
+            <figcaption lang="tr">Şema: iki kameranın görüş alanı, takip edilen çalışanlar, tehlikeli bölge ve düşme alarmı</figcaption><figcaption lang="en">Schematic: two camera fields of view, tracked workers, a danger zone and a fall alarm</figcaption>
+          </figure>
         </div>
         <div class="kpi"><b lang="tr">Çok kamera</b><b lang="en">Multi-camera</b><small lang="tr">anlık anomali</small><small lang="en">live anomaly alerts</small></div>
       </li>
@@ -377,6 +243,12 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
           <p lang="tr">Akaryakıt ve tehlikeli madde tankerlerinde kapak ve vana hareketlerini manyetik sensörlerle izleyen, olay anında otomatik kamera kaydı başlatan, konum ve zaman damgasıyla merkezi bulut paneline aktaran güvenlik sistemi. Ex-proof muhafaza, GSM router, web panel.</p>
           <p lang="en">Monitors hatch and valve movements on fuel and hazardous-goods tankers with magnetic sensors, starts camera recording automatically on an event, and reports it with location and timestamp to a central cloud panel. Ex-proof housing, GSM router, web dashboard.</p>
           <div class="tags"><span>sensors</span><span>ip camera</span><span>gsm</span><span>cloud</span></div>
+          <figure>
+            <img src="assets/work/adr-sensor-3.jpg" alt="Tanker kapağına monte edilmiş sensör" loading="lazy">
+            <img src="assets/work/adr-sensor-2.jpg" alt="Tanker vana bölmesindeki sensör kablolaması" loading="lazy">
+            <img src="assets/work/adr-dashboard.jpg" alt="Filo konum takip panelinin ekran görüntüsü" loading="lazy">
+            <figcaption lang="tr">Saha montajı ve filo paneli</figcaption><figcaption lang="en">Field installation and fleet dashboard</figcaption>
+          </figure>
         </div>
         <div class="kpi"><b lang="tr">Olay anında</b><b lang="en">On event</b><small lang="tr">otomatik video kaydı</small><small lang="en">automatic video record</small></div>
       </li>
@@ -387,6 +259,10 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
           <p lang="tr">Filo araçlarında şamandıralı sensörlerin kör noktalarını ortadan kaldıran hidrostatik ölçüm. Depo altına monte basınç sensörü, 4–20 mA sinyal işleme, her depo için litre-basınç kalibrasyonu, GSM IO ile web panele anlık tüketim eğrisi.</p>
           <p lang="en">Hydrostatic measurement that removes the blind spots of float sensors in fleet vehicles. A pressure sensor under the tank, 4–20 mA signal processing, a litre-to-pressure calibration per tank, and a live consumption curve on the web panel via GSM IO.</p>
           <div class="tags"><span>4–20 mA</span><span>calibration</span><span>gsm io</span></div>
+          <figure class="one">
+            <img src="assets/work/fuel-sensor.jpg" alt="Kamyon deposunun altına monte edilmiş basınç sensörü" loading="lazy">
+            <figcaption lang="tr">Depo altı sensör montajı</figcaption><figcaption lang="en">Sensor mounted under the tank</figcaption>
+          </figure>
         </div>
         <div class="kpi"><b>±1 L</b><small lang="tr">ölçüm hassasiyeti</small><small lang="en">measurement accuracy</small></div>
       </li>
@@ -397,6 +273,21 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
           <p lang="tr">Konveyör üzerindeki kartlarda, fikstür veya kılavuz olmadan, tüm TH komponentlerin kontrolü: varlık/yokluk, yön, soket pin sayısı, yazı ve sembol doğruluğu. Bu iş için AlpVisionNet derin öğrenme modeli geliştirildi.</p>
           <p lang="en">Inspection of every through-hole component on boards travelling on the conveyor, with no fixture or guide: presence, orientation, socket pin count, text and symbol correctness. The AlpVisionNet deep-learning model was developed for this.</p>
           <div class="tags"><span>pytorch</span><span>opencv</span><span>ocr</span><span>custom cnn</span></div>
+          <figure class="one">
+            <svg class="schem" viewBox="0 0 320 200" role="img" aria-label="PCB kontrol şeması">
+              <rect x="20" y="24" width="280" height="152" rx="3" class="p"/>
+              <g class="p"><rect x="44" y="44" width="40" height="26" rx="2"/><rect x="104" y="44" width="40" height="26" rx="2"/><rect x="164" y="44" width="40" height="26" rx="2"/><rect x="224" y="44" width="40" height="26" rx="2"/>
+              <rect x="44" y="90" width="22" height="10" rx="2"/><rect x="84" y="90" width="22" height="10" rx="2"/><circle cx="140" cy="95" r="8"/><circle cx="180" cy="95" r="8"/><rect x="212" y="90" width="22" height="10" rx="2"/><rect x="252" y="90" width="22" height="10" rx="2"/>
+              <rect x="44" y="130" width="40" height="26" rx="2"/><rect x="164" y="130" width="40" height="26" rx="2"/><rect x="224" y="130" width="40" height="26" rx="2"/></g>
+              <g class="m"><circle cx="134" cy="143" r="1.5"/><circle cx="146" cy="143" r="1.5"/></g>
+              <g class="ok"><rect x="40" y="40" width="48" height="34"/><rect x="100" y="40" width="48" height="34"/><rect x="160" y="40" width="48" height="34"/><rect x="40" y="86" width="30" height="18"/><rect x="80" y="86" width="30" height="18"/><rect x="128" y="83" width="24" height="24"/><rect x="168" y="83" width="24" height="24"/><rect x="40" y="126" width="48" height="34"/><rect x="160" y="126" width="48" height="34"/></g>
+              <text x="40" y="37" class="okf">OK 0.99</text><text x="100" y="37" class="okf">OK 0.99</text><text x="160" y="37" class="okf">OK 0.98</text>
+              <rect x="126" y="129" width="28" height="28" class="ng"/><text x="126" y="126" class="ngf">NG 0.97 missing</text>
+              <line x1="214" y1="24" x2="214" y2="176" class="acc"/><text x="218" y="170" class="accf">scan</text>
+              <text x="20" y="192" class="t">conveyor → no fixture · presence · orientation · pins · ocr</text>
+            </svg>
+            <figcaption lang="tr">Şema: hareket halindeki kartta komponent bazlı karar, eksik kapasitör NG</figcaption><figcaption lang="en">Schematic: per-component decisions on a moving board, missing capacitor flagged NG</figcaption>
+          </figure>
         </div>
         <div class="kpi"><b lang="tr">Fikstürsüz</b><b lang="en">No fixture</b><small lang="tr">hareket halinde kontrol</small><small lang="en">inspected in motion</small></div>
       </li>
@@ -407,6 +298,20 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
           <p lang="tr">Lazer baskı sonrası plastik panolarda çapak, kesik, çizik, delik, toz ve leke tespiti; serigrafi kontrolü. OCR ile her fonetik dilde yazı kontrolü, geometrik ölçüm ve renk doğrulama.</p>
           <p lang="en">Detection of flash, cuts, scratches, holes, dust and stains on laser-printed plastic panels; silkscreen checks. OCR for text in any phonetic language, geometric measurement and colour verification.</p>
           <div class="tags"><span>opencv</span><span>ocr</span><span>morphology</span></div>
+          <figure class="one">
+            <svg class="schem" viewBox="0 0 320 200" role="img" aria-label="Baskı kontrol şeması">
+              <rect x="30" y="28" width="260" height="144" rx="6" class="p"/>
+              <text x="52" y="66" class="tk" font-size="15" font-weight="600" letter-spacing="1">START  STOP  RESET</text>
+              <g class="m"><circle cx="70" cy="110" r="12"/><path d="M110 122 l12 -22 l12 22 z"/><rect x="150" y="98" width="24" height="24" rx="2"/></g>
+              <rect x="46" y="48" width="184" height="26" class="ok"/><text x="46" y="45" class="okf">OCR ✓ "START STOP RESET" · font ✓</text>
+              <path d="M214 132 l34 -20" class="ng" stroke-width="1.5"/>
+              <rect x="206" y="104" width="50" height="36" class="ng"/><text x="206" y="101" class="ngf">NG scratch 0.3 mm</text>
+              <circle cx="120" cy="150" r="1.5" class="ngf"/><rect x="112" y="142" width="16" height="16" class="ng"/><text x="130" y="158" class="ngf">dust</text>
+              <path d="M52 132 v8 M104 132 v8 M52 138 h52" class="acc"/><text x="58" y="150" class="accf">42.00 mm ±0.05</text>
+              <text x="30" y="188" class="t">laser print · flash · scratch · dust · silkscreen · colour</text>
+            </svg>
+            <figcaption lang="tr">Şema: OCR ile yazı doğrulama, çizik ve toz tespiti, geometrik ölçüm</figcaption><figcaption lang="en">Schematic: OCR text verification, scratch and dust detection, geometric measurement</figcaption>
+          </figure>
         </div>
         <div class="kpi"><b>0,1 mm</b><small lang="tr">en küçük baskı hatası</small><small lang="en">smallest print defect</small></div>
       </li>
@@ -417,6 +322,21 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
           <p lang="tr">LED'li butonlarda yanma/yanmama, muhafazada ışık sızıntısı, baskı hataları ve sembol doğruluğu. CUDA ile GPU hızlandırma; threading ile aynı anda çok butonda tespit.</p>
           <p lang="en">Lit/unlit state of LED buttons, light leakage through the housing, print defects and symbol correctness. GPU acceleration with CUDA; multi-threaded detection across many buttons at once.</p>
           <div class="tags"><span>cuda</span><span>threading</span><span>c++</span></div>
+          <figure class="one">
+            <svg class="schem" viewBox="0 0 320 200" role="img" aria-label="LED buton kontrol şeması">
+              <g class="p"><rect x="30" y="40" width="70" height="50" rx="6"/><rect x="125" y="40" width="70" height="50" rx="6"/><rect x="220" y="40" width="70" height="50" rx="6"/><rect x="30" y="112" width="70" height="50" rx="6"/><rect x="125" y="112" width="70" height="50" rx="6"/><rect x="220" y="112" width="70" height="50" rx="6"/></g>
+              <g class="okf"><circle cx="65" cy="65" r="7"/><circle cx="160" cy="65" r="7"/><circle cx="255" cy="65" r="7"/><circle cx="65" cy="137" r="7"/></g>
+              <circle cx="160" cy="137" r="7" class="m"/>
+              <circle cx="255" cy="137" r="7" class="okf"/>
+              <path d="M220 118 l-8 -8 M290 118 l8 -8 M220 156 l-8 8" class="ng" stroke-width="1.5"/>
+              <g class="ok"><rect x="26" y="36" width="78" height="58"/><rect x="121" y="36" width="78" height="58"/><rect x="216" y="36" width="78" height="58"/><rect x="26" y="108" width="78" height="58"/></g>
+              <text x="26" y="33" class="okf">lit 0.99</text><text x="121" y="33" class="okf">lit 0.99</text><text x="216" y="33" class="okf">lit 0.98</text>
+              <rect x="121" y="108" width="78" height="58" class="ng"/><text x="121" y="105" class="ngf">NG unlit</text>
+              <rect x="216" y="108" width="78" height="58" class="ng"/><text x="216" y="105" class="ngf">NG light leak</text>
+              <text x="30" y="188" class="t">6 buttons · 1 frame · cuda · 4 threads · 41 ms</text>
+            </svg>
+            <figcaption lang="tr">Şema: tek karede altı buton, biri yanmıyor, birinde ışık sızıntısı</figcaption><figcaption lang="en">Schematic: six buttons in one frame, one unlit, one with light leakage</figcaption>
+          </figure>
         </div>
         <div class="kpi"><b lang="tr">Çoklu buton</b><b lang="en">Multi-button</b><small lang="tr">tek geçişte</small><small lang="en">in a single pass</small></div>
       </li>
@@ -427,10 +347,52 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
           <p lang="tr">TÜBİTAK 2209-B destekli proje. Derin öğrenme ile atık sınıflandırma; kapsamlı veri seti ve CNN optimizasyonu. PLC haberleşmesi, PyQt5 arayüz ve Arduino donanım entegrasyonu.</p>
           <p lang="en">TÜBİTAK 2209-B funded project. Deep-learning waste classification; an extensive dataset and CNN optimisation. PLC communication, a PyQt5 interface and Arduino hardware integration.</p>
           <div class="tags"><span>cnn</span><span>plc</span><span>pyqt5</span><span>arduino</span></div>
+          <figure class="one">
+            <svg class="schem" viewBox="0 0 320 200" role="img" aria-label="Atık ayrıştırma şeması">
+              <rect x="20" y="100" width="280" height="14" class="p"/>
+              <g class="m"><circle cx="34" cy="107" r="5"/><circle cx="286" cy="107" r="5"/></g>
+              <rect x="150" y="30" width="20" height="12" class="accf"/><path d="M160 42 L130 96 M160 42 L190 96" class="acc" stroke-dasharray="3 3"/><text x="174" y="40" class="t">cam · cnn</text>
+              <g class="p"><circle cx="70" cy="88" r="9"/><rect x="146" y="78" width="26" height="18" rx="2"/><path d="M226 96 l10 -20 l10 20 z"/></g>
+              <rect x="58" y="76" width="24" height="24" class="ok"/><text x="58" y="73" class="okf">plastic 0.98</text>
+              <rect x="142" y="74" width="34" height="26" class="ok"/><text x="142" y="71" class="okf">metal 0.97</text>
+              <rect x="222" y="72" width="28" height="28" class="ok"/><text x="222" y="69" class="okf">paper 0.95</text>
+              <g class="m"><rect x="56" y="134" width="40" height="30"/><rect x="140" y="134" width="40" height="30"/><rect x="224" y="134" width="40" height="30"/></g>
+              <path d="M76 114 v16 M160 114 v16 M244 114 v16" class="acc"/>
+              <text x="60" y="176" class="t">bin_1</text><text x="144" y="176" class="t">bin_2</text><text x="228" y="176" class="t">bin_3</text>
+              <text x="20" y="192" class="t">plc · arduino · pyqt5 operator ui</text>
+            </svg>
+            <figcaption lang="tr">Şema: konveyör üzerinde sınıflandırma ve PLC ile yönlendirme</figcaption><figcaption lang="en">Schematic: classification on the conveyor and PLC-driven sorting</figcaption>
+          </figure>
         </div>
         <div class="kpi"><b>2209-B</b><small lang="tr">TÜBİTAK desteği</small><small lang="en">TÜBİTAK grant</small></div>
       </li>
     </ul>
+  </div>
+</section>
+
+<section class="s" id="playground-teaser" data-det="playground" data-conf="0.96">
+  <div class="wrap">
+    <div class="side">
+      <p class="eyebrow">Playground</p>
+      <h2 lang="tr">Tarayıcınızda deneyin.</h2>
+      <h2 lang="en">Try it in your browser.</h2>
+      <p class="note" lang="tr">Anlatmak yerine göstermek: iki küçük araç, hiçbir şey sunucuya gitmez.</p>
+      <p class="note" lang="en">Showing beats telling: two small tools, nothing leaves your browser.</p>
+    </div>
+    <div class="pgcards" style="padding-block:0">
+      <a class="pgcard" href="playground/bench.html">
+        <span class="m">01 · opencv-style</span>
+        <h3 lang="tr">Görüntü işleme tezgâhı</h3><h3 lang="en">Image-processing bench</h3>
+        <p lang="tr">Eşikleme, morfoloji, bileşen sayma ve referans karşılaştırma ile bir kalite kontrol hattı kurun; yanında OpenCV kodu yazılsın.</p>
+        <p lang="en">Build an inspection pipeline with thresholding, morphology, blob counting and reference comparison, with the OpenCV code written beside it.</p>
+      </a>
+      <a class="pgcard" href="playground/live.html">
+        <span class="m">02 · webcam</span>
+        <h3 lang="tr">Canlı tespit</h3><h3 lang="en">Live detection</h3>
+        <p lang="tr">Kameranızla nesne tespiti ve iskelet tabanlı düşme tespiti; İSG sistemindeki mantığın küçük bir örneği.</p>
+        <p lang="en">Object detection and skeleton-based fall detection with your camera; a small version of the logic in the safety system.</p>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -525,8 +487,8 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
         <p lang="en">I studied computer and mechatronics engineering and have worked on production lines since my first job. While at Alpplas, in November 2023, I co-founded Elanus Robotics: systems that run in the field, from factories to tankers, workshops to service centres.</p>
         <p lang="tr">Modelin tek başına bir şey çözmediğini orada öğrendim: kamera, ışık, sensör ve algoritma birlikte tasarlanınca sistem çalışır. Şubat 2026'da AgentCon İstanbul'da, Microsoft ve Google'dan konuşmacılarla aynı sahnede, görü ajanlarıyla iş güvenliği takibini anlattım.</p>
         <p lang="en">That's where I learned a model solves nothing on its own: the system works when camera, light, sensors and algorithm are designed together. In February 2026 I spoke at AgentCon Istanbul, sharing the stage with speakers from Microsoft and Google, on tracking workplace safety with vision agents.</p>
-        <p lang="tr">Lisanslı aikido sporcusuyum; işin çoğu sabır ve zamanlama. Yapay zekânın felsefesini okurum; Turing ve Minsky masamdan eksik olmaz.</p>
-        <p lang="en">I'm a licensed aikido practitioner, which is mostly patience and timing. I read the philosophy of AI; Turing and Minsky never leave my desk.</p>
+        <p lang="tr">Lisanslı aikido sporcusuyum; işin çoğu sabır ve zamanlama. Yapay zekânın felsefesini okurum; Turing ve Minsky masamdan eksik olmaz. Öğrendiklerimi <a href="blog/">blogda</a> yazıyorum.</p>
+        <p lang="en">I'm a licensed aikido practitioner, which is mostly patience and timing. I read the philosophy of AI; Turing and Minsky never leave my desk. I write up what I learn on the <a href="blog/">blog</a>.</p>
       </div>
     </div>
   </div>
@@ -560,63 +522,9 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
   </div>
 </footer>
 
+<script src="assets/site.js"></script>
 <script>
-/* ---------- language toggle ---------- */
-(function(){
-  var root=document.documentElement;
-  var btns=document.querySelectorAll('.lang button');
-  var titles={tr:'Gizem Keskin — Yapay zekâ ve yazılım mühendisi',en:'Gizem Keskin — AI & software engineer'};
-  function set(l,save){
-    root.setAttribute('data-lang',l); root.setAttribute('lang',l);
-    document.title=titles[l]||'Gizem Keskin';
-    btns.forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-lang')===l?'true':'false')});
-    if(save){try{localStorage.setItem('lang',l)}catch(e){}}
-  }
-  set(root.getAttribute('data-lang')||'tr',false);
-  btns.forEach(function(b){b.addEventListener('click',function(){set(b.getAttribute('data-lang'),true)})});
-  var y=document.getElementById('yr'); if(y) y.textContent=String(new Date().getFullYear());
-})();
-
-/* ---------- detection overlay ---------- */
-(function(){
-  var det=document.getElementById('det'); if(!det) return;
-  var lab=det.querySelector('b');
-  var fine=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
-  var cur=null, raf=0;
-  function place(el,instant){
-    if(!el){det.classList.remove('on');cur=null;return}
-    cur=el;
-    var r=el.getBoundingClientRect(), pad=10;
-    det.classList.toggle('instant',!!instant);
-    det.style.transform='translate('+(r.left-pad)+'px,'+(r.top-pad)+'px)';
-    det.style.width=(r.width+pad*2)+'px';
-    det.style.height=(r.height+pad*2)+'px';
-    lab.textContent=el.getAttribute('data-det')+' '+(el.getAttribute('data-conf')||'0.98');
-    det.classList.add('on');
-  }
-  function follow(){ if(cur){cancelAnimationFrame(raf);raf=requestAnimationFrame(function(){place(cur,true)})} }
-  if(fine){
-    document.addEventListener('pointermove',function(e){
-      var t=e.target, el=(t&&t.closest)?t.closest('[data-det]'):null;
-      if(el!==cur) place(el,false);
-    });
-    document.documentElement.addEventListener('pointerleave',function(){place(null)});
-  }else{
-    var secs=document.querySelectorAll('section[data-det]');
-    if('IntersectionObserver' in window){
-      var io=new IntersectionObserver(function(entries){
-        var best=null;
-        entries.forEach(function(en){ if(en.isIntersecting&&(!best||en.intersectionRatio>best.intersectionRatio)) best=en });
-        if(best&&best.target!==cur) place(best.target,false);
-      },{threshold:[.2,.4,.6,.8]});
-      Array.prototype.forEach.call(secs,function(s){io.observe(s)});
-    }
-  }
-  window.addEventListener('scroll',follow,{passive:true});
-  window.addEventListener('resize',follow);
-})();
-
-/* ---------- inspection canvas ---------- */
+/* ---------- inspection canvas (home only) ---------- */
 (function(){
   var cv=document.getElementById('cv'); if(!cv||!cv.getContext) return;
   var ctx=cv.getContext('2d');
@@ -624,11 +532,9 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var W=0,H=0,dpr=1,comps=[],seed=20230614,t0=0,C={},cycle=0;
   var SWEEP=5600,HOLD=2200;
-
   function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
   function theme(){C={bg:css('--bg2'),ink:css('--ink2'),mute:css('--mute'),line:css('--line'),ok:css('--ok'),ng:css('--ng'),acc:css('--acc'),ground:css('--bg')}}
   function rnd(){seed=(seed*48271)%2147483647;return (seed-1)/2147483646}
-
   function layout(){
     comps=[];
     var cols=6,rows=5,mx=W*0.09,my=H*0.13,cw=(W-2*mx)/cols,ch=(H-2*my)/rows;
@@ -660,8 +566,7 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
   function rrect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
   function drawComp(k){
     var b=bounds(k);
-    ctx.lineWidth=1;
-    ctx.strokeStyle=C.ink;ctx.fillStyle=C.ground;
+    ctx.lineWidth=1;ctx.strokeStyle=C.ink;ctx.fillStyle=C.ground;
     if(k.ng&&k.mode==='missing'){
       ctx.fillStyle=C.line;
       if(k.type==='cap'){ctx.beginPath();ctx.arc(k.cx-b.w*0.28,k.cy,2,0,7);ctx.arc(k.cx+b.w*0.28,k.cy,2,0,7);ctx.fill()}
@@ -685,11 +590,9 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
   }
   function drawBox(k){
     var b=bounds(k),m=5,col=k.ng?C.ng:C.ok;
-    ctx.strokeStyle=col;ctx.lineWidth=1;
-    ctx.globalAlpha=k.ng?1:0.85;
+    ctx.strokeStyle=col;ctx.lineWidth=1;ctx.globalAlpha=k.ng?1:0.85;
     ctx.strokeRect(Math.round(b.x-m)+0.5,Math.round(b.y-m)+0.5,Math.round(b.w+2*m),Math.round(b.h+2*m));
-    ctx.font='500 9px "IBM Plex Mono", ui-monospace, monospace';
-    ctx.textBaseline='bottom';
+    ctx.font='500 9px "IBM Plex Mono", ui-monospace, monospace';ctx.textBaseline='bottom';
     var txt=k.ng?('NG 0.97 '+k.mode):'OK 0.99';
     var tw=ctx.measureText(txt).width+6;
     ctx.fillStyle=col;ctx.fillRect(b.x-m,b.y-m-12,tw,12);
@@ -725,10 +628,7 @@ section.s h2{font:500 clamp(1.5rem,2.6vw,2rem)/1.15 var(--font-d);letter-spacing
     if(hud) hud.innerHTML='<b>OK '+ok+'</b> · <em>NG '+ng+'</em>';
     if(!reduce) requestAnimationFrame(frame);
   }
-  function start(){
-    theme();resize();
-    if(reduce){t0=-1e9;frame(0)}else{requestAnimationFrame(frame)}
-  }
+  function start(){ theme();resize(); if(reduce){t0=-1e9;frame(0)}else{requestAnimationFrame(frame)} }
   window.addEventListener('resize',function(){resize()});
   var mq=window.matchMedia('(prefers-color-scheme: dark)');
   if(mq.addEventListener) mq.addEventListener('change',theme);

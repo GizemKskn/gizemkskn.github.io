@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Görüntü işleme tezgâhı · Gizem Keskin</title>
+<meta name="title-tr" content="Görüntü işleme tezgâhı · Gizem Keskin">
+<meta name="title-en" content="Inspection bench · Gizem Keskin">
+<meta name="description" content="Tarayıcıda çalışan kalite kontrol tezgâhı: eşikleme, morfoloji, bağlı bileşen analizi ve referans karşılaştırma. Parametreleri değiştir, OpenCV kodunu canlı gör.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage{aspect-ratio:4/3}
+.stage canvas{width:100%;height:100%;object-fit:contain}
+.views{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.ctl .file{font:400 .8rem var(--font-b);color:var(--ink2)}
+.ctl .file input{display:block;margin-top:6px;font:inherit;max-width:100%}
+.hint{font:400 .74rem/1.5 var(--font-m);color:var(--mute);letter-spacing:.02em;margin:0}
+.verdict{display:inline-flex;align-items:center;gap:8px;font:500 .8rem var(--font-m);letter-spacing:.06em;padding:6px 10px;border-radius:4px;border:1px solid var(--line)}
+.verdict.ok{color:var(--ok);border-color:var(--ok)}
+.verdict.ng{color:var(--ng);border-color:var(--ng)}
+</style>
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>bench 0.99</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="../blog/" data-nav="blog">Blog</a>
+        <a href="./" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Playground · 01</p>
+    <h1 lang="tr">Görüntü işleme tezgâhı</h1>
+    <h1 lang="en">Inspection bench</h1>
+    <p class="lede" lang="tr">Bir kalite kontrol hattının klasik akışı, tarayıcında: gri seviye, bulanıklaştırma, eşikleme, morfoloji, bağlı bileşenler, karar. Parametreleri oynat; sağ altta eşdeğer OpenCV kodu canlı değişir. Her şey cihazında çalışır, hiçbir görüntü gönderilmez.</p>
+    <p class="lede" lang="en">The classic flow of an inspection line, in your browser: grayscale, blur, threshold, morphology, connected components, decision. Move the parameters; the equivalent OpenCV code updates live below. Everything runs on your device, no image is uploaded.</p>
+  </div>
+</section>
+
+<div class="wrap pg">
+  <div>
+    <div class="views">
+      <div class="seg" id="view" role="group" aria-label="View">
+        <button type="button" data-v="src" aria-pressed="true"><span lang="tr">Kaynak</span><span lang="en">Source</span></button>
+        <button type="button" data-v="gray" aria-pressed="false"><span lang="tr">Gri</span><span lang="en">Gray</span></button>
+        <button type="button" data-v="bin" aria-pressed="false"><span lang="tr">İkili</span><span lang="en">Binary</span></button>
+        <button type="button" data-v="res" aria-pressed="false"><span lang="tr">Sonuç</span><span lang="en">Result</span></button>
+      </div>
+      <span class="verdict" id="verdict">—</span>
+    </div>
+    <div class="stage">
+      <canvas id="out" width="640" height="480"></canvas>
+      <div class="hud">
+        <span class="tl" id="hud-src">sample_pcb · 640×480</span>
+        <span class="tr" id="hud-mode">threshold · otsu</span>
+        <span class="bl" id="hud-count"><b>OK 0</b> · <em>NG 0</em></span>
+        <span class="br" id="hud-ms">0.0 ms</span>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <pre class="code" id="code"></pre>
+  </div>
+
+  <aside class="ctl">
+    <h2 lang="tr">Parametreler</h2><h2 lang="en">Parameters</h2>
+
+    <div class="grp">
+      <label><span lang="tr">Kaynak</span><span lang="en">Source</span></label>
+      <div class="seg" id="src" role="group">
+        <button type="button" data-s="pcb" aria-pressed="true">PCB</button>
+        <button type="button" data-s="panel" aria-pressed="false"><span lang="tr">Baskılı panel</span><span lang="en">Printed panel</span></button>
+        <button type="button" data-s="upload" aria-pressed="false"><span lang="tr">Kendi görüntün</span><span lang="en">Your image</span></button>
+      </div>
+      <div class="btns">
+        <button type="button" class="btn sm ghost" id="regen"><span lang="tr">Yeni örnek</span><span lang="en">New sample</span></button>
+      </div>
+      <label class="file" id="filewrap" hidden><span lang="tr">Bir fotoğraf seç (cihazından çıkmaz)</span><span lang="en">Pick a photo (it never leaves your device)</span><input type="file" id="file" accept="image/*"></label>
+    </div>
+
+    <div class="grp">
+      <label><span lang="tr">Yöntem</span><span lang="en">Method</span></label>
+      <div class="seg" id="mode" role="group">
+        <button type="button" data-m="thr" aria-pressed="true"><span lang="tr">Eşikleme</span><span lang="en">Threshold</span></button>
+        <button type="button" data-m="diff" aria-pressed="false"><span lang="tr">Referans farkı</span><span lang="en">Golden diff</span></button>
+        <button type="button" data-m="edge" aria-pressed="false"><span lang="tr">Kenar</span><span lang="en">Edges</span></button>
+      </div>
+      <p class="hint" id="modehint"></p>
+    </div>
+
+    <div class="grp">
+      <label for="blur"><span lang="tr">Bulanıklaştırma yarıçapı</span><span lang="en">Blur radius</span><output id="blur-o">1</output></label>
+      <input type="range" id="blur" min="0" max="6" step="1" value="1">
+      <label class="chk"><input type="checkbox" id="otsu" checked><span lang="tr">Eşik otomatik (Otsu)</span><span lang="en">Auto threshold (Otsu)</span></label>
+      <label for="thr"><span lang="tr">Eşik değeri</span><span lang="en">Threshold</span><output id="thr-o">128</output></label>
+      <input type="range" id="thr" min="1" max="254" step="1" value="128" disabled>
+      <label class="chk"><input type="checkbox" id="inv"><span lang="tr">Ters çevir (koyu nesneler)</span><span lang="en">Invert (dark objects)</span></label>
+    </div>
+
+    <div class="grp">
+      <label for="morph"><span lang="tr">Morfoloji</span><span lang="en">Morphology</span></label>
+      <select id="morph">
+        <option value="none">—</option>
+        <option value="open" selected>open (erode → dilate)</option>
+        <option value="close">close (dilate → erode)</option>
+        <option value="erode">erode</option>
+        <option value="dilate">dilate</option>
+      </select>
+      <label for="ksz"><span lang="tr">Çekirdek boyutu</span><span lang="en">Kernel size</span><output id="ksz-o">3</output></label>
+      <input type="range" id="ksz" min="1" max="4" step="1" value="1">
+    </div>
+
+    <div class="grp">
+      <label for="minarea"><span lang="tr">En küçük alan (px)</span><span lang="en">Min area (px)</span><output id="minarea-o">120</output></label>
+      <input type="range" id="minarea" min="4" max="3000" step="4" value="120">
+      <label for="expect"><span lang="tr">Beklenen parça sayısı</span><span lang="en">Expected part count</span></label>
+      <input type="number" id="expect" min="0" max="500" step="1" value="0">
+      <p class="hint" lang="tr">Eşikleme yönteminde karar: sayı beklenene eşitse OK. Yönü bozuk parçalar ayrıca NG.</p>
+      <p class="hint" lang="en">Threshold decision: OK when the count equals the expected value. Rotated parts are flagged NG as well.</p>
+    </div>
+  </aside>
+</div>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Tamamı tarayıcıda çalışır; hiçbir görüntü sunucuya gitmez.</span>
+    <span lang="en">Runs entirely in the browser; no image ever leaves your device.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+<script>
+(function(){
+  var W=640,H=480;
+  var out=document.getElementById('out'), octx=out.getContext('2d');
+  var srcCv=document.createElement('canvas'); srcCv.width=W; srcCv.height=H; var sctx=srcCv.getContext('2d',{willReadFrequently:true});
+  var refCv=document.createElement('canvas'); refCv.width=W; refCv.height=H; var rctx=refCv.getContext('2d',{willReadFrequently:true});
+  var $=function(id){return document.getElementById(id)};
+  var state={src:'pcb',mode:'thr',view:'src',seed:20230614,expect:0,hasRef:false,srcName:'sample_pcb',userImg:null};
+  var lang=function(){return document.documentElement.getAttribute('data-lang')||'tr'};
+  var colors={};
+  function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+  function theme(){colors={ok:css('--ok'),ng:css('--ng'),acc:css('--acc'),ground:css('--bg'),ink:css('--ink')}}
+
+  /* ---------- sample generators ---------- */
+  var seed=state.seed;
+  function rnd(){seed=(seed*48271)%2147483647;return (seed-1)/2147483646}
+  function gauss(){var u=1-rnd(),v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+  function noise(ctx,sigma){
+    var id=ctx.getImageData(0,0,W,H),d=id.data;
+    for(var i=0;i<d.length;i+=4){var n=gauss()*sigma;d[i]=Math.max(0,Math.min(255,d[i]+n));d[i+1]=Math.max(0,Math.min(255,d[i+1]+n));d[i+2]=Math.max(0,Math.min(255,d[i+2]+n))}
+    ctx.putImageData(id,0,0);
+  }
+  function vignette(ctx){
+    var g=ctx.createRadialGradient(W/2,H/2,H*0.35,W/2,H/2,H*0.85);
+    g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,0.22)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  }
+  function genPCB(withDefect,ctx){
+    ctx.fillStyle='#3d5a48';ctx.fillRect(0,0,W,H);
+    // traces
+    ctx.strokeStyle='#4a6b56';ctx.lineWidth=2;
+    for(var i=0;i<26;i++){ctx.beginPath();var x=rnd()*W,y=rnd()*H;ctx.moveTo(x,y);ctx.lineTo(x+(rnd()-0.5)*220,y);ctx.lineTo(x+(rnd()-0.5)*220,y+(rnd()-0.5)*160);ctx.stroke()}
+    var cols=6,rows=5,mx=60,my=50,cw=(W-2*mx)/cols,ch=(H-2*my)/rows,n=0,parts=[];
+    for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){
+      if(rnd()<0.2) continue;
+      var t=rnd(),type=t<0.25?'ic':(t<0.65?'res':'cap');
+      parts.push({type:type,cx:mx+cw*(c+0.5),cy:my+ch*(r+0.5)});
+    }
+    var di=Math.floor(rnd()*parts.length), dmode=rnd()<0.5?'missing':'rotated';
+    if(parts[di]&&parts[di].type!=='res') dmode='missing';
+    if(withDefect) state.defect=dmode;
+    parts.forEach(function(p,i){
+      var defect=withDefect&&i===di;
+      var w,h;
+      if(p.type==='ic'){w=52;h=38}else if(p.type==='res'){w=40;h=16}else{w=26;h=26}
+      if(defect&&dmode==='rotated'){var tmp=w;w=h;h=tmp}
+      // pads
+      ctx.fillStyle='#d8d2b0';
+      if(p.type==='cap'){ctx.beginPath();ctx.arc(p.cx-9,p.cy,3,0,7);ctx.arc(p.cx+9,p.cy,3,0,7);ctx.fill()}
+      else{ctx.fillRect(p.cx-w/2-4,p.cy-3,5,6);ctx.fillRect(p.cx+w/2-1,p.cy-3,5,6)}
+      if(defect&&dmode==='missing') return;
+      n++;
+      if(p.type==='ic'){ctx.fillStyle='#cfd0c8';ctx.fillRect(p.cx-w/2,p.cy-h/2,w,h);ctx.fillStyle='#d8d2b0';var np=Math.max(3,Math.floor(w/9));for(var k=0;k<np;k++){var px=p.cx-w/2+w*(k+0.5)/np;ctx.fillRect(px-1,p.cy-h/2-4,2,4);ctx.fillRect(px-1,p.cy+h/2,2,4)}ctx.fillStyle='#8f9089';ctx.font='500 9px "IBM Plex Mono", monospace';ctx.textBaseline='middle';ctx.fillText('74HC',p.cx-w/2+8,p.cy);ctx.fillStyle='#6b6c66';ctx.beginPath();ctx.arc(p.cx-w/2+6,p.cy-h/2+6,2,0,7);ctx.fill()}
+      else if(p.type==='res'){ctx.fillStyle='#e9e6dc';ctx.fillRect(p.cx-w/2,p.cy-h/2,w,h);ctx.fillStyle='#b4b4a6';ctx.fillRect(p.cx-w/2+w*0.3,p.cy-h/2,2,h);ctx.fillRect(p.cx-w/2+w*0.5,p.cy-h/2,2,h)}
+      else{ctx.fillStyle='#e6e6e0';ctx.beginPath();ctx.arc(p.cx,p.cy,w/2,0,7);ctx.fill();ctx.strokeStyle='#b0b0a8';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.cx-w*0.3,p.cy);ctx.lineTo(p.cx+w*0.3,p.cy);ctx.stroke()}
+    });
+    vignette(ctx);noise(ctx,7);
+    return {count:n,expected:parts.length,defect:withDefect?dmode:''};
+  }
+  function genPanel(withDefect,ctx){
+    ctx.fillStyle='#e9e6df';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#dcd8cf';ctx.fillRect(28,28,W-56,H-56);
+    ctx.fillStyle='#e9e6df';ctx.fillRect(34,34,W-68,H-68);
+    ctx.fillStyle='#161616';ctx.font='500 44px "IBM Plex Mono", monospace';ctx.textBaseline='middle';
+    var words=['START','STOP','RESET','AUTO','MANUAL','ALARM'];
+    var rowsY=[110,200,290,380];
+    var count=0;
+    for(var i=0;i<4;i++){var w=words[(i+Math.floor(rnd()*6))%6];ctx.fillText(w,70,rowsY[i]);count+=w.length}
+    // symbols
+    ctx.strokeStyle='#161616';ctx.lineWidth=4;
+    ctx.beginPath();ctx.arc(480,110,26,0,7);ctx.stroke();ctx.beginPath();ctx.moveTo(480,84);ctx.lineTo(480,112);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(452,180);ctx.lineTo(508,180);ctx.lineTo(480,228);ctx.closePath();ctx.stroke();
+    ctx.fillRect(458,268,44,44);
+    ctx.beginPath();ctx.arc(480,380,24,0,7);ctx.stroke();
+    if(withDefect){
+      var d=rnd();
+      if(d<0.34){ // scratch
+        ctx.strokeStyle='#2b2b2b';ctx.lineWidth=2;ctx.beginPath();var x=120+rnd()*300,y=80+rnd()*300;ctx.moveTo(x,y);ctx.lineTo(x+60+rnd()*80,y+20+rnd()*60);ctx.stroke();state.defect='scratch';
+      }else if(d<0.67){ // missing ink
+        ctx.fillStyle='#e9e6df';var ri=Math.floor(rnd()*4);ctx.fillRect(70+rnd()*180,rowsY[ri]-22,16+rnd()*14,44);state.defect='missing ink';
+      }else{ // dust
+        ctx.fillStyle='#3a3a3a';var cx=100+rnd()*420,cy=70+rnd()*340;ctx.beginPath();ctx.arc(cx,cy,3+rnd()*4,0,7);ctx.fill();state.defect='dust';
+      }
+    }
+    vignette(ctx);noise(ctx,4);
+    return {count:count,expected:count,defect:withDefect?state.defect:''};
+  }
+  function generate(newSeed){
+    if(newSeed) state.seed=(state.seed*31+17)%2147483647;
+    var meta;
+    if(state.src==='pcb'){
+      seed=state.seed; meta=genPCB(false,rctx);
+      seed=state.seed; meta=genPCB(true,sctx);
+      state.hasRef=true; state.srcName='sample_pcb'; state.expect=meta.expected; $('expect').value=meta.expected;
+    }else if(state.src==='panel'){
+      seed=state.seed; genPanel(false,rctx);
+      seed=state.seed; meta=genPanel(true,sctx);
+      state.hasRef=true; state.srcName='sample_panel'; state.expect=0; $('expect').value=0;
+    }else{
+      state.hasRef=false; state.srcName='your_image';
+      sctx.fillStyle='#777';sctx.fillRect(0,0,W,H);
+      if(state.userImg){var im=state.userImg,s=Math.min(W/im.width,H/im.height),dw=im.width*s,dh=im.height*s;sctx.drawImage(im,(W-dw)/2,(H-dh)/2,dw,dh)}
+      else{sctx.fillStyle='#ccc';sctx.font='500 18px "IBM Plex Mono", monospace';sctx.textAlign='center';sctx.fillText(lang()==='tr'?'Bir görüntü seç':'Pick an image',W/2,H/2);sctx.textAlign='left'}
+    }
+  }
+
+  /* ---------- processing ---------- */
+  function toGray(id){var d=id.data,g=new Uint8ClampedArray(W*H);for(var i=0,j=0;i<d.length;i+=4,j++){g[j]=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000}return g}
+  function boxBlur(src,r){
+    if(r<=0) return src;
+    var tmp=new Uint16Array(W*H),dst=new Uint8ClampedArray(W*H),k=2*r+1,x,y,s;
+    for(y=0;y<H;y++){s=0;for(x=-r;x<=r;x++)s+=src[y*W+Math.min(W-1,Math.max(0,x))];for(x=0;x<W;x++){tmp[y*W+x]=s;s+=src[y*W+Math.min(W-1,x+r+1)]-src[y*W+Math.max(0,x-r)]}}
+    for(x=0;x<W;x++){s=0;for(y=-r;y<=r;y++)s+=tmp[Math.min(H-1,Math.max(0,y))*W+x];for(y=0;y<H;y++){dst[y*W+x]=s/(k*k);s+=tmp[Math.min(H-1,y+r+1)*W+x]-tmp[Math.max(0,y-r)*W+x]}}
+    return dst;
+  }
+  function otsu(g){
+    var hist=new Uint32Array(256),i;for(i=0;i<g.length;i++)hist[g[i]]++;
+    var total=g.length,sum=0;for(i=0;i<256;i++)sum+=i*hist[i];
+    var sumB=0,wB=0,max=0,t=128;
+    for(i=0;i<256;i++){wB+=hist[i];if(!wB)continue;var wF=total-wB;if(!wF)break;sumB+=i*hist[i];var mB=sumB/wB,mF=(sum-sumB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>max){max=v;t=i}}
+    return t;
+  }
+  function threshold(g,t,inv){var b=new Uint8Array(W*H);for(var i=0;i<g.length;i++){var v=g[i]>t?1:0;b[i]=inv?1-v:v}return b}
+  function minmax(b,r,isMax){
+    if(r<=0) return b;
+    var tmp=new Uint8Array(W*H),dst=new Uint8Array(W*H),x,y,k,v;
+    for(y=0;y<H;y++)for(x=0;x<W;x++){v=isMax?0:1;for(k=-r;k<=r;k++){var xx=x+k;if(xx<0||xx>=W)continue;var p=b[y*W+xx];if(isMax){if(p>v)v=p}else{if(p<v)v=p}}tmp[y*W+x]=v}
+    for(y=0;y<H;y++)for(x=0;x<W;x++){v=isMax?0:1;for(k=-r;k<=r;k++){var yy=y+k;if(yy<0||yy>=H)continue;var q=tmp[yy*W+x];if(isMax){if(q>v)v=q}else{if(q<v)v=q}}dst[y*W+x]=v}
+    return dst;
+  }
+  function morph(b,op,r){
+    if(op==='erode')return minmax(b,r,false);
+    if(op==='dilate')return minmax(b,r,true);
+    if(op==='open')return minmax(minmax(b,r,false),r,true);
+    if(op==='close')return minmax(minmax(b,r,true),r,false);
+    return b;
+  }
+  function sobel(g){
+    var m=new Float32Array(W*H),x,y;
+    for(y=1;y<H-1;y++)for(x=1;x<W-1;x++){
+      var i=y*W+x;
+      var gx=-g[i-W-1]-2*g[i-1]-g[i+W-1]+g[i-W+1]+2*g[i+1]+g[i+W+1];
+      var gy=-g[i-W-1]-2*g[i-W]-g[i-W+1]+g[i+W-1]+2*g[i+W]+g[i+W+1];
+      m[i]=Math.sqrt(gx*gx+gy*gy);
+    }
+    var o=new Uint8ClampedArray(W*H);for(var j=0;j<m.length;j++)o[j]=Math.min(255,m[j]/4);
+    return o;
+  }
+  function absdiff(a,b){var o=new Uint8ClampedArray(W*H);for(var i=0;i<a.length;i++)o[i]=Math.abs(a[i]-b[i]);return o}
+  function components(b,minArea){
+    var lab=new Int32Array(W*H),comps=[],stack=new Int32Array(W*H),n=0;
+    for(var i=0;i<W*H;i++){
+      if(!b[i]||lab[i])continue;
+      n++;var sp=0;stack[sp++]=i;lab[i]=n;var minx=W,miny=H,maxx=0,maxy=0,area=0;
+      while(sp){var p=stack[--sp];area++;var px=p%W,py=(p-px)/W;if(px<minx)minx=px;if(px>maxx)maxx=px;if(py<miny)miny=py;if(py>maxy)maxy=py;
+        if(px>0&&b[p-1]&&!lab[p-1]){lab[p-1]=n;stack[sp++]=p-1}
+        if(px<W-1&&b[p+1]&&!lab[p+1]){lab[p+1]=n;stack[sp++]=p+1}
+        if(py>0&&b[p-W]&&!lab[p-W]){lab[p-W]=n;stack[sp++]=p-W}
+        if(py<H-1&&b[p+W]&&!lab[p+W]){lab[p+W]=n;stack[sp++]=p+W}
+      }
+      if(area>=minArea&&!(minx===0&&miny===0&&maxx===W-1&&maxy===H-1)) comps.push({x:minx,y:miny,w:maxx-minx+1,h:maxy-miny+1,area:area});
+      if(comps.length>800)break;
+    }
+    return comps;
+  }
+  function grayToImage(g){var id=octx.createImageData(W,H),d=id.data;for(var i=0,j=0;j<g.length;i+=4,j++){d[i]=d[i+1]=d[i+2]=g[j];d[i+3]=255}return id}
+  function binToImage(b){var id=octx.createImageData(W,H),d=id.data;for(var i=0,j=0;j<b.length;i+=4,j++){var v=b[j]?235:18;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255}return id}
+
+  var last={};
+  function run(){
+    var t0=performance.now();
+    var p={blur:+$('blur').value,otsu:$('otsu').checked,thr:+$('thr').value,inv:$('inv').checked,morph:$('morph').value,k:+$('ksz').value,minarea:+$('minarea').value,expect:+$('expect').value};
+    var id=sctx.getImageData(0,0,W,H), gray=toGray(id), g=boxBlur(gray,p.blur), bin, tUsed=p.thr, mode=state.mode, work;
+    if(mode==='diff'&&!state.hasRef) mode='thr';
+    if(mode==='thr'){ if(p.otsu){tUsed=otsu(g)} bin=threshold(g,tUsed,p.inv); work=g }
+    else if(mode==='diff'){ var rg=boxBlur(toGray(rctx.getImageData(0,0,W,H)),p.blur); var d=absdiff(g,rg); tUsed=p.otsu?Math.max(24,otsu(d)):p.thr; bin=threshold(d,tUsed,false); work=d }
+    else { var e=sobel(g); tUsed=p.otsu?otsu(e):p.thr; bin=threshold(e,tUsed,false); work=e }
+    bin=morph(bin,p.morph,p.k);
+    var comps=components(bin,p.minarea);
+    // decisions
+    var ok=0,ng=0,verdict='OK';
+    if(mode==='thr'){
+      var med=0; if(comps.length){var ratios=comps.map(function(c){return c.w/c.h}).sort(function(a,b){return a-b});med=ratios[Math.floor(ratios.length/2)]}
+      comps.forEach(function(c){var r=c.w/c.h; c.ng=(comps.length>3&&(r>med*1.6||r<med/1.6)); if(c.ng){c.why='rotated?';ng++}else ok++});
+      if(p.expect>0&&comps.length!==p.expect){verdict='NG';}
+      if(ng>0)verdict='NG';
+    }else if(mode==='diff'){
+      comps.forEach(function(c){c.ng=true;c.why='diff';ng++}); verdict=comps.length?'NG':'OK';
+    }else{
+      comps.forEach(function(c){c.ng=false;ok++}); verdict='—';
+    }
+    var ms=performance.now()-t0;
+    last={p:p,bin:bin,work:work,comps:comps,ok:ok,ng:ng,verdict:verdict,tUsed:tUsed,ms:ms,mode:mode};
+    draw();
+    $('hud-ms').textContent=ms.toFixed(1)+' ms';
+    $('hud-mode').textContent=(mode==='thr'?'threshold':mode==='diff'?'absdiff':'sobel')+' · '+(p.otsu?'otsu ':'t=')+tUsed;
+    $('hud-src').textContent=state.srcName+' · '+W+'×'+H;
+    $('hud-count').innerHTML='<b>OK '+ok+'</b> · <em>NG '+ng+'</em>';
+    var vd=$('verdict'); vd.textContent=verdict; vd.className='verdict '+(verdict==='OK'?'ok':verdict==='NG'?'ng':'');
+    var L=lang();
+    $('stats').innerHTML=(L==='tr'?'bileşen <b>':'components <b>')+comps.length+'</b>'+(p.expect?(L==='tr'?' · beklenen <b>':' · expected <b>')+p.expect+'</b>':'')+(L==='tr'?' · eşik <b>':' · threshold <b>')+tUsed+'</b>'+(L==='tr'?' · süre <b>':' · time <b>')+ms.toFixed(1)+' ms</b>'+(state.defect&&state.src!=='upload'?(L==='tr'?' · gizli hata: <b>':' · hidden defect: <b>')+state.defect+'</b>':'');
+    code();
+  }
+  function draw(){
+    var v=state.view;
+    if(v==='src'||v==='res'){octx.drawImage(srcCv,0,0)}
+    else if(v==='gray'){octx.putImageData(grayToImage(last.work),0,0)}
+    else{octx.putImageData(binToImage(last.bin),0,0)}
+    if(v==='res'||v==='bin'){
+      octx.font='500 10px "IBM Plex Mono", monospace';octx.textBaseline='bottom';octx.lineWidth=1;
+      last.comps.forEach(function(c){
+        var col=c.ng?colors.ng:colors.ok,m=3;
+        octx.strokeStyle=col;octx.strokeRect(c.x-m+0.5,c.y-m+0.5,c.w+2*m,c.h+2*m);
+        var txt=(c.ng?'NG ':'OK ')+(c.why||'')+(c.ng?'':c.area);
+        var tw=octx.measureText(txt).width+6;
+        octx.fillStyle=col;octx.fillRect(c.x-m,c.y-m-13,tw,13);
+        octx.fillStyle='#fff';octx.fillText(txt,c.x-m+3,c.y-m-1);
+      });
+    }
+  }
+  function code(){
+    var p=last.p,m=last.mode,k=2*p.k+1,b=2*p.blur+1,lines=[];
+    lines.push('<span class="k">import</span> cv2, numpy <span class="k">as</span> np');
+    lines.push('img  = cv2.imread(<span class="c">"'+state.srcName+'.png"</span>)');
+    lines.push('gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)');
+    if(p.blur>0) lines.push('gray = cv2.blur(gray, ('+b+', '+b+'))');
+    if(m==='diff'){
+      lines.push('ref  = cv2.imread(<span class="c">"golden.png"</span>, 0)');
+      lines.push('work = cv2.absdiff(gray, ref)');
+      lines.push('_, bw = cv2.threshold(work, '+last.tUsed+', 255, cv2.THRESH_BINARY)');
+    }else if(m==='edge'){
+      lines.push('gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0); gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1)');
+      lines.push('work = np.uint8(np.clip(cv2.magnitude(gx, gy) / 4, 0, 255))');
+      lines.push('_, bw = cv2.threshold(work, '+last.tUsed+', 255, cv2.THRESH_BINARY)');
+    }else{
+      var flag=p.inv?'cv2.THRESH_BINARY_INV':'cv2.THRESH_BINARY';
+      if(p.otsu) lines.push('_, bw = cv2.threshold(gray, 0, 255, '+flag+' | cv2.THRESH_OTSU)  <span class="c"># t = '+last.tUsed+'</span>');
+      else lines.push('_, bw = cv2.threshold(gray, '+p.thr+', 255, '+flag+')');
+    }
+    if(p.morph!=='none'){
+      lines.push('k  = cv2.getStructuringElement(cv2.MORPH_RECT, ('+k+', '+k+'))');
+      var op={open:'cv2.MORPH_OPEN',close:'cv2.MORPH_CLOSE',erode:'cv2.MORPH_ERODE',dilate:'cv2.MORPH_DILATE'}[p.morph];
+      lines.push('bw = cv2.morphologyEx(bw, '+op+', k)');
+    }
+    lines.push('n, labels, stats, _ = cv2.connectedComponentsWithStats(bw)');
+    lines.push('parts = [s <span class="k">for</span> s <span class="k">in</span> stats[1:] <span class="k">if</span> s[cv2.CC_STAT_AREA] >= '+p.minarea+']');
+    if(m==='thr'&&p.expect>0) lines.push('result = <span class="c">"OK"</span> <span class="k">if</span> len(parts) == '+p.expect+' <span class="k">else</span> <span class="c">"NG"</span>');
+    else if(m==='diff') lines.push('result = <span class="c">"NG"</span> <span class="k">if</span> parts <span class="k">else</span> <span class="c">"OK"</span>');
+    $('code').innerHTML=lines.join('\n');
+  }
+
+  /* ---------- wiring ---------- */
+  var hints={
+    thr:{tr:'Nesneler zeminden parlaklıkla ayrılıyorsa en hızlı yöntem. Parçaları say, yönü kontrol et.',en:'Fastest method when parts differ from the background in brightness. Count parts, check orientation.'},
+    diff:{tr:'Hatasız bir referansla piksel piksel fark. Baskı ve serigrafi kontrolünün temeli.',en:'Pixel-wise difference against a known-good reference. The basis of print and silkscreen inspection.'},
+    edge:{tr:'Sobel gradyanı: kenarları ve çizikleri öne çıkarır, dokudan bağımsızdır.',en:'Sobel gradient: brings out edges and scratches, independent of texture.'}
+  };
+  function setSeg(id,attr,val){document.querySelectorAll('#'+id+' button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute(attr)===val?'true':'false')})}
+  function hint(){var h=hints[state.mode];$('modehint').textContent=h[lang()]; if(state.mode==='diff'&&!state.hasRef)$('modehint').textContent=lang()==='tr'?'Kendi görüntünde referans yok; eşikleme uygulanır.':'No golden reference for your own image; threshold is used instead.'}
+  document.querySelectorAll('#view button').forEach(function(b){b.addEventListener('click',function(){state.view=b.getAttribute('data-v');setSeg('view','data-v',state.view);draw()})});
+  document.querySelectorAll('#src button').forEach(function(b){b.addEventListener('click',function(){state.src=b.getAttribute('data-s');setSeg('src','data-s',state.src);$('filewrap').hidden=state.src!=='upload';
+    if(state.src==='panel'){state.mode='diff';$('inv').checked=true}else if(state.src==='pcb'){state.mode='thr';$('inv').checked=false}
+    setSeg('mode','data-m',state.mode);generate(false);hint();run()})});
+  document.querySelectorAll('#mode button').forEach(function(b){b.addEventListener('click',function(){state.mode=b.getAttribute('data-m');setSeg('mode','data-m',state.mode);hint();run()})});
+  $('regen').addEventListener('click',function(){generate(true);run()});
+  $('file').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;var url=URL.createObjectURL(f),im=new Image();im.onload=function(){state.userImg=im;URL.revokeObjectURL(url);generate(false);run()};im.src=url});
+  ['blur','thr','ksz','minarea'].forEach(function(id){var el=$(id),o=$(id+'-o');el.addEventListener('input',function(){o.textContent=id==='ksz'?(2*el.value+1):el.value;schedule()})});
+  $('otsu').addEventListener('change',function(){$('thr').disabled=$('otsu').checked;schedule()});
+  ['inv','morph','expect'].forEach(function(id){$(id).addEventListener('input',schedule);$(id).addEventListener('change',schedule)});
+  var raf=0;function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(run)}
+  document.addEventListener('langchange',function(){hint();run()});
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');if(mq.addEventListener)mq.addEventListener('change',function(){theme();draw()});
+  function start(){theme();$('ksz-o').textContent='3';generate(false);hint();run();state.view='res';setSeg('view','data-v','res');draw()}
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(start)}else{start()}
+})();
+</script>
+</body>
+</html>

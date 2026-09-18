@@ -1,6 +1,19 @@
 # gizemkeskin.com
 
-Tek dosyalık statik site. Build adımı yok; `index.html` ve `assets/` klasörünü olduğu gibi yayınlaman yeterli.
+Statik site, build adımı yok. Klasörü olduğu gibi yayınlaman yeterli.
+
+```
+index.html                 ana sayfa (hizmetler, işler, süreç, özgeçmiş, hakkımda, iletişim)
+blog/index.html            yazı listesi
+blog/<slug>.html           yazılar (TR + EN aynı dosyada)
+playground/index.html      playground girişi
+playground/bench.html      görüntü işleme tezgâhı (tamamen tarayıcıda çalışır)
+playground/live.html       kamera ile nesne ve düşme tespiti (modeller CDN'den iner)
+assets/site.css, site.js   ortak stil ve davranış (dil değiştirme, tespit kutusu)
+assets/work/*.jpg          proje görselleri (Elanus portfolyosundan)
+assets/photo.jpg           AgentCon sahne fotoğrafı
+assets/og.png              LinkedIn / WhatsApp paylaşım kartı (1200×630)
+```
 
 ## Yerelde bakmak
 
@@ -9,29 +22,39 @@ cd site
 python -m http.server 8080
 ```
 
-Sonra tarayıcıda `http://localhost:8080`.
+Tarayıcıda `http://localhost:8080`. Kamera demosu yerelde de çalışır (localhost güvenli sayılır).
 
-## Yayınlamak (Cloudflare Pages, ücretsiz)
+## Yayın
 
-1. https://dash.cloudflare.com → hesap aç, alan adını (`gizemkeskin.com`) "Add a domain" ile ekle.
-2. Cloudflare'in verdiği iki nameserver'ı Natro panelinde (Nics Telekomünikasyon) alan adının NS kayıtlarına yaz.
-3. Workers & Pages → Create → Pages → "Upload assets" → `site` klasörünü sürükle-bırak. Proje adı: `gizemkeskin`.
-4. Pages projesinde Custom domains → `gizemkeskin.com` ve `www.gizemkeskin.com` ekle.
-
-Alternatif, komut satırından:
+Şu an GitHub Pages'te: repo `GizemKskn/gizemkskn.github.io`, canlı adres https://gizemkskn.github.io.
+Her `git push` bir dakika içinde canlıya geçer.
 
 ```powershell
-npx wrangler login
-npx wrangler pages deploy site --project-name gizemkeskin
+cd site
+git add -A
+git commit -m "..."
+git push
 ```
 
-## Alternatif: GitHub Pages
+## Alan adını bağlamak (gizemkeskin.com, Natro)
 
-`site/` içeriğini `GizemKskn/gizemkskn.github.io` adlı bir repoya push et, Settings → Pages → Custom domain: `gizemkeskin.com`, Natro'da `A` kayıtlarını GitHub'ın IP'lerine yönlendir.
+Natro DNS yönetiminde şu kayıtları ekle:
 
-## Düzenlemek
+| Tür   | Ad  | Değer               |
+|-------|-----|---------------------|
+| A     | @   | 185.199.108.153     |
+| A     | @   | 185.199.109.153     |
+| A     | @   | 185.199.110.153     |
+| A     | @   | 185.199.111.153     |
+| CNAME | www | gizemkskn.github.io |
 
-- Her metin Türkçe ve İngilizce olarak yan yana durur: `<p lang="tr">…</p><p lang="en">…</p>`. Birini değiştirdiğinde diğerini de değiştir.
-- Yeni proje eklemek için `#work` bölümündeki bir `<li>` bloğunu kopyala.
-- Fotoğraf: `assets/photo.jpg` (kare, en az 320×320).
-- Renkler ve yazı tipleri `<style>` başındaki `:root` değişkenlerinde.
+Sonra repoya `CNAME` dosyası (içeriği `www.gizemkeskin.com`) eklenir ve GitHub ayarlarında HTTPS zorlanır.
+DNS yayılmadan CNAME dosyasını ekleme; github.io adresi bozulur.
+
+## Düzenleme notları
+
+- Her metin iki dilde yan yana durur: `<p lang="tr">…</p><p lang="en">…</p>`. Birini değiştirince diğerini de değiştir.
+- Yeni proje: `index.html` içindeki `#work` listesinden bir `<li>` kopyala. Görsel için `assets/work/` klasörüne 1200 px genişlikte JPEG koy.
+- Yeni yazı: `blog/` içindeki bir yazıyı kopyala, `blog/index.html` listesine ekle.
+- Renkler ve yazı tipleri `assets/site.css` başındaki `:root` değişkenlerinde.
+- Fare bir bölümün üstüne gelince çıkan tespit kutusu, `data-det="isim"` ve `data-conf="0.97"` özniteliklerinden okur.
