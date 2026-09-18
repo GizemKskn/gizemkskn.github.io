@@ -6,7 +6,7 @@
 <title>Görüntü işleme tezgâhı · Gizem Keskin</title>
 <meta name="title-tr" content="Görüntü işleme tezgâhı · Gizem Keskin">
 <meta name="title-en" content="Inspection bench · Gizem Keskin">
-<meta name="description" content="Tarayıcıda çalışan kalite kontrol tezgâhı: eşikleme, morfoloji, bağlı bileşen analizi ve referans karşılaştırma. Parametreleri değiştir, OpenCV kodunu canlı gör.">
+<meta name="description" content="Bir optik kalite kontrol hattı, altı adımda ve tarayıcıda: görüntü, gri, eşik, morfoloji, bölgeler, karar. Her adımı tıklayın, ne olduğunu görün; eşdeğer OpenCV kodu canlı yazılsın.">
 <meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
@@ -15,15 +15,28 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../assets/site.css">
 <style>
+.pipe{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:0 0 16px}
+.tile{appearance:none;border:1px solid var(--line);background:var(--bg2);border-radius:6px;padding:6px;cursor:pointer;display:grid;gap:6px;text-align:left;color:var(--ink);position:relative}
+.tile canvas{width:100%;height:auto;aspect-ratio:4/3;display:block;border-radius:3px;background:var(--bg)}
+.tile .n{position:absolute;top:10px;left:10px;font:500 .62rem var(--font-m);background:var(--ink);color:var(--bg);padding:3px 5px;border-radius:3px;letter-spacing:.06em}
+.tile .t{font:500 .72rem/1.2 var(--font-b);padding:0 2px 2px}
+.tile[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+.tile[aria-pressed="true"] .n{background:var(--acc);color:var(--acc-ink)}
+.tile .arrow{position:absolute;right:-9px;top:38%;font:500 .8rem var(--font-m);color:var(--mute);z-index:1}
 .stage{aspect-ratio:4/3}
 .stage canvas{width:100%;height:100%;object-fit:contain}
-.views{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.explain{margin:12px 0 0;padding:12px 14px;border-left:2px solid var(--acc);background:var(--bg2);border-radius:0 4px 4px 0;font-size:.95rem;color:var(--ink2)}
+.explain b{color:var(--ink);font-weight:500}
+.result{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px 20px;align-items:start;margin-top:16px;padding:14px 16px;border:1px solid var(--line);border-radius:6px}
+.verdict{font:500 2.4rem/1 var(--font-d);letter-spacing:-.02em;min-width:3.2em}
+.verdict.ok{color:var(--ok)}.verdict.ng{color:var(--ng)}
+.reasons{margin:0;padding:0;list-style:none;display:grid;gap:4px;font:400 .78rem/1.5 var(--font-m);color:var(--ink2)}
+.reasons li b{color:var(--ng);font-weight:500}.reasons li i{color:var(--ok);font-style:normal}
+.ctl .grp>label:first-child{font-weight:500;color:var(--ink)}
 .ctl .file{font:400 .8rem var(--font-b);color:var(--ink2)}
 .ctl .file input{display:block;margin-top:6px;font:inherit;max-width:100%}
 .hint{font:400 .74rem/1.5 var(--font-m);color:var(--mute);letter-spacing:.02em;margin:0}
-.verdict{display:inline-flex;align-items:center;gap:8px;font:500 .8rem var(--font-m);letter-spacing:.06em;padding:6px 10px;border-radius:4px;border:1px solid var(--line)}
-.verdict.ok{color:var(--ok);border-color:var(--ok)}
-.verdict.ng{color:var(--ng);border-color:var(--ng)}
+@media (max-width:640px){.pipe{grid-template-columns:repeat(3,minmax(0,1fr))}.tile .arrow{display:none}.result{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -59,94 +72,101 @@ document.documentElement.setAttribute('data-lang',l);document.documentElement.se
     <p class="eyebrow">Playground · 01</p>
     <h1 lang="tr">Görüntü işleme tezgâhı</h1>
     <h1 lang="en">Inspection bench</h1>
-    <p class="lede" lang="tr">Bir kalite kontrol hattının klasik akışı, tarayıcında: gri seviye, bulanıklaştırma, eşikleme, morfoloji, bağlı bileşenler, karar. Parametreleri oynat; sağ altta eşdeğer OpenCV kodu canlı değişir. Her şey cihazında çalışır, hiçbir görüntü gönderilmez.</p>
-    <p class="lede" lang="en">The classic flow of an inspection line, in your browser: grayscale, blur, threshold, morphology, connected components, decision. Move the parameters; the equivalent OpenCV code updates live below. Everything runs on your device, no image is uploaded.</p>
+    <p class="lede" lang="tr">Bir optik kalite kontrol hattı altı adımdan oluşur. Üstteki adımlara tıklayın; her adımda görüntüye ne olduğunu görün, sağdan o adımın ayarını değiştirin. Örnek kartta gizli bir hata var: eksik ya da ters takılmış bir parça. Sistem onu bulmalı; "Hatayı göster" ile kendiniz de kontrol edin.</p>
+    <p class="lede" lang="en">An optical inspection line is six steps. Click the steps above the image; see what happens to the image at each one, change that step's setting on the right. The sample board hides one defect: a missing or rotated part. The system has to find it; check for yourself with "Show the defect".</p>
   </div>
 </section>
 
-<div class="wrap pg">
-  <div>
-    <div class="views">
-      <div class="seg" id="view" role="group" aria-label="View">
-        <button type="button" data-v="src" aria-pressed="true"><span lang="tr">Kaynak</span><span lang="en">Source</span></button>
-        <button type="button" data-v="gray" aria-pressed="false"><span lang="tr">Gri</span><span lang="en">Gray</span></button>
-        <button type="button" data-v="bin" aria-pressed="false"><span lang="tr">İkili</span><span lang="en">Binary</span></button>
-        <button type="button" data-v="res" aria-pressed="false"><span lang="tr">Sonuç</span><span lang="en">Result</span></button>
+<div class="wrap" style="padding-block:0 clamp(48px,7vw,92px)">
+  <div class="pipe" id="pipe"></div>
+  <div class="pg" style="padding-block:0">
+    <div>
+      <div class="stage">
+        <canvas id="out" width="640" height="480"></canvas>
+        <div class="hud">
+          <span class="tl" id="hud-src">sample_pcb · 640×480</span>
+          <span class="tr" id="hud-step">step 6 · decision</span>
+          <span class="bl" id="hud-count"><b>OK 0</b> · <em>NG 0</em></span>
+          <span class="br" id="hud-ms">0.0 ms</span>
+        </div>
       </div>
-      <span class="verdict" id="verdict">—</span>
-    </div>
-    <div class="stage">
-      <canvas id="out" width="640" height="480"></canvas>
-      <div class="hud">
-        <span class="tl" id="hud-src">sample_pcb · 640×480</span>
-        <span class="tr" id="hud-mode">threshold · otsu</span>
-        <span class="bl" id="hud-count"><b>OK 0</b> · <em>NG 0</em></span>
-        <span class="br" id="hud-ms">0.0 ms</span>
+      <p class="explain" id="explain"></p>
+      <div class="result">
+        <div class="verdict" id="verdict">—</div>
+        <ul class="reasons" id="reasons"></ul>
       </div>
+      <pre class="code" id="code"></pre>
+      <span id="gt" hidden></span>
     </div>
-    <div class="stats" id="stats"></div>
-    <pre class="code" id="code"></pre>
+
+    <aside class="ctl">
+      <div class="grp">
+        <label>1 · <span lang="tr">Görüntü</span><span lang="en">Image</span></label>
+        <div class="seg" id="mode" role="group">
+          <button type="button" data-m="pcb" aria-pressed="true"><span lang="tr">PCB</span><span lang="en">PCB</span></button>
+          <button type="button" data-m="panel" aria-pressed="false"><span lang="tr">Baskılı panel</span><span lang="en">Printed panel</span></button>
+          <button type="button" data-m="own" aria-pressed="false"><span lang="tr">Kendi görüntün</span><span lang="en">Your image</span></button>
+        </div>
+        <div class="btns">
+          <button type="button" class="btn sm ghost" id="regen"><span lang="tr">Yeni örnek</span><span lang="en">New sample</span></button>
+          <button type="button" class="btn sm ghost" id="defaults"><span lang="tr">Ayarları sıfırla</span><span lang="en">Reset settings</span></button>
+        </div>
+        <label class="chk"><input type="checkbox" id="showgt"><span lang="tr">Hatayı göster (cevap anahtarı)</span><span lang="en">Show the defect (answer key)</span></label>
+        <label class="file" id="filewrap" hidden><span lang="tr">Bir fotoğraf seç (cihazından çıkmaz)</span><span lang="en">Pick a photo (never leaves your device)</span><input type="file" id="file" accept="image/*"></label>
+      </div>
+
+      <div class="grp">
+        <label>2 · <span lang="tr">Gri ve bulanıklaştırma</span><span lang="en">Gray and blur</span></label>
+        <label for="blur"><span lang="tr">Bulanıklaştırma yarıçapı</span><span lang="en">Blur radius</span><output id="blur-o">1</output></label>
+        <input type="range" id="blur" min="0" max="6" step="1" value="1">
+      </div>
+
+      <div class="grp" id="g-thr">
+        <label>3 · <span lang="tr">Eşik</span><span lang="en">Threshold</span></label>
+        <label class="chk"><input type="checkbox" id="otsu" checked><span lang="tr">Otomatik (Otsu)</span><span lang="en">Automatic (Otsu)</span></label>
+        <label for="thr"><span lang="tr">Eşik değeri (0–255)</span><span lang="en">Threshold (0–255)</span><output id="thr-o">128</output></label>
+        <input type="range" id="thr" min="1" max="254" step="1" value="128" disabled>
+        <label class="chk"><input type="checkbox" id="inv"><span lang="tr">Ters çevir (nesneler koyu)</span><span lang="en">Invert (objects are dark)</span></label>
+      </div>
+      <div class="grp" id="g-diff" hidden>
+        <label>3 · <span lang="tr">Referansla fark</span><span lang="en">Difference from reference</span></label>
+        <label for="dthr"><span lang="tr">Fark eşiği (0–255)</span><span lang="en">Difference threshold (0–255)</span><output id="dthr-o">40</output></label>
+        <input type="range" id="dthr" min="5" max="150" step="5" value="40">
+      </div>
+
+      <div class="grp">
+        <label>4 · <span lang="tr">Morfoloji</span><span lang="en">Morphology</span></label>
+        <select id="morph">
+          <option value="none">—</option>
+          <option value="open" selected>open · <span>erode → dilate</span></option>
+          <option value="close">close · dilate → erode</option>
+          <option value="erode">erode</option>
+          <option value="dilate">dilate</option>
+        </select>
+        <label for="ksz"><span lang="tr">Çekirdek boyutu</span><span lang="en">Kernel size</span><output id="ksz-o">3</output></label>
+        <input type="range" id="ksz" min="1" max="4" step="1" value="1">
+      </div>
+
+      <div class="grp" id="g-roi">
+        <label>5 · <span lang="tr">ROI'ler</span><span lang="en">ROIs</span></label>
+        <label for="fill"><span lang="tr">Doluluk eşiği</span><span lang="en">Fill threshold</span><output id="fill-o">0.80</output></label>
+        <input type="range" id="fill" min="0.3" max="0.95" step="0.05" value="0.8">
+        <p class="hint" lang="tr">Yerinde parça ≈ 1,0 · ters parça ≈ 0,6 · eksik ≈ 0,05. Eşik ikisinin arasında durmalı.</p>
+        <p class="hint" lang="en">Part present ≈ 1.0 · rotated ≈ 0.6 · missing ≈ 0.05. The threshold has to sit between them.</p>
+        <label class="chk"><input type="checkbox" id="orient" checked><span lang="tr">Yön kontrolü (dik ROI ile karşılaştır)</span><span lang="en">Orientation check (compare with the upright ROI)</span></label>
+        <p class="hint" lang="tr">ROI listesi altın karttan gelir: her parça için bir kutu ve beklenen yön.</p>
+        <p class="hint" lang="en">The ROI list comes from the golden board: one box and one expected orientation per part.</p>
+      </div>
+      <div class="grp" id="g-blob" hidden>
+        <label>5 · <span lang="tr">Bölgeler</span><span lang="en">Regions</span></label>
+        <label for="minarea"><span lang="tr">En küçük alan (px)</span><span lang="en">Min area (px)</span><output id="minarea-o">60</output></label>
+        <input type="range" id="minarea" min="4" max="2000" step="4" value="60">
+        <label for="expect" id="expect-l"><span lang="tr">Beklenen bölge sayısı (0 = sadece say)</span><span lang="en">Expected region count (0 = just count)</span></label>
+        <input type="number" id="expect" min="0" max="999" step="1" value="0">
+      </div>
+    </aside>
   </div>
-
-  <aside class="ctl">
-    <h2 lang="tr">Parametreler</h2><h2 lang="en">Parameters</h2>
-
-    <div class="grp">
-      <label><span lang="tr">Kaynak</span><span lang="en">Source</span></label>
-      <div class="seg" id="src" role="group">
-        <button type="button" data-s="pcb" aria-pressed="true">PCB</button>
-        <button type="button" data-s="panel" aria-pressed="false"><span lang="tr">Baskılı panel</span><span lang="en">Printed panel</span></button>
-        <button type="button" data-s="upload" aria-pressed="false"><span lang="tr">Kendi görüntün</span><span lang="en">Your image</span></button>
-      </div>
-      <div class="btns">
-        <button type="button" class="btn sm ghost" id="regen"><span lang="tr">Yeni örnek</span><span lang="en">New sample</span></button>
-      </div>
-      <label class="file" id="filewrap" hidden><span lang="tr">Bir fotoğraf seç (cihazından çıkmaz)</span><span lang="en">Pick a photo (it never leaves your device)</span><input type="file" id="file" accept="image/*"></label>
-    </div>
-
-    <div class="grp">
-      <label><span lang="tr">Yöntem</span><span lang="en">Method</span></label>
-      <div class="seg" id="mode" role="group">
-        <button type="button" data-m="thr" aria-pressed="true"><span lang="tr">Eşikleme</span><span lang="en">Threshold</span></button>
-        <button type="button" data-m="diff" aria-pressed="false"><span lang="tr">Referans farkı</span><span lang="en">Golden diff</span></button>
-        <button type="button" data-m="edge" aria-pressed="false"><span lang="tr">Kenar</span><span lang="en">Edges</span></button>
-      </div>
-      <p class="hint" id="modehint"></p>
-    </div>
-
-    <div class="grp">
-      <label for="blur"><span lang="tr">Bulanıklaştırma yarıçapı</span><span lang="en">Blur radius</span><output id="blur-o">1</output></label>
-      <input type="range" id="blur" min="0" max="6" step="1" value="1">
-      <label class="chk"><input type="checkbox" id="otsu" checked><span lang="tr">Eşik otomatik (Otsu)</span><span lang="en">Auto threshold (Otsu)</span></label>
-      <label for="thr"><span lang="tr">Eşik değeri</span><span lang="en">Threshold</span><output id="thr-o">128</output></label>
-      <input type="range" id="thr" min="1" max="254" step="1" value="128" disabled>
-      <label class="chk"><input type="checkbox" id="inv"><span lang="tr">Ters çevir (koyu nesneler)</span><span lang="en">Invert (dark objects)</span></label>
-    </div>
-
-    <div class="grp">
-      <label for="morph"><span lang="tr">Morfoloji</span><span lang="en">Morphology</span></label>
-      <select id="morph">
-        <option value="none">—</option>
-        <option value="open" selected>open (erode → dilate)</option>
-        <option value="close">close (dilate → erode)</option>
-        <option value="erode">erode</option>
-        <option value="dilate">dilate</option>
-      </select>
-      <label for="ksz"><span lang="tr">Çekirdek boyutu</span><span lang="en">Kernel size</span><output id="ksz-o">3</output></label>
-      <input type="range" id="ksz" min="1" max="4" step="1" value="1">
-    </div>
-
-    <div class="grp">
-      <label for="minarea"><span lang="tr">En küçük alan (px)</span><span lang="en">Min area (px)</span><output id="minarea-o">120</output></label>
-      <input type="range" id="minarea" min="4" max="3000" step="4" value="120">
-      <label for="expect"><span lang="tr">Beklenen parça sayısı</span><span lang="en">Expected part count</span></label>
-      <input type="number" id="expect" min="0" max="500" step="1" value="0">
-      <p class="hint" lang="tr">Eşikleme yönteminde karar: sayı beklenene eşitse OK. Yönü bozuk parçalar ayrıca NG.</p>
-      <p class="hint" lang="en">Threshold decision: OK when the count equals the expected value. Rotated parts are flagged NG as well.</p>
-    </div>
-  </aside>
 </div>
-
 </main>
 
 <footer class="foot">
@@ -160,277 +180,211 @@ document.documentElement.setAttribute('data-lang',l);document.documentElement.se
 <script src="../assets/site.js"></script>
 <script>
 (function(){
-  var W=640,H=480;
-  var out=document.getElementById('out'), octx=out.getContext('2d');
-  var srcCv=document.createElement('canvas'); srcCv.width=W; srcCv.height=H; var sctx=srcCv.getContext('2d',{willReadFrequently:true});
-  var refCv=document.createElement('canvas'); refCv.width=W; refCv.height=H; var rctx=refCv.getContext('2d',{willReadFrequently:true});
-  var $=function(id){return document.getElementById(id)};
-  var state={src:'pcb',mode:'thr',view:'src',seed:20230614,expect:0,hasRef:false,srcName:'sample_pcb',userImg:null};
+  var W=640,H=480,$=function(id){return document.getElementById(id)};
+  var out=$('out'),octx=out.getContext('2d');
+  var mk=function(){var c=document.createElement('canvas');c.width=W;c.height=H;return c};
+  var src=mk(),ref=mk(),sctx=src.getContext('2d',{willReadFrequently:true}),rctx=ref.getContext('2d',{willReadFrequently:true});
+  var stepCv=[];for(var i=0;i<6;i++)stepCv.push(mk());
+  var q={};location.search.slice(1).split('&').forEach(function(kv){var p=kv.split('=');if(p[0])q[decodeURIComponent(p[0])]=decodeURIComponent(p[1]||'')});
+  var state={mode:q.mode==='panel'||q.mode==='own'?q.mode:'pcb',seed:q.seed?+q.seed:20230614,defect:q.defect!=='0',step:6,userImg:null,rois:[],gt:null,name:'sample_pcb',last:null};
+  var seed=state.seed;function rnd(){seed=(seed*48271)%2147483647;return (seed-1)/2147483646}
+  function gauss(){var u=1-rnd(),v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
   var lang=function(){return document.documentElement.getAttribute('data-lang')||'tr'};
-  var colors={};
-  function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
-  function theme(){colors={ok:css('--ok'),ng:css('--ng'),acc:css('--acc'),ground:css('--bg'),ink:css('--ink')}}
+  var C={};function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+  function theme(){C={ok:css('--ok'),ng:css('--ng'),acc:css('--acc'),mute:css('--mute'),ink:css('--ink'),bg:css('--bg')}}
 
   /* ---------- sample generators ---------- */
-  var seed=state.seed;
-  function rnd(){seed=(seed*48271)%2147483647;return (seed-1)/2147483646}
-  function gauss(){var u=1-rnd(),v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
-  function noise(ctx,sigma){
-    var id=ctx.getImageData(0,0,W,H),d=id.data;
-    for(var i=0;i<d.length;i+=4){var n=gauss()*sigma;d[i]=Math.max(0,Math.min(255,d[i]+n));d[i+1]=Math.max(0,Math.min(255,d[i+1]+n));d[i+2]=Math.max(0,Math.min(255,d[i+2]+n))}
-    ctx.putImageData(id,0,0);
+  function noise(ctx,sigma){var id=ctx.getImageData(0,0,W,H),d=id.data;for(var i=0;i<d.length;i+=4){var n=gauss()*sigma;d[i]=Math.max(0,Math.min(255,d[i]+n));d[i+1]=Math.max(0,Math.min(255,d[i+1]+n));d[i+2]=Math.max(0,Math.min(255,d[i+2]+n))}ctx.putImageData(id,0,0)}
+  function vignette(ctx){var g=ctx.createRadialGradient(W/2,H/2,H*0.35,W/2,H/2,H*0.85);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,0.22)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H)}
+  function pcbLayout(){
+    var cols=6,rows=5,mx=60,my=50,cw=(W-2*mx)/cols,ch=(H-2*my)/rows,parts=[],n=0;
+    for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){if(rnd()<0.2)continue;var t=rnd(),type=t<0.25?'ic':(t<0.65?'res':'cap');var w,h;if(type==='ic'){w=52;h=38}else if(type==='res'){w=40;h=16}else{w=26;h=26}
+      n++;parts.push({name:(type==='ic'?'U':type==='res'?'R':'C')+n,type:type,cx:Math.round(mx+cw*(c+0.5)),cy:Math.round(my+ch*(r+0.5)),w:w,h:h})}
+    return parts;
   }
-  function vignette(ctx){
-    var g=ctx.createRadialGradient(W/2,H/2,H*0.35,W/2,H/2,H*0.85);
-    g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,0.22)');
-    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  }
-  function genPCB(withDefect,ctx){
+  function drawBoard(ctx,parts,defectIdx,dmode){
     ctx.fillStyle='#3d5a48';ctx.fillRect(0,0,W,H);
-    // traces
-    ctx.strokeStyle='#4a6b56';ctx.lineWidth=2;
-    for(var i=0;i<26;i++){ctx.beginPath();var x=rnd()*W,y=rnd()*H;ctx.moveTo(x,y);ctx.lineTo(x+(rnd()-0.5)*220,y);ctx.lineTo(x+(rnd()-0.5)*220,y+(rnd()-0.5)*160);ctx.stroke()}
-    var cols=6,rows=5,mx=60,my=50,cw=(W-2*mx)/cols,ch=(H-2*my)/rows,n=0,parts=[];
-    for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){
-      if(rnd()<0.2) continue;
-      var t=rnd(),type=t<0.25?'ic':(t<0.65?'res':'cap');
-      parts.push({type:type,cx:mx+cw*(c+0.5),cy:my+ch*(r+0.5)});
-    }
-    var di=Math.floor(rnd()*parts.length), dmode=rnd()<0.5?'missing':'rotated';
-    if(parts[di]&&parts[di].type!=='res') dmode='missing';
-    if(withDefect) state.defect=dmode;
+    ctx.strokeStyle='#4a6b56';ctx.lineWidth=2;for(var i=0;i<26;i++){ctx.beginPath();var x=rnd()*W,y=rnd()*H;ctx.moveTo(x,y);ctx.lineTo(x+(rnd()-0.5)*220,y);ctx.lineTo(x+(rnd()-0.5)*220,y+(rnd()-0.5)*160);ctx.stroke()}
     parts.forEach(function(p,i){
-      var defect=withDefect&&i===di;
-      var w,h;
-      if(p.type==='ic'){w=52;h=38}else if(p.type==='res'){w=40;h=16}else{w=26;h=26}
+      var defect=i===defectIdx,w=p.w,h=p.h;
       if(defect&&dmode==='rotated'){var tmp=w;w=h;h=tmp}
-      // pads
       ctx.fillStyle='#d8d2b0';
       if(p.type==='cap'){ctx.beginPath();ctx.arc(p.cx-9,p.cy,3,0,7);ctx.arc(p.cx+9,p.cy,3,0,7);ctx.fill()}
-      else{ctx.fillRect(p.cx-w/2-4,p.cy-3,5,6);ctx.fillRect(p.cx+w/2-1,p.cy-3,5,6)}
-      if(defect&&dmode==='missing') return;
-      n++;
+      else{ctx.fillRect(p.cx-p.w/2-4,p.cy-3,5,6);ctx.fillRect(p.cx+p.w/2-1,p.cy-3,5,6)}
+      if(defect&&dmode==='missing')return;
       if(p.type==='ic'){ctx.fillStyle='#cfd0c8';ctx.fillRect(p.cx-w/2,p.cy-h/2,w,h);ctx.fillStyle='#d8d2b0';var np=Math.max(3,Math.floor(w/9));for(var k=0;k<np;k++){var px=p.cx-w/2+w*(k+0.5)/np;ctx.fillRect(px-1,p.cy-h/2-4,2,4);ctx.fillRect(px-1,p.cy+h/2,2,4)}ctx.fillStyle='#8f9089';ctx.font='500 9px "IBM Plex Mono", monospace';ctx.textBaseline='middle';ctx.fillText('74HC',p.cx-w/2+8,p.cy);ctx.fillStyle='#6b6c66';ctx.beginPath();ctx.arc(p.cx-w/2+6,p.cy-h/2+6,2,0,7);ctx.fill()}
-      else if(p.type==='res'){ctx.fillStyle='#e9e6dc';ctx.fillRect(p.cx-w/2,p.cy-h/2,w,h);ctx.fillStyle='#b4b4a6';ctx.fillRect(p.cx-w/2+w*0.3,p.cy-h/2,2,h);ctx.fillRect(p.cx-w/2+w*0.5,p.cy-h/2,2,h)}
+      else if(p.type==='res'){ctx.fillStyle='#e9e6dc';ctx.fillRect(p.cx-w/2,p.cy-h/2,w,h);ctx.fillStyle='#b4b4a6';if(w>h){ctx.fillRect(p.cx-w/2+w*0.3,p.cy-h/2,2,h);ctx.fillRect(p.cx-w/2+w*0.5,p.cy-h/2,2,h)}else{ctx.fillRect(p.cx-w/2,p.cy-h/2+h*0.3,w,2);ctx.fillRect(p.cx-w/2,p.cy-h/2+h*0.5,w,2)}}
       else{ctx.fillStyle='#e6e6e0';ctx.beginPath();ctx.arc(p.cx,p.cy,w/2,0,7);ctx.fill();ctx.strokeStyle='#b0b0a8';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.cx-w*0.3,p.cy);ctx.lineTo(p.cx+w*0.3,p.cy);ctx.stroke()}
     });
     vignette(ctx);noise(ctx,7);
-    return {count:n,expected:parts.length,defect:withDefect?dmode:''};
   }
-  function genPanel(withDefect,ctx){
-    ctx.fillStyle='#e9e6df';ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='#dcd8cf';ctx.fillRect(28,28,W-56,H-56);
-    ctx.fillStyle='#e9e6df';ctx.fillRect(34,34,W-68,H-68);
-    ctx.fillStyle='#161616';ctx.font='500 44px "IBM Plex Mono", monospace';ctx.textBaseline='middle';
-    var words=['START','STOP','RESET','AUTO','MANUAL','ALARM'];
-    var rowsY=[110,200,290,380];
-    var count=0;
-    for(var i=0;i<4;i++){var w=words[(i+Math.floor(rnd()*6))%6];ctx.fillText(w,70,rowsY[i]);count+=w.length}
-    // symbols
-    ctx.strokeStyle='#161616';ctx.lineWidth=4;
-    ctx.beginPath();ctx.arc(480,110,26,0,7);ctx.stroke();ctx.beginPath();ctx.moveTo(480,84);ctx.lineTo(480,112);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(452,180);ctx.lineTo(508,180);ctx.lineTo(480,228);ctx.closePath();ctx.stroke();
-    ctx.fillRect(458,268,44,44);
-    ctx.beginPath();ctx.arc(480,380,24,0,7);ctx.stroke();
-    if(withDefect){
-      var d=rnd();
-      if(d<0.34){ // scratch
-        ctx.strokeStyle='#2b2b2b';ctx.lineWidth=2;ctx.beginPath();var x=120+rnd()*300,y=80+rnd()*300;ctx.moveTo(x,y);ctx.lineTo(x+60+rnd()*80,y+20+rnd()*60);ctx.stroke();state.defect='scratch';
-      }else if(d<0.67){ // missing ink
-        ctx.fillStyle='#e9e6df';var ri=Math.floor(rnd()*4);ctx.fillRect(70+rnd()*180,rowsY[ri]-22,16+rnd()*14,44);state.defect='missing ink';
-      }else{ // dust
-        ctx.fillStyle='#3a3a3a';var cx=100+rnd()*420,cy=70+rnd()*340;ctx.beginPath();ctx.arc(cx,cy,3+rnd()*4,0,7);ctx.fill();state.defect='dust';
-      }
+  function genPCB(){
+    seed=state.seed;var parts=pcbLayout();var s0=seed;
+    var cand=[];parts.forEach(function(p,i){if(p.type!=='cap')cand.push(i)});
+    var di=cand[Math.floor(rnd()*cand.length)],dmode=(parts[di].type==='res'&&rnd()<0.5)?'rotated':'missing';
+    seed=s0;drawBoard(rctx,parts,-1,'');
+    seed=s0;drawBoard(sctx,parts,state.defect?di:-1,dmode);
+    state.rois=parts.map(function(p){return {name:p.name,type:p.type,x:p.cx-p.w/2,y:p.cy-p.h/2,w:p.w,h:p.h,cx:p.cx,cy:p.cy}});
+    state.gt=state.defect?{type:dmode,x:parts[di].cx-Math.max(parts[di].w,parts[di].h)/2-6,y:parts[di].cy-Math.max(parts[di].w,parts[di].h)/2-6,w:Math.max(parts[di].w,parts[di].h)+12,h:Math.max(parts[di].w,parts[di].h)+12,name:parts[di].name}:null;
+    state.name='sample_pcb';
+  }
+  function drawPanel(ctx,words,withDefect){
+    ctx.fillStyle='#e9e6df';ctx.fillRect(0,0,W,H);ctx.fillStyle='#dcd8cf';ctx.fillRect(28,28,W-56,H-56);ctx.fillStyle='#e9e6df';ctx.fillRect(34,34,W-68,H-68);
+    ctx.fillStyle='#161616';ctx.font='500 44px "IBM Plex Mono", monospace';ctx.textBaseline='middle';var rowsY=[110,200,290,380];
+    for(var i=0;i<4;i++)ctx.fillText(words[i],70,rowsY[i]);
+    ctx.strokeStyle='#161616';ctx.lineWidth=4;ctx.beginPath();ctx.arc(480,110,26,0,7);ctx.stroke();ctx.beginPath();ctx.moveTo(480,84);ctx.lineTo(480,112);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(452,180);ctx.lineTo(508,180);ctx.lineTo(480,228);ctx.closePath();ctx.stroke();ctx.fillRect(458,268,44,44);ctx.beginPath();ctx.arc(480,380,24,0,7);ctx.stroke();
+    var gt=null;
+    if(withDefect){var d=rnd();
+      if(d<0.34){var x=120+rnd()*300,y=80+rnd()*300,dx=60+rnd()*80,dy=20+rnd()*60;ctx.strokeStyle='#2b2b2b';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+dx,y+dy);ctx.stroke();gt={type:'scratch',x:x-6,y:y-6,w:dx+12,h:dy+12}}
+      else if(d<0.67){var ri=Math.floor(rnd()*4),rw=16+rnd()*14,rx=70+rnd()*(ctx.measureText(words[ri]).width-rw),tries=0;
+        /* make sure the erased strip actually covers ink, otherwise the defect would be invisible */
+        while(tries<12){var id=ctx.getImageData(Math.round(rx),rowsY[ri]-22,Math.round(rw),44).data,dark=0;for(var q=0;q<id.length;q+=4)if(id[q]<100)dark++;if(dark>=60)break;rx=70+((rx-70+23)%Math.max(1,ctx.measureText(words[ri]).width-rw));tries++}
+        ctx.fillStyle='#e9e6df';ctx.fillRect(rx,rowsY[ri]-22,rw,44);gt={type:'missing ink',x:rx-6,y:rowsY[ri]-28,w:rw+12,h:56}}
+      else{var cx=100+rnd()*420,cy=70+rnd()*340,r=5+rnd()*4;ctx.fillStyle='#3a3a3a';ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fill();gt={type:'dust',x:cx-r-6,y:cy-r-6,w:2*r+12,h:2*r+12}}
     }
-    vignette(ctx);noise(ctx,4);
-    return {count:count,expected:count,defect:withDefect?state.defect:''};
+    vignette(ctx);noise(ctx,4);return gt;
   }
-  function generate(newSeed){
-    if(newSeed) state.seed=(state.seed*31+17)%2147483647;
-    var meta;
-    if(state.src==='pcb'){
-      seed=state.seed; meta=genPCB(false,rctx);
-      seed=state.seed; meta=genPCB(true,sctx);
-      state.hasRef=true; state.srcName='sample_pcb'; state.expect=meta.expected; $('expect').value=meta.expected;
-    }else if(state.src==='panel'){
-      seed=state.seed; genPanel(false,rctx);
-      seed=state.seed; meta=genPanel(true,sctx);
-      state.hasRef=true; state.srcName='sample_panel'; state.expect=0; $('expect').value=0;
-    }else{
-      state.hasRef=false; state.srcName='your_image';
-      sctx.fillStyle='#777';sctx.fillRect(0,0,W,H);
-      if(state.userImg){var im=state.userImg,s=Math.min(W/im.width,H/im.height),dw=im.width*s,dh=im.height*s;sctx.drawImage(im,(W-dw)/2,(H-dh)/2,dw,dh)}
-      else{sctx.fillStyle='#ccc';sctx.font='500 18px "IBM Plex Mono", monospace';sctx.textAlign='center';sctx.fillText(lang()==='tr'?'Bir görüntü seç':'Pick an image',W/2,H/2);sctx.textAlign='left'}
-    }
+  function genPanel(){
+    seed=state.seed;var all=['START','STOP','RESET','AUTO','MANUAL','ALARM'],words=[];for(var i=0;i<4;i++)words.push(all[(i+Math.floor(rnd()*6))%6]);var s0=seed;
+    seed=s0;drawPanel(rctx,words,false);
+    seed=s0;state.gt=drawPanel(sctx,words,state.defect);
+    state.rois=[];state.name='sample_panel';
   }
+  function genOwn(){
+    state.rois=[];state.gt=null;state.name='your_image';sctx.fillStyle='#777';sctx.fillRect(0,0,W,H);
+    if(state.userImg){var im=state.userImg,s=Math.min(W/im.width,H/im.height),dw=im.width*s,dh=im.height*s;sctx.drawImage(im,(W-dw)/2,(H-dh)/2,dw,dh)}
+    else{sctx.fillStyle='#ccc';sctx.font='500 18px "IBM Plex Mono", monospace';sctx.textAlign='center';sctx.fillText(lang()==='tr'?'Sağdan bir görüntü seç':'Pick an image on the right',W/2,H/2);sctx.textAlign='left'}
+  }
+  function generate(){if(state.mode==='pcb')genPCB();else if(state.mode==='panel')genPanel();else genOwn()}
 
-  /* ---------- processing ---------- */
-  function toGray(id){var d=id.data,g=new Uint8ClampedArray(W*H);for(var i=0,j=0;i<d.length;i+=4,j++){g[j]=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000}return g}
-  function boxBlur(src,r){
-    if(r<=0) return src;
-    var tmp=new Uint16Array(W*H),dst=new Uint8ClampedArray(W*H),k=2*r+1,x,y,s;
-    for(y=0;y<H;y++){s=0;for(x=-r;x<=r;x++)s+=src[y*W+Math.min(W-1,Math.max(0,x))];for(x=0;x<W;x++){tmp[y*W+x]=s;s+=src[y*W+Math.min(W-1,x+r+1)]-src[y*W+Math.max(0,x-r)]}}
-    for(x=0;x<W;x++){s=0;for(y=-r;y<=r;y++)s+=tmp[Math.min(H-1,Math.max(0,y))*W+x];for(y=0;y<H;y++){dst[y*W+x]=s/(k*k);s+=tmp[Math.min(H-1,y+r+1)*W+x]-tmp[Math.max(0,y-r)*W+x]}}
-    return dst;
-  }
-  function otsu(g){
-    var hist=new Uint32Array(256),i;for(i=0;i<g.length;i++)hist[g[i]]++;
-    var total=g.length,sum=0;for(i=0;i<256;i++)sum+=i*hist[i];
-    var sumB=0,wB=0,max=0,t=128;
-    for(i=0;i<256;i++){wB+=hist[i];if(!wB)continue;var wF=total-wB;if(!wF)break;sumB+=i*hist[i];var mB=sumB/wB,mF=(sum-sumB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>max){max=v;t=i}}
-    return t;
-  }
+  /* ---------- image ops ---------- */
+  function toGray(id){var d=id.data,g=new Uint8ClampedArray(W*H);for(var i=0,j=0;i<d.length;i+=4,j++)g[j]=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000;return g}
+  function boxBlur(s,r){if(r<=0)return s;var tmp=new Uint16Array(W*H),dst=new Uint8ClampedArray(W*H),k=2*r+1,x,y,a;
+    for(y=0;y<H;y++){a=0;for(x=-r;x<=r;x++)a+=s[y*W+Math.min(W-1,Math.max(0,x))];for(x=0;x<W;x++){tmp[y*W+x]=a;a+=s[y*W+Math.min(W-1,x+r+1)]-s[y*W+Math.max(0,x-r)]}}
+    for(x=0;x<W;x++){a=0;for(y=-r;y<=r;y++)a+=tmp[Math.min(H-1,Math.max(0,y))*W+x];for(y=0;y<H;y++){dst[y*W+x]=a/(k*k);a+=tmp[Math.min(H-1,y+r+1)*W+x]-tmp[Math.max(0,y-r)*W+x]}}return dst}
+  function otsu(g){var hist=new Uint32Array(256),i;for(i=0;i<g.length;i++)hist[g[i]]++;var total=g.length,sum=0;for(i=0;i<256;i++)sum+=i*hist[i];var sumB=0,wB=0,max=0,t=128;
+    for(i=0;i<256;i++){wB+=hist[i];if(!wB)continue;var wF=total-wB;if(!wF)break;sumB+=i*hist[i];var mB=sumB/wB,mF=(sum-sumB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>max){max=v;t=i}}return t}
   function threshold(g,t,inv){var b=new Uint8Array(W*H);for(var i=0;i<g.length;i++){var v=g[i]>t?1:0;b[i]=inv?1-v:v}return b}
-  function minmax(b,r,isMax){
-    if(r<=0) return b;
-    var tmp=new Uint8Array(W*H),dst=new Uint8Array(W*H),x,y,k,v;
+  function minmax(b,r,isMax){if(r<=0)return b;var tmp=new Uint8Array(W*H),dst=new Uint8Array(W*H),x,y,k,v;
     for(y=0;y<H;y++)for(x=0;x<W;x++){v=isMax?0:1;for(k=-r;k<=r;k++){var xx=x+k;if(xx<0||xx>=W)continue;var p=b[y*W+xx];if(isMax){if(p>v)v=p}else{if(p<v)v=p}}tmp[y*W+x]=v}
-    for(y=0;y<H;y++)for(x=0;x<W;x++){v=isMax?0:1;for(k=-r;k<=r;k++){var yy=y+k;if(yy<0||yy>=H)continue;var q=tmp[yy*W+x];if(isMax){if(q>v)v=q}else{if(q<v)v=q}}dst[y*W+x]=v}
-    return dst;
-  }
-  function morph(b,op,r){
-    if(op==='erode')return minmax(b,r,false);
-    if(op==='dilate')return minmax(b,r,true);
-    if(op==='open')return minmax(minmax(b,r,false),r,true);
-    if(op==='close')return minmax(minmax(b,r,true),r,false);
-    return b;
-  }
-  function sobel(g){
-    var m=new Float32Array(W*H),x,y;
-    for(y=1;y<H-1;y++)for(x=1;x<W-1;x++){
-      var i=y*W+x;
-      var gx=-g[i-W-1]-2*g[i-1]-g[i+W-1]+g[i-W+1]+2*g[i+1]+g[i+W+1];
-      var gy=-g[i-W-1]-2*g[i-W]-g[i-W+1]+g[i+W-1]+2*g[i+W]+g[i+W+1];
-      m[i]=Math.sqrt(gx*gx+gy*gy);
-    }
-    var o=new Uint8ClampedArray(W*H);for(var j=0;j<m.length;j++)o[j]=Math.min(255,m[j]/4);
-    return o;
-  }
+    for(y=0;y<H;y++)for(x=0;x<W;x++){v=isMax?0:1;for(k=-r;k<=r;k++){var yy=y+k;if(yy<0||yy>=H)continue;var q2=tmp[yy*W+x];if(isMax){if(q2>v)v=q2}else{if(q2<v)v=q2}}dst[y*W+x]=v}return dst}
+  function morph(b,op,r){if(op==='erode')return minmax(b,r,false);if(op==='dilate')return minmax(b,r,true);if(op==='open')return minmax(minmax(b,r,false),r,true);if(op==='close')return minmax(minmax(b,r,true),r,false);return b}
   function absdiff(a,b){var o=new Uint8ClampedArray(W*H);for(var i=0;i<a.length;i++)o[i]=Math.abs(a[i]-b[i]);return o}
-  function components(b,minArea){
-    var lab=new Int32Array(W*H),comps=[],stack=new Int32Array(W*H),n=0;
-    for(var i=0;i<W*H;i++){
-      if(!b[i]||lab[i])continue;
-      n++;var sp=0;stack[sp++]=i;lab[i]=n;var minx=W,miny=H,maxx=0,maxy=0,area=0;
+  function components(b,minArea){var lab=new Int32Array(W*H),comps=[],stack=new Int32Array(W*H),n=0;
+    for(var i=0;i<W*H;i++){if(!b[i]||lab[i])continue;n++;var sp=0;stack[sp++]=i;lab[i]=n;var minx=W,miny=H,maxx=0,maxy=0,area=0;
       while(sp){var p=stack[--sp];area++;var px=p%W,py=(p-px)/W;if(px<minx)minx=px;if(px>maxx)maxx=px;if(py<miny)miny=py;if(py>maxy)maxy=py;
-        if(px>0&&b[p-1]&&!lab[p-1]){lab[p-1]=n;stack[sp++]=p-1}
-        if(px<W-1&&b[p+1]&&!lab[p+1]){lab[p+1]=n;stack[sp++]=p+1}
-        if(py>0&&b[p-W]&&!lab[p-W]){lab[p-W]=n;stack[sp++]=p-W}
-        if(py<H-1&&b[p+W]&&!lab[p+W]){lab[p+W]=n;stack[sp++]=p+W}
-      }
-      if(area>=minArea&&!(minx===0&&miny===0&&maxx===W-1&&maxy===H-1)) comps.push({x:minx,y:miny,w:maxx-minx+1,h:maxy-miny+1,area:area});
-      if(comps.length>800)break;
-    }
-    return comps;
-  }
-  function grayToImage(g){var id=octx.createImageData(W,H),d=id.data;for(var i=0,j=0;j<g.length;i+=4,j++){d[i]=d[i+1]=d[i+2]=g[j];d[i+3]=255}return id}
-  function binToImage(b){var id=octx.createImageData(W,H),d=id.data;for(var i=0,j=0;j<b.length;i+=4,j++){var v=b[j]?235:18;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255}return id}
+        if(px>0&&b[p-1]&&!lab[p-1]){lab[p-1]=n;stack[sp++]=p-1}if(px<W-1&&b[p+1]&&!lab[p+1]){lab[p+1]=n;stack[sp++]=p+1}if(py>0&&b[p-W]&&!lab[p-W]){lab[p-W]=n;stack[sp++]=p-W}if(py<H-1&&b[p+W]&&!lab[p+W]){lab[p+W]=n;stack[sp++]=p+W}}
+      if(area>=minArea&&!(minx===0&&miny===0&&maxx===W-1&&maxy===H-1))comps.push({x:minx,y:miny,w:maxx-minx+1,h:maxy-miny+1,area:area});if(comps.length>800)break}return comps}
+  function fillCount(b,x,y,w,h){x=Math.round(x);y=Math.round(y);w=Math.round(w);h=Math.round(h);var c=0;for(var yy=Math.max(0,y);yy<Math.min(H,y+h);yy++)for(var xx=Math.max(0,x);xx<Math.min(W,x+w);xx++){if(b[yy*W+xx])c++}return c}
+  function grayImg(g){var id=octx.createImageData(W,H),d=id.data;for(var i=0,j=0;j<g.length;i+=4,j++){d[i]=d[i+1]=d[i+2]=g[j];d[i+3]=255}return id}
+  function binImg(b){var id=octx.createImageData(W,H),d=id.data;for(var i=0,j=0;j<b.length;i+=4,j++){var v=b[j]?235:18;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255}return id}
 
-  var last={};
+  /* ---------- pipeline ---------- */
+  function params(){return {blur:+$('blur').value,otsu:$('otsu').checked,thr:+$('thr').value,inv:$('inv').checked,dthr:+$('dthr').value,morph:$('morph').value,k:+$('ksz').value,fill:+$('fill').value,orient:$('orient').checked,minarea:+$('minarea').value,expect:+$('expect').value}}
   function run(){
-    var t0=performance.now();
-    var p={blur:+$('blur').value,otsu:$('otsu').checked,thr:+$('thr').value,inv:$('inv').checked,morph:$('morph').value,k:+$('ksz').value,minarea:+$('minarea').value,expect:+$('expect').value};
-    var id=sctx.getImageData(0,0,W,H), gray=toGray(id), g=boxBlur(gray,p.blur), bin, tUsed=p.thr, mode=state.mode, work;
-    if(mode==='diff'&&!state.hasRef) mode='thr';
-    if(mode==='thr'){ if(p.otsu){tUsed=otsu(g)} bin=threshold(g,tUsed,p.inv); work=g }
-    else if(mode==='diff'){ var rg=boxBlur(toGray(rctx.getImageData(0,0,W,H)),p.blur); var d=absdiff(g,rg); tUsed=p.otsu?Math.max(24,otsu(d)):p.thr; bin=threshold(d,tUsed,false); work=d }
-    else { var e=sobel(g); tUsed=p.otsu?otsu(e):p.thr; bin=threshold(e,tUsed,false); work=e }
-    bin=morph(bin,p.morph,p.k);
-    var comps=components(bin,p.minarea);
-    // decisions
-    var ok=0,ng=0,verdict='OK';
-    if(mode==='thr'){
-      /* parts on this board are placed landscape or square; a clearly portrait blob is a rotated part */
-      comps.forEach(function(c){var r=c.w/c.h; c.ng=(state.src!=='upload'&&comps.length>3&&r<0.7); if(c.ng){c.why='rotated?';ng++}else ok++});
-      if(p.expect>0&&comps.length!==p.expect){verdict='NG';}
-      if(ng>0)verdict='NG';
-    }else if(mode==='diff'){
-      comps.forEach(function(c){c.ng=true;c.why='diff';ng++}); verdict=comps.length?'NG':'OK';
+    var t0=performance.now(),p=params(),m=state.mode,R={p:p};
+    var gray=toGray(sctx.getImageData(0,0,W,H)),g=boxBlur(gray,p.blur);
+    if(m==='panel'){var rg=boxBlur(toGray(rctx.getImageData(0,0,W,H)),p.blur);R.work=absdiff(g,rg);R.t=p.dthr;R.bin=threshold(R.work,R.t,false)}
+    else{R.work=g;R.t=p.otsu?otsu(g):p.thr;R.bin=threshold(g,R.t,p.inv)}
+    R.bin2=morph(R.bin,p.morph,p.k);
+    var ok=0,ng=0,reasons=[],verdict='OK';
+    if(m==='pcb'){
+      /* fill = white pixels inside the ROI / the part's expected footprint (a capacitor is round, so its box is never full) */
+      R.rois=state.rois.map(function(r){var mg=3,expA=r.type==='cap'?Math.PI*(r.w/2)*(r.w/2):r.w*r.h,fL=Math.min(1,fillCount(R.bin2,r.x-mg,r.y-mg,r.w+2*mg,r.h+2*mg)/expA),fP=Math.min(1,fillCount(R.bin2,r.cx-r.h/2-mg,r.cy-r.w/2-mg,r.h+2*mg,r.w+2*mg)/expA),st='ok';
+        if(fL<p.fill){st=(p.orient&&r.w!==r.h&&fP>=p.fill)?'rotated':'missing'}
+        if(st==='ok')ok++;else ng++;return {r:r,fL:fL,fP:fP,st:st}});
+      R.rois.forEach(function(x){if(x.st!=='ok'){verdict='NG';reasons.push('<b>'+x.r.name+' · '+(x.st==='missing'?(lang()==='tr'?'eksik':'missing'):(lang()==='tr'?'yön ters':'rotated'))+'</b> · fill '+x.fL.toFixed(2)+(x.st==='rotated'?' / upright '+x.fP.toFixed(2):''))}});
+      if(verdict==='OK')reasons.push('<i>'+ok+' ROI '+(lang()==='tr'?'dolu ve doğru yönde':'filled and upright')+'</i>');
     }else{
-      comps.forEach(function(c){c.ng=false;ok++}); verdict='—';
+      R.comps=components(R.bin2,p.minarea);
+      if(m==='panel'){ng=R.comps.length;verdict=ng?'NG':'OK';R.comps.forEach(function(c,i){reasons.push('<b>'+(lang()==='tr'?'bölge':'region')+' '+(i+1)+'</b> · '+c.area+' px · ('+c.x+','+c.y+')')});if(!ng)reasons.push('<i>'+(lang()==='tr'?'referansla fark yok':'no difference from reference')+'</i>')}
+      else{ok=R.comps.length;if(p.expect>0){verdict=ok===p.expect?'OK':'NG';reasons.push((verdict==='NG'?'<b>':'<i>')+ok+' '+(lang()==='tr'?'bölge, beklenen':'regions, expected')+' '+p.expect+(verdict==='NG'?'</b>':'</i>'))}else{verdict='—';reasons.push('<i>'+ok+' '+(lang()==='tr'?'bölge bulundu':'regions found')+'</i>')}}
     }
-    var ms=performance.now()-t0;
-    last={p:p,bin:bin,work:work,comps:comps,ok:ok,ng:ng,verdict:verdict,tUsed:tUsed,ms:ms,mode:mode};
-    draw();
-    $('hud-ms').textContent=ms.toFixed(1)+' ms';
-    $('hud-mode').textContent=(mode==='thr'?'threshold':mode==='diff'?'absdiff':'sobel')+' · '+(p.otsu?'otsu ':'t=')+tUsed;
-    $('hud-src').textContent=state.srcName+' · '+W+'×'+H;
-    $('hud-count').innerHTML='<b>OK '+ok+'</b> · <em>NG '+ng+'</em>';
-    var vd=$('verdict'); vd.textContent=verdict; vd.className='verdict '+(verdict==='OK'?'ok':verdict==='NG'?'ng':'');
-    var L=lang();
-    $('stats').innerHTML=(L==='tr'?'bileşen <b>':'components <b>')+comps.length+'</b>'+(p.expect?(L==='tr'?' · beklenen <b>':' · expected <b>')+p.expect+'</b>':'')+(L==='tr'?' · eşik <b>':' · threshold <b>')+tUsed+'</b>'+(L==='tr'?' · süre <b>':' · time <b>')+ms.toFixed(1)+' ms</b>'+(state.defect&&state.src!=='upload'?(L==='tr'?' · gizli hata: <b>':' · hidden defect: <b>')+state.defect+'</b>':'');
+    R.ok=ok;R.ng=ng;R.verdict=verdict;R.reasons=reasons;R.ms=performance.now()-t0;state.last=R;
+    render();
+  }
+  function drawGT(ctx){if(!state.gt||!$('showgt').checked)return;var g=state.gt;ctx.setLineDash([5,4]);ctx.strokeStyle=C.ng;ctx.lineWidth=2;ctx.strokeRect(g.x+0.5,g.y+0.5,g.w,g.h);ctx.setLineDash([]);ctx.font='500 10px "IBM Plex Mono", monospace';ctx.textBaseline='bottom';var txt=(lang()==='tr'?'gerçek hata: ':'true defect: ')+g.type;ctx.fillStyle=C.ng;ctx.fillRect(g.x,g.y+g.h+2,ctx.measureText(txt).width+6,13);ctx.fillStyle='#fff';ctx.fillText(txt,g.x+3,g.y+g.h+14)}
+  function drawBoxes(ctx,final){
+    var R=state.last,m=state.mode;ctx.font='500 10px "IBM Plex Mono", monospace';ctx.textBaseline='bottom';ctx.lineWidth=1;
+    function lab(x,y,txt,col){var tw=ctx.measureText(txt).width+6;ctx.fillStyle=col;ctx.fillRect(x,y-13,tw,13);ctx.fillStyle='#fff';ctx.fillText(txt,x+3,y-1)}
+    if(m==='pcb'){R.rois.forEach(function(x){var r=x.r,mg=3,col=x.st==='ok'?C.ok:C.ng;if(!final){ctx.setLineDash([3,3]);ctx.strokeStyle=C.acc;ctx.strokeRect(r.x-mg+0.5,r.y-mg+0.5,r.w+2*mg,r.h+2*mg);ctx.setLineDash([]);lab(r.x-mg,r.y-mg,r.name+' '+x.fL.toFixed(2),C.acc)}
+      else{ctx.strokeStyle=col;ctx.strokeRect(r.x-mg+0.5,r.y-mg+0.5,r.w+2*mg,r.h+2*mg);lab(r.x-mg,r.y-mg,x.st==='ok'?'OK':('NG '+x.st),col)}})}
+    else{R.comps.forEach(function(c,i){var mg=3,col=(m==='panel'||(state.mode==='own'&&R.verdict==='NG'))?C.ng:C.ok;if(!final)col=C.acc;ctx.strokeStyle=col;ctx.strokeRect(c.x-mg+0.5,c.y-mg+0.5,c.w+2*mg,c.h+2*mg);lab(c.x-mg,c.y-mg,(final?(m==='panel'?'NG ':'')+'#'+(i+1)+' ':'')+c.area+' px',col)})}
+  }
+  function paintStep(i,ctx){
+    var R=state.last;
+    if(i===1){ctx.drawImage(src,0,0);drawGT(ctx)}
+    else if(i===2){ctx.putImageData(grayImg(boxBlur(toGray(sctx.getImageData(0,0,W,H)),R.p.blur)),0,0)}
+    else if(i===3){ctx.putImageData(binImg(R.bin),0,0)}
+    else if(i===4){ctx.putImageData(binImg(R.bin2),0,0)}
+    else if(i===5){ctx.drawImage(src,0,0);ctx.globalAlpha=0.55;ctx.fillStyle=C.bg;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;drawBoxes(ctx,false)}
+    else{ctx.drawImage(src,0,0);drawBoxes(ctx,true);drawGT(ctx);var v=R.verdict;if(v!=='—'){ctx.font='500 22px "Bricolage Grotesque", sans-serif';ctx.textBaseline='top';var col=v==='OK'?C.ok:C.ng,tw=ctx.measureText(v).width+20;ctx.fillStyle=col;ctx.fillRect(W-tw-12,12,tw,34);ctx.fillStyle='#fff';ctx.fillText(v,W-tw-2,18)}}
+  }
+  var names={1:{tr:'Görüntü',en:'Image'},2:{tr:'Gri + bulanık',en:'Gray + blur'},3:{tr:'Eşik',en:'Threshold',ptr:'Fark',pen:'Difference'},4:{tr:'Morfoloji',en:'Morphology'},5:{tr:"ROI'ler",en:'ROIs',ptr:'Bölgeler',pen:'Regions'},6:{tr:'Karar',en:'Decision',otr:'Sayım',oen:'Count'}};
+  var EXPL={
+    1:{pcb:{tr:'<b>Kamera karesi.</b> Konveyördeki kartın 640×480 görüntüsü; gerçekte 5 MP olurdu. Kartta bir hata var; sistemi kandırmaya çalışan biz değiliz, üretim hattı öyle. "Hatayı göster" cevap anahtarıdır.',en:'<b>Camera frame.</b> A 640×480 image of the board on the conveyor; in reality it would be 5 MP. There is one defect on the board; it is not us trying to fool the system, that is what a production line does. "Show the defect" is the answer key.'},
+       panel:{tr:'<b>Kamera karesi.</b> Lazer baskılı bir panel. Sistemde bir de hatasız <b>altın referans</b> var; baskı kontrolü ikisini karşılaştırır. Hata bir çizik, silik harf ya da toz olabilir.',en:'<b>Camera frame.</b> A laser-printed panel. The system also holds a defect-free <b>golden reference</b>; print inspection compares the two. The defect may be a scratch, faded ink or dust.'},
+       own:{tr:'<b>Kendi görüntünüz.</b> Referans yok, ROI listesi yok; bu yüzden hat yalnızca parlak (ya da koyu) bölgeleri bulup sayar. Nesnelerin zeminden parlaklıkla ayrıldığı bir fotoğraf seçin.',en:'<b>Your own image.</b> No reference, no ROI list; so the line only finds and counts bright (or dark) regions. Pick a photo where the objects differ from the background in brightness.'}},
+    2:{tr:'<b>Gri seviye ve bulanıklaştırma.</b> Renk atılır, kutu filtresiyle gürültü yumuşatılır. Yarıçapı 0 yapın: eşiklemede kum gibi noktalar belirir. Çok büyütün: küçük detaylar kaybolur.',en:'<b>Grayscale and blur.</b> Colour is dropped; a box filter softens the noise. Set the radius to 0: sand-like specks appear after thresholding. Make it large: small details vanish.'},
+    3:{pcb:{tr:'<b>Eşikleme.</b> Her piksel ya nesne (beyaz) ya zemin (siyah). Otsu, histogramdaki iki tepeyi ayıran değeri kendi bulur; kapatıp kaydırıcıyla oynayın, parçaların nasıl "eridiğini" görün.',en:'<b>Thresholding.</b> Every pixel becomes object (white) or background (black). Otsu finds the value that separates the two peaks of the histogram; switch it off and move the slider to watch parts "melt".'},
+       panel:{tr:'<b>Referansla fark.</b> Test karesi ile altın referans piksel piksel çıkarılır; kalan yalnızca farklardır. Fark eşiği gürültüyü (kamera sensörünün kendi titremesi) eler. Çok düşürün: her yer hata olur.',en:'<b>Difference from reference.</b> The test frame and the golden reference are subtracted pixel by pixel; only the differences remain. The difference threshold rejects noise (the camera sensor\'s own jitter). Set it too low and everything becomes a defect.'},
+       own:{tr:'<b>Eşikleme.</b> Nesneleriniz zeminden koyuysa "Ters çevir"i işaretleyin. Otsu iki belirgin parlaklık grubu varsa iyi çalışır, yoksa elle ayarlayın.',en:'<b>Thresholding.</b> Tick "Invert" if your objects are darker than the background. Otsu works well when there are two clear brightness groups; otherwise set it by hand.'}},
+    4:{tr:'<b>Morfoloji.</b> <b>open</b> (aşındır sonra genişlet) küçük beyaz kırıntıları siler; <b>close</b> nesnelerdeki küçük delikleri kapatır. Çekirdek büyüdükçe etkisi artar; çok büyürse ince parçalar yok olur.',en:'<b>Morphology.</b> <b>open</b> (erode then dilate) removes small white crumbs; <b>close</b> fills small holes in objects. The larger the kernel the stronger the effect; too large and thin parts disappear.'},
+    5:{pcb:{tr:'<b>ROI listesi.</b> Altın karttan her parça için bir kutu gelir (R3, U2, C7…). Kutunun içindeki beyaz piksel sayısı parçanın beklenen alanına bölünür; buna "doluluk" diyoruz: 1,0 parça yerinde, 0,1 yok. Yön kontrolü aynı kutuyu dik çevirip doluluğu bir daha ölçer; yatık kutu boş, dik kutu doluysa parça ters takılmıştır.',en:'<b>ROI list.</b> One box per part comes from the golden board (R3, U2, C7…). The white pixels inside the box are divided by the part\'s expected footprint; we call that the "fill": 1.0 means present, 0.1 means missing. The orientation check rotates the same box upright and measures fill again; if the flat box is empty and the upright one is full, the part is rotated.'},
+       panel:{tr:'<b>Bağlı bileşenler.</b> Fark görüntüsündeki beyaz adacıklar gruplanır; her adacığın alanı ve konumu çıkar. "En küçük alan" tek tük pikselleri eler; bir çizik yüzlerce piksel, sensör gürültüsü tek tek.',en:'<b>Connected components.</b> White islands in the difference image are grouped; each gets an area and a position. "Min area" drops stray pixels; a scratch is hundreds of pixels, sensor noise is single ones.'},
+       own:{tr:'<b>Bağlı bileşenler.</b> Beyaz adacıklar gruplanır ve sayılır. Beklenen sayıyı girerseniz hat bir de karar verir.',en:'<b>Connected components.</b> White islands are grouped and counted. Enter an expected count and the line also gives a verdict.'}},
+    6:{pcb:{tr:'<b>Karar.</b> Bir ROI bile eksik ya da ters ise kart NG; sonuç PLC\'ye tek bit olarak gider, operatör ekranında kırmızı kutu belirir. Nedeni yazılı olduğu için operatör sisteme güvenir: "R7 eksik" bir açıklamadır, "model 0,71 dedi" değildir.',en:'<b>Decision.</b> If even one ROI is missing or rotated the board is NG; the result goes to the PLC as a single bit and a red box appears on the operator screen. Because the reason is written out, the operator trusts the system: "R7 missing" is an explanation, "the model said 0.71" is not.'},
+       panel:{tr:'<b>Karar.</b> En küçük alanın üstünde bir fark bölgesi bile varsa panel NG. Gerçek hatta her bölge bir sınıflandırıcıya da gösterilir: çizik mi, toz mu, silik baskı mı; toz üflenir, çizik hurdaya gider.',en:'<b>Decision.</b> If there is even one difference region above the minimum area, the panel is NG. On a real line each region is also shown to a classifier: scratch, dust or faded print; dust gets blown off, a scratch goes to scrap.'},
+       own:{tr:'<b>Sayım.</b> Bulunan bölge sayısı; beklenen sayı girildiyse OK/NG kararı. Bu, fikstürlü sayım uygulamalarının (tepsideki vida, kutudaki kapak) temel mantığıdır.',en:'<b>Count.</b> The number of regions found; with an expected count, an OK/NG verdict. This is the basic logic of fixtured counting applications (screws in a tray, caps in a box).'}}
+  };
+  function stepName(i){var n=names[i],L=lang(),m=state.mode;if(i===3&&m==='panel')return L==='tr'?n.ptr:n.pen;if(i===5&&m!=='pcb')return L==='tr'?n.ptr:n.pen;if(i===6&&m==='own')return L==='tr'?n.otr:n.oen;return L==='tr'?n.tr:n.en}
+  function buildPipe(){var pipe=$('pipe');pipe.innerHTML='';for(var i=1;i<=6;i++){var b=document.createElement('button');b.type='button';b.className='tile';b.setAttribute('data-step',i);b.setAttribute('aria-pressed',i===state.step?'true':'false');var c=document.createElement('canvas');c.width=160;c.height=120;b.appendChild(c);var n=document.createElement('span');n.className='n';n.textContent=i;b.appendChild(n);var t=document.createElement('span');t.className='t';t.textContent=stepName(i);b.appendChild(t);if(i<6){var a=document.createElement('span');a.className='arrow';a.textContent='→';b.appendChild(a)}
+    b.addEventListener('click',function(){state.step=+this.getAttribute('data-step');render()});pipe.appendChild(b)}}
+  function render(){
+    var R=state.last;if(!R)return;
+    // per-step canvases + thumbnails
+    for(var i=1;i<=6;i++){var c=stepCv[i-1].getContext('2d');paintStep(i,c);var tile=$('pipe').children[i-1];tile.querySelector('.t').textContent=stepName(i);tile.setAttribute('aria-pressed',i===state.step?'true':'false');var tc=tile.querySelector('canvas').getContext('2d');tc.drawImage(stepCv[i-1],0,0,160,120)}
+    octx.drawImage(stepCv[state.step-1],0,0);
+    var e=EXPL[state.step],x=e.tr?e:e[state.mode];$('explain').innerHTML=x[lang()];
+    var v=$('verdict');v.textContent=R.verdict;v.className='verdict '+(R.verdict==='OK'?'ok':R.verdict==='NG'?'ng':'');
+    $('reasons').innerHTML=R.reasons.map(function(r){return '<li>'+r+'</li>'}).join('');
+    $('hud-src').textContent=state.name+' · '+W+'×'+H;$('hud-step').textContent='step '+state.step+' · '+stepName(state.step).toLowerCase();
+    $('hud-count').innerHTML='<b>OK '+R.ok+'</b> · <em>NG '+R.ng+'</em>';$('hud-ms').textContent=R.ms.toFixed(1)+' ms';
+    $('gt').textContent=JSON.stringify({mode:state.mode,seed:state.seed,defect:state.defect,gt:state.gt?state.gt.type:null,gtName:state.gt?state.gt.name:null,verdict:R.verdict,ng:R.ng,ok:R.ok,reasons:R.reasons.map(function(s){return s.replace(/<[^>]+>/g,'')})});
     code();
   }
-  function draw(){
-    var v=state.view;
-    if(v==='src'||v==='res'){octx.drawImage(srcCv,0,0)}
-    else if(v==='gray'){octx.putImageData(grayToImage(last.work),0,0)}
-    else{octx.putImageData(binToImage(last.bin),0,0)}
-    if(v==='res'||v==='bin'){
-      octx.font='500 10px "IBM Plex Mono", monospace';octx.textBaseline='bottom';octx.lineWidth=1;
-      last.comps.forEach(function(c){
-        var col=c.ng?colors.ng:colors.ok,m=3;
-        octx.strokeStyle=col;octx.strokeRect(c.x-m+0.5,c.y-m+0.5,c.w+2*m,c.h+2*m);
-        var txt=(c.ng?'NG ':'OK ')+(c.why||'')+(c.ng?'':c.area);
-        var tw=octx.measureText(txt).width+6;
-        octx.fillStyle=col;octx.fillRect(c.x-m,c.y-m-13,tw,13);
-        octx.fillStyle='#fff';octx.fillText(txt,c.x-m+3,c.y-m-1);
-      });
-    }
-  }
   function code(){
-    var p=last.p,m=last.mode,k=2*p.k+1,b=2*p.blur+1,lines=[];
-    lines.push('<span class="k">import</span> cv2, numpy <span class="k">as</span> np');
-    lines.push('img  = cv2.imread(<span class="c">"'+state.srcName+'.png"</span>)');
-    lines.push('gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)');
-    if(p.blur>0) lines.push('gray = cv2.blur(gray, ('+b+', '+b+'))');
-    if(m==='diff'){
-      lines.push('ref  = cv2.imread(<span class="c">"golden.png"</span>, 0)');
-      lines.push('work = cv2.absdiff(gray, ref)');
-      lines.push('_, bw = cv2.threshold(work, '+last.tUsed+', 255, cv2.THRESH_BINARY)');
-    }else if(m==='edge'){
-      lines.push('gx = cv2.Sobel(gray, cv2.CV_32F, 1, 0); gy = cv2.Sobel(gray, cv2.CV_32F, 0, 1)');
-      lines.push('work = np.uint8(np.clip(cv2.magnitude(gx, gy) / 4, 0, 255))');
-      lines.push('_, bw = cv2.threshold(work, '+last.tUsed+', 255, cv2.THRESH_BINARY)');
-    }else{
-      var flag=p.inv?'cv2.THRESH_BINARY_INV':'cv2.THRESH_BINARY';
-      if(p.otsu) lines.push('_, bw = cv2.threshold(gray, 0, 255, '+flag+' | cv2.THRESH_OTSU)  <span class="c"># t = '+last.tUsed+'</span>');
-      else lines.push('_, bw = cv2.threshold(gray, '+p.thr+', 255, '+flag+')');
-    }
-    if(p.morph!=='none'){
-      lines.push('k  = cv2.getStructuringElement(cv2.MORPH_RECT, ('+k+', '+k+'))');
-      var op={open:'cv2.MORPH_OPEN',close:'cv2.MORPH_CLOSE',erode:'cv2.MORPH_ERODE',dilate:'cv2.MORPH_DILATE'}[p.morph];
-      lines.push('bw = cv2.morphologyEx(bw, '+op+', k)');
-    }
-    lines.push('n, labels, stats, _ = cv2.connectedComponentsWithStats(bw)');
-    lines.push('parts = [s <span class="k">for</span> s <span class="k">in</span> stats[1:] <span class="k">if</span> s[cv2.CC_STAT_AREA] >= '+p.minarea+']');
-    if(m==='thr'&&p.expect>0) lines.push('result = <span class="c">"OK"</span> <span class="k">if</span> len(parts) == '+p.expect+' <span class="k">else</span> <span class="c">"NG"</span>');
-    else if(m==='diff') lines.push('result = <span class="c">"NG"</span> <span class="k">if</span> parts <span class="k">else</span> <span class="c">"OK"</span>');
-    $('code').innerHTML=lines.join('\n');
+    var R=state.last,p=R.p,m=state.mode,k=2*p.k+1,b=2*p.blur+1,L=[];
+    L.push('<span class="k">import</span> cv2, numpy <span class="k">as</span> np');
+    L.push('img  = cv2.imread(<span class="c">"'+state.name+'.png"</span>)');
+    L.push('gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)'+(p.blur>0?'\ngray = cv2.blur(gray, ('+b+', '+b+'))':''));
+    if(m==='panel'){L.push('ref  = cv2.blur(cv2.imread(<span class="c">"golden.png"</span>, 0), ('+b+', '+b+'))');L.push('diff = cv2.absdiff(gray, ref)');L.push('_, bw = cv2.threshold(diff, '+R.t+', 255, cv2.THRESH_BINARY)')}
+    else{var flag=p.inv?'cv2.THRESH_BINARY_INV':'cv2.THRESH_BINARY';L.push(p.otsu?'_, bw = cv2.threshold(gray, 0, 255, '+flag+' | cv2.THRESH_OTSU)  <span class="c"># t = '+R.t+'</span>':'_, bw = cv2.threshold(gray, '+p.thr+', 255, '+flag+')')}
+    if(p.morph!=='none'){L.push('k  = cv2.getStructuringElement(cv2.MORPH_RECT, ('+k+', '+k+'))');L.push('bw = cv2.morphologyEx(bw, '+({open:'cv2.MORPH_OPEN',close:'cv2.MORPH_CLOSE',erode:'cv2.MORPH_ERODE',dilate:'cv2.MORPH_DILATE'}[p.morph])+', k)')}
+    if(m==='pcb'){L.push('<span class="c"># rois: [(name, x, y, w, h, area), ...] from the golden board; area = expected footprint</span>');L.push('<span class="k">for</span> name, x, y, w, h, area <span class="k">in</span> rois:');L.push('    fill = cv2.countNonZero(bw[y-3:y+h+3, x-3:x+w+3]) / area');L.push('    <span class="k">if</span> fill < '+p.fill+':');
+      if(p.orient)L.push('        cx, cy = x + w//2, y + h//2\n        upright = cv2.countNonZero(bw[cy-w//2-3:cy+w//2+3, cx-h//2-3:cx+h//2+3]) / area\n        status = <span class="c">"rotated"</span> <span class="k">if</span> upright >= '+p.fill+' <span class="k">else</span> <span class="c">"missing"</span>');else L.push('        status = <span class="c">"missing"</span>');
+      L.push('result = <span class="c">"NG"</span> <span class="k">if</span> any_ng <span class="k">else</span> <span class="c">"OK"</span>')}
+    else{L.push('n, labels, stats, _ = cv2.connectedComponentsWithStats(bw)');L.push('regions = [s <span class="k">for</span> s <span class="k">in</span> stats[1:] <span class="k">if</span> s[cv2.CC_STAT_AREA] >= '+p.minarea+']');
+      if(m==='panel')L.push('result = <span class="c">"NG"</span> <span class="k">if</span> regions <span class="k">else</span> <span class="c">"OK"</span>');else if(p.expect>0)L.push('result = <span class="c">"OK"</span> <span class="k">if</span> len(regions) == '+p.expect+' <span class="k">else</span> <span class="c">"NG"</span>');else L.push('count = len(regions)')}
+    $('code').innerHTML=L.join('\n');
   }
-
   /* ---------- wiring ---------- */
-  var hints={
-    thr:{tr:'Nesneler zeminden parlaklıkla ayrılıyorsa en hızlı yöntem. Parçaları say, yönü kontrol et.',en:'Fastest method when parts differ from the background in brightness. Count parts, check orientation.'},
-    diff:{tr:'Hatasız bir referansla piksel piksel fark. Baskı ve serigrafi kontrolünün temeli.',en:'Pixel-wise difference against a known-good reference. The basis of print and silkscreen inspection.'},
-    edge:{tr:'Sobel gradyanı: kenarları ve çizikleri öne çıkarır, dokudan bağımsızdır.',en:'Sobel gradient: brings out edges and scratches, independent of texture.'}
-  };
   function setSeg(id,attr,val){document.querySelectorAll('#'+id+' button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute(attr)===val?'true':'false')})}
-  function hint(){var h=hints[state.mode];$('modehint').textContent=h[lang()]; if(state.mode==='diff'&&!state.hasRef)$('modehint').textContent=lang()==='tr'?'Kendi görüntünde referans yok; eşikleme uygulanır.':'No golden reference for your own image; threshold is used instead.'}
-  document.querySelectorAll('#view button').forEach(function(b){b.addEventListener('click',function(){state.view=b.getAttribute('data-v');setSeg('view','data-v',state.view);draw()})});
-  document.querySelectorAll('#src button').forEach(function(b){b.addEventListener('click',function(){state.src=b.getAttribute('data-s');setSeg('src','data-s',state.src);$('filewrap').hidden=state.src!=='upload';
-    if(state.src==='panel'){state.mode='diff';$('inv').checked=true}else if(state.src==='pcb'){state.mode='thr';$('inv').checked=false}
-    setSeg('mode','data-m',state.mode);generate(false);hint();run()})});
-  document.querySelectorAll('#mode button').forEach(function(b){b.addEventListener('click',function(){state.mode=b.getAttribute('data-m');setSeg('mode','data-m',state.mode);hint();run()})});
-  $('regen').addEventListener('click',function(){generate(true);run()});
-  $('file').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;var url=URL.createObjectURL(f),im=new Image();im.onload=function(){state.userImg=im;URL.revokeObjectURL(url);generate(false);run()};im.src=url});
-  ['blur','thr','ksz','minarea'].forEach(function(id){var el=$(id),o=$(id+'-o');el.addEventListener('input',function(){o.textContent=id==='ksz'?(2*el.value+1):el.value;schedule()})});
+  function applyMode(){var m=state.mode;$('g-thr').hidden=m==='panel';$('g-diff').hidden=m!=='panel';$('g-roi').hidden=m!=='pcb';$('g-blob').hidden=m==='pcb';$('filewrap').hidden=m!=='own';$('expect').parentNode.querySelector('#expect-l').hidden=m==='panel';$('expect').hidden=m==='panel';setSeg('mode','data-m',m)}
+  function defaults(){$('blur').value=1;$('blur-o').textContent='1';$('otsu').checked=true;$('thr').disabled=true;$('thr').value=128;$('thr-o').textContent='128';$('inv').checked=false;$('dthr').value=40;$('dthr-o').textContent='40';$('morph').value='open';$('ksz').value=1;$('ksz-o').textContent='3';$('fill').value=0.8;$('fill-o').textContent='0.80';$('orient').checked=true;$('minarea').value=60;$('minarea-o').textContent='60';$('expect').value=0}
+  document.querySelectorAll('#mode button').forEach(function(b){b.addEventListener('click',function(){state.mode=b.getAttribute('data-m');applyMode();generate();state.step=6;run()})});
+  $('regen').addEventListener('click',function(){state.seed=(state.seed*31+17)%2147483647;state.defect=true;generate();run()});
+  $('defaults').addEventListener('click',function(){defaults();run()});
+  $('showgt').addEventListener('change',function(){render()});
+  $('file').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;var url=URL.createObjectURL(f),im=new Image();im.onload=function(){state.userImg=im;URL.revokeObjectURL(url);generate();run()};im.src=url});
+  [['blur',function(v){return v}],['thr',function(v){return v}],['dthr',function(v){return v}],['ksz',function(v){return 2*v+1}],['fill',function(v){return (+v).toFixed(2)}],['minarea',function(v){return v}]].forEach(function(e){var el=$(e[0]);el.addEventListener('input',function(){$(e[0]+'-o').textContent=e[1](el.value);schedule()})});
   $('otsu').addEventListener('change',function(){$('thr').disabled=$('otsu').checked;schedule()});
-  ['inv','morph','expect'].forEach(function(id){$(id).addEventListener('input',schedule);$(id).addEventListener('change',schedule)});
+  ['inv','morph','orient','expect'].forEach(function(id){$(id).addEventListener('input',schedule);$(id).addEventListener('change',schedule)});
   var raf=0;function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(run)}
-  document.addEventListener('langchange',function(){hint();run()});
-  var mq=window.matchMedia('(prefers-color-scheme: dark)');if(mq.addEventListener)mq.addEventListener('change',function(){theme();draw()});
-  function start(){theme();$('ksz-o').textContent='3';generate(false);hint();run();state.view='res';setSeg('view','data-v','res');draw()}
+  document.addEventListener('langchange',function(){run()});
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');if(mq.addEventListener)mq.addEventListener('change',function(){theme();render()});
+  function start(){theme();buildPipe();defaults();applyMode();generate();run()}
   if(document.fonts&&document.fonts.ready){document.fonts.ready.then(start)}else{start()}
 })();
 </script>

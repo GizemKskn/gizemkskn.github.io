@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Işık açısı · Gizem Keskin</title>
+<meta name="title-tr" content="Işık açısı · Gizem Keskin">
+<meta name="title-en" content="Lighting angle · Gizem Keskin">
+<meta name="description" content="Aynı yüzey, aynı kamera, farklı ışık: çizik, çökme ve baskı hangi açıda görünür, hangi açıda kaybolur? Işığı döndürün, kontrastı ölçün.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage{aspect-ratio:4/3}
+.stage canvas{width:100%;height:100%;image-rendering:auto}
+.meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.meters div{border:1px solid var(--line);border-radius:4px;padding:10px 12px}
+.meters b{display:block;font:500 1.35rem/1.1 var(--font-d);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.meters small{font:400 .64rem var(--font-m);color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.meters i{display:block;height:5px;background:var(--line);border-radius:2px;margin-top:8px;overflow:hidden}
+.meters i b{display:block;height:100%;width:0;background:var(--acc);font-size:0}
+.meters .good b:first-child{color:var(--ok)}.meters .poor b:first-child{color:var(--ng)}
+.advice{margin-top:12px;padding:12px 14px;border-left:2px solid var(--acc);background:var(--bg2);border-radius:0 4px 4px 0;font-size:.95rem;color:var(--ink2)}
+.advice b{color:var(--ink);font-weight:500}
+@media (max-width:520px){.meters{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>lighting 0.98</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="../blog/" data-nav="blog">Blog</a>
+        <a href="./" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Playground · 03</p>
+    <h1 lang="tr">Işık modelden önce gelir</h1>
+    <h1 lang="en">Light comes before the model</h1>
+    <p class="lede" lang="tr">Aynı plastik yüzey, üstünde üç şey: bir çizik, bir çökme ve bir baskı işareti. Kamera hep aynı yerde. Sadece ışığı değiştirin: açısını, yönünü, türünü. Çizik düşük açıda gölge yapıp belirir, tepeden aydınlatınca kaybolur; baskı ise tam tersi. Kontrast sayaçları, "görünür" dediğinizi ölçer.</p>
+    <p class="lede" lang="en">The same plastic surface with three things on it: a scratch, a dent and a printed mark. The camera never moves. Change only the light: its angle, direction, type. The scratch casts a shadow at low angles and appears, then vanishes under top lighting; the print does the opposite. The contrast meters measure what you call "visible".</p>
+  </div>
+</section>
+
+<div class="wrap pg">
+  <div>
+    <div class="stage">
+      <canvas id="cv" width="480" height="360"></canvas>
+      <div class="hud">
+        <span class="tl" id="hud-l">directional · el 20° · az 135°</span>
+        <span class="tr" id="hud-m">gloss 0.35</span>
+        <span class="bl" id="hud-c"><b>—</b></span>
+        <span class="br">cam_0 · fixed · top-down</span>
+      </div>
+    </div>
+    <div class="meters">
+      <div id="m-scratch"><b id="c-scratch">—</b><small lang="tr">çizik kontrastı</small><small lang="en">scratch contrast</small><i><b id="b-scratch"></b></i></div>
+      <div id="m-dent"><b id="c-dent">—</b><small lang="tr">çökme kontrastı</small><small lang="en">dent contrast</small><i><b id="b-dent"></b></i></div>
+      <div id="m-print"><b id="c-print">—</b><small lang="tr">baskı kontrastı</small><small lang="en">print contrast</small><i><b id="b-print"></b></i></div>
+    </div>
+    <p class="advice" id="advice"></p>
+    <p class="notice" style="margin-top:16px" lang="tr">Fabrikada karşılığı: yüzey kusurları için <b>düşük açılı halka ışık</b> (dark-field), baskı ve renk için <b>kubbe ışık</b> (diffüz), parlak metal için <b>koaksiyel</b> ışık. Bir hatta çoğu zaman iki ışık kurulur ve kamera iki kare çeker: biri çizik için, biri baskı için. Bu simülasyon Lambert ve Phong yansıma modelleriyle çizilir; gerçek yüzeyler daha karmaşıktır ama sonuç aynı yöndedir.</p>
+    <p class="notice" style="margin-top:16px" lang="en">Factory counterpart: <b>low-angle ring light</b> (dark-field) for surface defects, <b>dome light</b> (diffuse) for print and colour, <b>coaxial</b> light for shiny metal. A line often gets two lights and the camera takes two frames: one for scratches, one for print. This simulation is rendered with Lambert and Phong reflection models; real surfaces are more complex, but the result points the same way.</p>
+  </div>
+
+  <aside class="ctl">
+    <h2 lang="tr">Işık</h2><h2 lang="en">Light</h2>
+    <div class="grp">
+      <div class="seg" id="type" role="group">
+        <button type="button" data-t="dir" aria-pressed="true"><span lang="tr">Yönlü</span><span lang="en">Directional</span></button>
+        <button type="button" data-t="dome" aria-pressed="false"><span lang="tr">Kubbe</span><span lang="en">Dome</span></button>
+        <button type="button" data-t="coax" aria-pressed="false"><span lang="tr">Koaksiyel</span><span lang="en">Coaxial</span></button>
+      </div>
+      <label for="el"><span lang="tr">Yükseklik açısı</span><span lang="en">Elevation</span><output id="el-o">20°</output></label>
+      <input type="range" id="el" min="5" max="90" step="1" value="20">
+      <label for="az"><span lang="tr">Yön (azimut)</span><span lang="en">Direction (azimuth)</span><output id="az-o">135°</output></label>
+      <input type="range" id="az" min="0" max="360" step="5" value="135">
+      <label for="pow"><span lang="tr">Işık şiddeti</span><span lang="en">Intensity</span><output id="pow-o">1.0</output></label>
+      <input type="range" id="pow" min="0.4" max="2" step="0.1" value="1">
+    </div>
+    <div class="grp">
+      <label><span lang="tr">Yüzey</span><span lang="en">Surface</span></label>
+      <label for="gloss"><span lang="tr">Parlaklık (mat → cilalı)</span><span lang="en">Gloss (matte → polished)</span><output id="gloss-o">0.35</output></label>
+      <input type="range" id="gloss" min="0" max="1" step="0.05" value="0.35">
+      <label for="tex"><span lang="tr">Yüzey dokusu</span><span lang="en">Surface texture</span><output id="tex-o">0.4</output></label>
+      <input type="range" id="tex" min="0" max="1" step="0.1" value="0.4">
+      <label for="target"><span lang="tr">Aradığım hata</span><span lang="en">Defect I'm after</span></label>
+      <select id="target"><option value="scratch" selected>çizik / scratch</option><option value="dent">çökme / dent</option><option value="print">baskı / print</option></select>
+    </div>
+  </aside>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Lambert + Phong; saf JavaScript.</span>
+    <span lang="en">Lambert + Phong; plain JavaScript.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)},cv=$('cv'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  var L=function(){return document.documentElement.getAttribute('data-lang')||'tr'};
+  var type='dir';
+  // ---- surface: height (mm-ish units) + albedo ----
+  var height=new Float32Array(W*H),albedo=new Float32Array(W*H),mask={scratch:[],dent:[],print:[],bg:[]};
+  var seed=99;function rnd(){seed=(seed*48271)%2147483647;return (seed-1)/2147483646}
+  var noiseTab=[];for(var i=0;i<64*64;i++)noiseTab.push(rnd());
+  function vnoise(x,y){var xi=Math.floor(x)&63,yi=Math.floor(y)&63,fx=x-Math.floor(x),fy=y-Math.floor(y);function s(a,b){return noiseTab[((b&63)*64)+(a&63)]}var a=s(xi,yi),b=s(xi+1,yi),c=s(xi,yi+1),d=s(xi+1,yi+1);fx=fx*fx*(3-2*fx);fy=fy*fy*(3-2*fy);return (a*(1-fx)+b*fx)*(1-fy)+(c*(1-fx)+d*fx)*fy}
+  function buildSurface(texAmt){
+    for(var y=0;y<H;y++)for(var x=0;x<W;x++){var i=y*W+x;
+      var h=(vnoise(x/9,y/9)-0.5)*0.35*texAmt+(vnoise(x/40,y/40)-0.5)*1.2*texAmt;
+      // scratch: thin groove along a line from (90,270) to (300,110)
+      var ax=90,ay=270,bx=300,by=110,dx=bx-ax,dy=by-ay,len=Math.sqrt(dx*dx+dy*dy),t=((x-ax)*dx+(y-ay)*dy)/(len*len);
+      if(t>0&&t<1){var px=ax+t*dx,py=ay+t*dy,dist=Math.sqrt((x-px)*(x-px)+(y-py)*(y-py));if(dist<2.2){h-=1.6*(1-dist/2.2)}}
+      // dent: gaussian depression at (370,250) r 32
+      var ddx=x-370,ddy=y-250,r2=ddx*ddx+ddy*ddy;h-=3.2*Math.exp(-r2/(2*20*20));
+      height[i]=h;
+      // albedo: light plastic, printed mark "OK" rectangle + letters at (150..250, 40..90)
+      var a=0.82+(vnoise(x/6,y/6)-0.5)*0.05*texAmt;
+      albedo[i]=a;
+    }
+    // print mark drawn via canvas text into an offscreen for albedo
+    var oc=document.createElement('canvas');oc.width=W;oc.height=H;var o=oc.getContext('2d');o.fillStyle='#fff';o.fillRect(0,0,W,H);o.fillStyle='#000';o.font='500 40px "IBM Plex Mono", monospace';o.textBaseline='middle';o.fillText('LOT 0918',110,70);
+    var d=o.getImageData(0,0,W,H).data;
+    mask={scratch:[],dent:[],print:[],bg:[]};
+    for(var j=0;j<W*H;j++){if(d[j*4]<128){albedo[j]=0.22;mask.print.push(j)}}
+    for(var y2=0;y2<H;y2++)for(var x2=0;x2<W;x2++){var k=y2*W+x2;
+      var t2=((x2-90)*210+(y2-270)*(-160))/(210*210+160*160);if(t2>0.1&&t2<0.9){var qx=90+t2*210,qy=270-t2*160,dd=Math.sqrt((x2-qx)*(x2-qx)+(y2-qy)*(y2-qy));if(dd<1.5)mask.scratch.push(k);else if(dd>6&&dd<12)mask.bg.push(k)}
+      var e2=(x2-370)*(x2-370)+(y2-250)*(y2-250);if(e2<20*20&&e2>8*8)mask.dent.push(k);
+    }
+  }
+  function render(){
+    var el=+$('el').value*Math.PI/180,az=+$('az').value*Math.PI/180,pw=+$('pow').value,gloss=+$('gloss').value,tex=+$('tex').value;
+    var lx=Math.cos(el)*Math.cos(az),ly=-Math.cos(el)*Math.sin(az),lz=Math.sin(el);
+    if(type==='coax'){lx=0;ly=0;lz=1}
+    var shin=8+gloss*gloss*220,ks=gloss*0.9,kd=1-gloss*0.35,amb=type==='dome'?0.55:0.10;
+    var img=ctx.createImageData(W,H),d=img.data,out=new Float32Array(W*H);
+    for(var y=1;y<H-1;y++)for(var x=1;x<W-1;x++){var i=y*W+x;
+      var nx=-(height[i+1]-height[i-1])*0.5,ny=-(height[i+W]-height[i-W])*0.5,nz=1;var nl=Math.sqrt(nx*nx+ny*ny+nz*nz);nx/=nl;ny/=nl;nz/=nl;
+      var a=albedo[i],v;
+      if(type==='dome'){ // hemispherical light: irradiance ~ (1+nz)/2, slight self-shadowing in grooves
+        v=a*(amb+0.45*(0.5+0.5*nz))*pw; var spec=ks*0.12*Math.pow(Math.max(0,nz),shin*0.2); v+=spec*pw;
+      }else{
+        var ndl=Math.max(0,nx*lx+ny*ly+nz*lz);var rx=2*ndl*nx-lx,ry=2*ndl*ny-ly,rz=2*ndl*nz-lz;var rv=Math.max(0,rz);
+        v=a*(amb+kd*ndl)*pw+ks*Math.pow(rv,shin)*pw;
+      }
+      out[i]=v;var g=Math.max(0,Math.min(255,v*235));var j=i*4;d[j]=d[j+1]=d[j+2]=g;d[j+3]=255}
+    ctx.putImageData(img,0,0);
+    // light direction glyph
+    if(type!=='dome'){ctx.strokeStyle='rgba(124,141,255,0.95)';ctx.lineWidth=2;var cx=W-40,cy=H-40,len=26;ctx.beginPath();ctx.arc(cx,cy,4,0,7);ctx.stroke();ctx.beginPath();ctx.moveTo(cx-lx*len,cy-ly*len);ctx.lineTo(cx,cy);ctx.stroke();ctx.fillStyle='rgba(124,141,255,0.95)';ctx.beginPath();ctx.arc(cx-lx*len,cy-ly*len,3.5,0,7);ctx.fill()}
+    // contrasts (Michelson: |a-b|/(a+b) between region mean and nearby background mean)
+    function mean(idx){var s=0;for(var k=0;k<idx.length;k++)s+=out[idx[k]];return idx.length?s/idx.length:0}
+    function dev(idx,ref){var s=0;for(var k=0;k<idx.length;k++)s+=Math.abs(out[idx[k]]-ref);return idx.length?s/idx.length:0}
+    /* relief defects (scratch, dent) show up as bright and dark halves, so we measure mean absolute deviation from the background;
+       the printed mark is uniformly dark, so plain Michelson contrast applies */
+    var bgm=mean(mask.bg),cs=dev(mask.scratch,bgm)/(bgm+1e-6),cd=dev(mask.dent,bgm)/(bgm+1e-6),cp=Math.abs(mean(mask.print)-bgm)/(mean(mask.print)+bgm+1e-6);
+    // print contrast is undermined by glare: penalise when highlights saturate the background
+    var sat=0;for(var k2=0;k2<mask.bg.length;k2++)if(out[mask.bg[k2]]>1.05)sat++;var satr=mask.bg.length?sat/mask.bg.length:0;cp*=(1-0.8*satr);
+    show('scratch',cs);show('dent',cd);show('print',cp);
+    $('hud-l').textContent=(type==='dir'?'directional':type)+(type==='dir'?' · el '+$('el').value+'° · az '+$('az').value+'°':'');$('hud-m').textContent='gloss '+gloss.toFixed(2)+(satr>0.05?' · glare '+(satr*100).toFixed(0)+'%':'');
+    var T=L()==='tr',tgt=$('target').value,val={scratch:cs,dent:cd,print:cp}[tgt];
+    $('hud-c').innerHTML='<b>'+(T?'hedef':'target')+' '+tgt+' '+(val*100).toFixed(0)+'%</b>';
+    var adv;
+    if(tgt==='scratch')adv=cs>0.2?(T?'<b>Çizik görünür.</b> Düşük açılı ışık (dark-field) oluğa gölge düşürüyor. Not: aynı ışıkta baskı kontrastı '+(cp*100).toFixed(0)+'%; iki hatayı aynı karede aramayın, iki kare çekin.':'<b>The scratch is visible.</b> Low-angle light (dark-field) casts a shadow into the groove. Note: under the same light the print contrast is '+(cp*100).toFixed(0)+'%; don\'t hunt both defects in one frame, take two.'):(T?'<b>Çizik kayboluyor.</b> Işık çok tepeden ya da diffüz; oluk gölge yapmıyor. Yükseklik açısını 10–25°\'ye indirin ve yönü çiziğe dik verin (azimut ≈ 135° veya 315°).':'<b>The scratch is disappearing.</b> The light is too high or too diffuse; the groove casts no shadow. Lower the elevation to 10–25° and point it across the scratch (azimuth ≈ 135° or 315°).');
+    else if(tgt==='dent')adv=cd>0.08?(T?'<b>Çökme görünür.</b> Eğimli yüzey ışığı bir tarafta toplayıp diğer tarafta kaybediyor; bu yüzden yönlü ışıkta yarım ay gibi durur.':'<b>The dent is visible.</b> The sloped surface gathers light on one side and loses it on the other; that\'s why it looks like a half-moon under directional light.'):(T?'<b>Çökme kayboluyor.</b> Kubbe ışık ve tepeden ışık eğimleri düzler. Orta bir açı (25–45°) deneyin; çok düşük açı da dokuyu bastırır.':'<b>The dent is disappearing.</b> Dome and top light flatten slopes. Try a mid angle (25–45°); very low angles bury it in texture.');
+    else adv=cp>0.4?(T?'<b>Baskı okunur.</b> Diffüz ışık dokuyu ve gölgeyi siler, geriye sadece rengin farkı kalır: OCR için ideal.':'<b>The print is readable.</b> Diffuse light erases texture and shadow; only the colour difference remains: ideal for OCR.'):(T?'<b>Baskı zor okunuyor.</b> Ya parlama var (cilalı yüzey + yönlü ışık) ya da doku baskıyla yarışıyor. Kubbe ışığa geçin veya parlaklığı polarize filtreyle kırın.':'<b>The print is hard to read.</b> Either there is glare (polished surface + directional light) or texture competes with the ink. Switch to dome light or cut the gloss with a polariser.');
+    $('advice').innerHTML=adv;
+  }
+  var TH={scratch:{good:0.2,poor:0.06,scale:0.6},dent:{good:0.08,poor:0.02,scale:0.3},print:{good:0.4,poor:0.1,scale:0.7}};
+  function show(k,v){var t=TH[k],pct=Math.min(1,v/t.scale);$('c-'+k).textContent=(v*100).toFixed(0)+'%';$('b-'+k).style.width=(pct*100)+'%';var box=$('m-'+k);box.className=v>t.good?'good':v<t.poor?'poor':''}
+  document.querySelectorAll('#type button').forEach(function(b){b.addEventListener('click',function(){type=b.getAttribute('data-t');document.querySelectorAll('#type button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});$('el').disabled=type!=='dir';$('az').disabled=type!=='dir';schedule()})});
+  [['el','°'],['az','°'],['pow',''],['gloss',''],['tex','']].forEach(function(e){var el=$(e[0]);el.addEventListener('input',function(){$(e[0]+'-o').textContent=(e[0]==='pow'||e[0]==='gloss'||e[0]==='tex'?(+el.value).toFixed(e[0]==='tex'?1:e[0]==='pow'?1:2):el.value)+e[1];if(e[0]==='tex')buildSurface(+el.value);schedule()})});
+  $('target').addEventListener('change',schedule);
+  var raf=0;function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(render)}
+  document.addEventListener('langchange',schedule);
+  function start(){buildSurface(+$('tex').value);render()}
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(start)}else{start()}
+})();
+</script>
+</body>
+</html>

@@ -6,7 +6,7 @@
 <title>Playground · Gizem Keskin</title>
 <meta name="title-tr" content="Playground · Gizem Keskin">
 <meta name="title-en" content="Playground · Gizem Keskin">
-<meta name="description" content="Tarayıcıda çalışan altı küçük araç: görüntü işleme tezgâhı, evrişim çekirdeği, sinir ağı oyun alanı, rakam tanıma, nesne takibi, sensör anomalisi.">
+<meta name="description" content="Tarayıcıda çalışan dokuz küçük araç: görüntü işleme tezgâhı, evrişim çekirdeği, sinir ağı oyun alanı, rakam tanıma, nesne takibi, sensör anomalisi.">
 <meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
@@ -61,36 +61,57 @@ document.documentElement.setAttribute('data-lang',l);document.documentElement.se
         <p lang="en">On a generated PCB or printed panel, or your own photo: blur, threshold, morphology, blob counting, reference comparison. The OpenCV code is written live beside it.</p>
         <span class="m" lang="tr">Fabrikadaki karşılığı: optik kalite kontrol</span><span class="m" lang="en">Factory counterpart: optical inspection</span>
       </a>
+      <a class="pgcard" href="optics.html" data-det="optics" data-conf="0.98">
+        <span class="m">02 · <span lang="tr">optik</span><span lang="en">optics</span></span>
+        <h3 lang="tr">0,1 mm'lik hatayı hangi kamera görür?</h3><h3 lang="en">Which camera sees a 0.1 mm defect?</h3>
+        <p lang="tr">Sensör, lens ve çalışma mesafesini seçin: görüş alanı, milimetre/piksel, hatanın kaç piksel olduğu, alan derinliği ve "kaç kamera gerekir" cevabı.</p>
+        <p lang="en">Choose sensor, lens and working distance: field of view, millimetres per pixel, how many pixels the defect is, depth of field and "how many cameras" it takes.</p>
+        <span class="m" lang="tr">Fabrikadaki karşılığı: her projenin ilk hesabı</span><span class="m" lang="en">Factory counterpart: the first calculation of every project</span>
+      </a>
+      <a class="pgcard" href="lighting.html" data-det="lighting" data-conf="0.98">
+        <span class="m">03 · <span lang="tr">aydınlatma</span><span lang="en">lighting</span></span>
+        <h3 lang="tr">Işık modelden önce gelir</h3><h3 lang="en">Light comes before the model</h3>
+        <p lang="tr">Aynı yüzey, aynı kamera, farklı ışık. Çizik, çökme ve baskı hangi açıda görünür, hangisinde kaybolur? Işığı döndürün, kontrastı ölçün.</p>
+        <p lang="en">Same surface, same camera, different light. At which angle do the scratch, the dent and the print appear, and at which do they vanish? Turn the light, measure the contrast.</p>
+        <span class="m" lang="tr">Fabrikadaki karşılığı: dark-field, kubbe, koaksiyel</span><span class="m" lang="en">Factory counterpart: dark-field, dome, coaxial</span>
+      </a>
+      <a class="pgcard" href="tradeoff.html" data-det="tradeoff" data-conf="0.97">
+        <span class="m">04 · <span lang="tr">karar ve maliyet</span><span lang="en">decision and cost</span></span>
+        <h3 lang="tr">Eşiği nereye koymalı?</h3><h3 lang="en">Where to put the threshold?</h3>
+        <p lang="tr">Sağlam ve hatalı parçaların skor dağılımları, yanlış red, kaçan hata ve günlük maliyet. Eşiği kaydırın; operatörün sabrını ve en ucuz noktayı görün.</p>
+        <p lang="en">Score distributions of good and bad parts, false rejects, escapes and daily cost. Slide the threshold; see the operator's patience and the cheapest point.</p>
+        <span class="m" lang="tr">Fabrikadaki karşılığı: kabul kriteri pazarlığı</span><span class="m" lang="en">Factory counterpart: negotiating the acceptance criteria</span>
+      </a>
       <a class="pgcard" href="conv.html" data-det="conv" data-conf="0.98">
-        <span class="m">02 · <span lang="tr">CNN'in ilk katmanı</span><span lang="en">a CNN's first layer</span></span>
+        <span class="m">05 · <span lang="tr">CNN'in ilk katmanı</span><span lang="en">a CNN's first layer</span></span>
         <h3 lang="tr">Evrişim çekirdeği</h3><h3 lang="en">Convolution kernel</h3>
         <p lang="tr">Dokuz sayıyı kendiniz yazın; görüntünün üstünde kaydırılınca ne olduğunu görün. Bulanıklaştırma, keskinleştirme, Sobel, Laplace; önce/sonra çizgisini sürükleyin.</p>
         <p lang="en">Write the nine numbers yourself and see what happens when they slide over the image. Blur, sharpen, Sobel, Laplacian; drag the before/after line.</p>
         <span class="m" lang="tr">Fabrikadaki karşılığı: derin öğrenme modelinin gördüğü</span><span class="m" lang="en">Factory counterpart: what a deep model sees</span>
       </a>
       <a class="pgcard" href="nn.html" data-det="nn" data-conf="0.98">
-        <span class="m">03 · <span lang="tr">geri yayılım</span><span lang="en">backpropagation</span></span>
+        <span class="m">06 · <span lang="tr">geri yayılım</span><span lang="en">backpropagation</span></span>
         <h3 lang="tr">Sinir ağı oyun alanı</h3><h3 lang="en">Neural network playground</h3>
         <p lang="tr">Küçük bir ağı canlı eğitin: veri seti, katmanlar, aktivasyon, öğrenme hızı, elle üretilmiş özellikler. Karar sınırının bükülüşünü ve kayıp eğrisini izleyin.</p>
         <p lang="en">Train a small network live: dataset, layers, activation, learning rate, hand-made features. Watch the decision boundary bend and the loss curve fall.</p>
         <span class="m" lang="tr">Fabrikadaki karşılığı: model eğitimi ve aşırı öğrenme</span><span class="m" lang="en">Factory counterpart: training and overfitting</span>
       </a>
       <a class="pgcard" href="digits.html" data-det="digits" data-conf="0.97">
-        <span class="m">04 · <span lang="tr">sınıflandırma</span><span lang="en">classification</span></span>
+        <span class="m">07 · <span lang="tr">sınıflandırma</span><span lang="en">classification</span></span>
         <h3 lang="tr">Rakam tanıma</h3><h3 lang="en">Digit recognition</h3>
         <p lang="tr">Bir rakam çizin; sayfaya gömülü 3.610 parametrelik ağ tanısın. Ağın gördüğü 8×8 görüntüyü ve on olasılığı izleyin; yanıldığında nedenini görün.</p>
         <p lang="en">Draw a digit; a 3,610-parameter network embedded in the page recognises it. See the 8×8 image the network sees and the ten probabilities; when it fails, see why.</p>
         <span class="m" lang="tr">Fabrikadaki karşılığı: OCR ve sembol kontrolü</span><span class="m" lang="en">Factory counterpart: OCR and symbol checks</span>
       </a>
       <a class="pgcard" href="tracking.html" data-det="tracking" data-conf="0.98">
-        <span class="m">05 · <span lang="tr">çok nesne takibi</span><span lang="en">multi-object tracking</span></span>
+        <span class="m">08 · <span lang="tr">çok nesne takibi</span><span lang="en">multi-object tracking</span></span>
         <h3 lang="tr">Tespit takip değildir</h3><h3 lang="en">Detection is not tracking</h3>
         <p lang="tr">Gürültülü, eksik ve yanlış tespitlerden kimlik üreten bir takipçi simülasyonu. Dedektörü bozun; tahmin, eşleştirme ve kayıp hafızasının ne işe yaradığını görün.</p>
         <p lang="en">A tracker simulation that produces identities from noisy, missing and false detections. Break the detector; see what prediction, matching and lost-memory are for.</p>
         <span class="m" lang="tr">Fabrikadaki karşılığı: personel ve araç takibi</span><span class="m" lang="en">Factory counterpart: people and vehicle tracking</span>
       </a>
       <a class="pgcard" href="anomaly.html" data-det="anomaly" data-conf="0.97">
-        <span class="m">06 · <span lang="tr">zaman serisi</span><span lang="en">time series</span></span>
+        <span class="m">09 · <span lang="tr">zaman serisi</span><span lang="en">time series</span></span>
         <h3 lang="tr">Sensör verisinde anomali</h3><h3 lang="en">Anomalies in sensor data</h3>
         <p lang="tr">Yakıt seviyesi, çevrim süresi, sıcaklık: pencere, eşik ve kural seçin; isabet, yanlış alarm ve kaçanı sayın. Basit kuralın nerede yetip nerede yetmediğini görün.</p>
         <p lang="en">Fuel level, cycle time, temperature: choose window, threshold and rule; count hits, false alarms and misses. See where a simple rule is enough and where it isn't.</p>

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kamera ve lens hesaplayıcı · Gizem Keskin</title>
+<meta name="title-tr" content="Kamera ve lens hesaplayıcı · Gizem Keskin">
+<meta name="title-en" content="Camera and lens calculator · Gizem Keskin">
+<meta name="description" content="0,1 mm'lik hatayı hangi kamera, hangi lens, hangi mesafeden görür? Sensör, odak uzaklığı ve çalışma mesafesini seçin; görüş alanı, piksel boyutu, alan derinliği ve karar.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.stage{aspect-ratio:16/9}
+.stage canvas{width:100%;height:100%}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px}
+.kv div{border:1px solid var(--line);border-radius:4px;padding:10px 12px}
+.kv b{display:block;font:500 1.35rem/1.1 var(--font-d);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kv small{font:400 .64rem var(--font-m);color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.kv .ok b{color:var(--ok)}.kv .ng b{color:var(--ng)}
+.advice{margin-top:12px;padding:12px 14px;border-left:2px solid var(--acc);background:var(--bg2);border-radius:0 4px 4px 0;font-size:.95rem;color:var(--ink2)}
+.advice b{color:var(--ink);font-weight:500}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+</style>
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>optics 0.98</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="../blog/" data-nav="blog">Blog</a>
+        <a href="./" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Playground · 02</p>
+    <h1 lang="tr">0,1 mm'lik hatayı hangi kamera görür?</h1>
+    <h1 lang="en">Which camera sees a 0.1 mm defect?</h1>
+    <p class="lede" lang="tr">Her görüntü işleme projesinin ilk hesabı. Sensörü, lensi ve çalışma mesafesini seçin; görüş alanı, bir pikselin parçada kaç milimetreye denk geldiği ve hatanın kaç piksel olacağı çıksın. Kural basit: bir hatayı güvenle yakalamak için en az üç piksel gerekir. İnce lens formülü; gerçek lensler yüzde birkaç sapar.</p>
+    <p class="lede" lang="en">The first calculation of every machine-vision project. Choose the sensor, lens and working distance; get the field of view, how many millimetres one pixel covers on the part, and how many pixels the defect will be. The rule is simple: catching a defect reliably takes at least three pixels. Thin-lens formulas; real lenses deviate by a few percent.</p>
+  </div>
+</section>
+
+<div class="wrap pg">
+  <div>
+    <div class="stage">
+      <canvas id="cv" width="800" height="450"></canvas>
+      <div class="hud">
+        <span class="tl" id="hud-s">2448×2048 · 3.45 µm</span>
+        <span class="tr" id="hud-l">f 16 mm · WD 400 mm</span>
+        <span class="bl" id="hud-f"><b>FOV —</b></span>
+        <span class="br" id="hud-g">— mm/px</span>
+      </div>
+    </div>
+    <div class="kv">
+      <div><b id="fov">—</b><small lang="tr">görüş alanı (mm)</small><small lang="en">field of view (mm)</small></div>
+      <div><b id="gsd">—</b><small lang="tr">mm / piksel</small><small lang="en">mm / pixel</small></div>
+      <div id="dpx-box"><b id="dpx">—</b><small lang="tr">hata kaç piksel</small><small lang="en">defect in pixels</small></div>
+      <div><b id="dof">—</b><small lang="tr">alan derinliği (mm)</small><small lang="en">depth of field (mm)</small></div>
+      <div><b id="mag">—</b><small lang="tr">büyütme</small><small lang="en">magnification</small></div>
+      <div><b id="cams">—</b><small lang="tr">parça için kamera</small><small lang="en">cameras for the part</small></div>
+    </div>
+    <p class="advice" id="advice"></p>
+    <p class="notice" style="margin-top:16px" lang="tr">Formüller: büyütme m = f / (WD − f); görüş alanı = sensör boyutu / m; parçadaki piksel = piksel boyutu / m; alan derinliği ≈ 2·N·c·(1+m)/m² (c = 2 piksel). Lens kalitesi (MTF), sensörün gerçek boyutu ve perspektif bu sayıları değiştirir; kesin karar için numuneyle deneme şarttır. Bu araç, hangi denemelerin anlamsız olduğunu baştan eler.</p>
+    <p class="notice" style="margin-top:16px" lang="en">Formulas: magnification m = f / (WD − f); field of view = sensor size / m; pixel on the part = pixel size / m; depth of field ≈ 2·N·c·(1+m)/m² (c = 2 pixels). Lens quality (MTF), the sensor's exact size and perspective change these numbers; a trial with real samples is essential for the final decision. This tool rules out the trials that make no sense in the first place.</p>
+  </div>
+
+  <aside class="ctl">
+    <h2 lang="tr">Kurulum</h2><h2 lang="en">Setup</h2>
+    <div class="grp">
+      <label for="sensor"><span lang="tr">Sensör</span><span lang="en">Sensor</span></label>
+      <select id="sensor">
+        <option value="2448,2048,3.45">5 MP · 2448×2048 · 3.45 µm · 2/3"</option>
+        <option value="1920,1200,5.86">2.3 MP · 1920×1200 · 5.86 µm · 1/1.2"</option>
+        <option value="4096,3000,3.45">12 MP · 4096×3000 · 3.45 µm · 1.1"</option>
+        <option value="5472,3648,2.4">20 MP · 5472×3648 · 2.4 µm · 1"</option>
+        <option value="8192,1,7">Line-scan 8k · 8192 px · 7 µm</option>
+        <option value="custom"><span>custom</span></option>
+      </select>
+      <div class="row2" id="custom" hidden>
+        <input type="number" id="cw" value="2448" min="100" step="1" aria-label="width px" placeholder="px">
+        <input type="number" id="cp" value="3.45" min="0.5" step="0.05" aria-label="pixel µm" placeholder="µm">
+      </div>
+      <label for="focal"><span lang="tr">Odak uzaklığı (mm)</span><span lang="en">Focal length (mm)</span></label>
+      <select id="focal"><option>6</option><option>8</option><option>12</option><option selected>16</option><option>25</option><option>35</option><option>50</option><option>75</option></select>
+      <label for="wd"><span lang="tr">Çalışma mesafesi (mm)</span><span lang="en">Working distance (mm)</span><output id="wd-o">400</output></label>
+      <input type="range" id="wd" min="100" max="2000" step="10" value="400">
+      <label for="fn"><span lang="tr">Diyafram (f/N)</span><span lang="en">Aperture (f/N)</span></label>
+      <select id="fn"><option>1.4</option><option>2</option><option>2.8</option><option selected>4</option><option>5.6</option><option>8</option><option>11</option><option>16</option></select>
+    </div>
+    <div class="grp">
+      <label><span lang="tr">Hedef</span><span lang="en">Target</span></label>
+      <label for="defect"><span lang="tr">En küçük hata (mm)</span><span lang="en">Smallest defect (mm)</span></label>
+      <input type="number" id="defect" value="0.1" min="0.01" step="0.01">
+      <label for="need"><span lang="tr">Hata başına gereken piksel</span><span lang="en">Pixels needed per defect</span><output id="need-o">3</output></label>
+      <input type="range" id="need" min="2" max="6" step="1" value="3">
+      <label for="part"><span lang="tr">Parça genişliği (mm)</span><span lang="en">Part width (mm)</span></label>
+      <input type="number" id="part" value="200" min="1" step="1">
+    </div>
+  </aside>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">İnce lens yaklaşımı; numuneyle doğrulayın.</span>
+    <span lang="en">Thin-lens approximation; verify with samples.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)},cv=$('cv'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  var C={};function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+  function theme(){C={ink:css('--ink'),ink2:css('--ink2'),mute:css('--mute'),line:css('--line'),acc:css('--acc'),ng:css('--ng'),ok:css('--ok'),bg:css('--bg'),bg2:css('--bg2')}}
+  var L=function(){return document.documentElement.getAttribute('data-lang')||'tr'};
+  function fmt(v,d){return (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toLocaleString(L()==='tr'?'tr-TR':'en-GB',{minimumFractionDigits:d,maximumFractionDigits:d})}
+  function calc(){
+    var sv=$('sensor').value,pw,ph,pix;
+    if(sv==='custom'){pw=+$('cw').value||2448;ph=Math.round(pw*2/3);pix=+$('cp').value||3.45}else{var a=sv.split(',');pw=+a[0];ph=+a[1];pix=+a[2]}
+    var f=+$('focal').value,wd=+$('wd').value,N=+$('fn').value,def=+$('defect').value||0.1,need=+$('need').value,part=+$('part').value||1;
+    if(wd<=f*1.2)wd=f*1.2;
+    var m=f/(wd-f),sw=pw*pix/1000,sh=ph*pix/1000,fovw=sw/m,fovh=sh/m,gsd=pix/1000/m,dpx=def/gsd,c=2*pix/1000,dof=2*N*c*(1+m)/(m*m);
+    var camsNeeded=Math.ceil(part/fovw),fovMax=pw*def/need,wdMax=fovMax*f/sw+f,pxNeeded=Math.ceil(part/def*need);
+    return {pw:pw,ph:ph,pix:pix,f:f,wd:wd,N:N,def:def,need:need,part:part,m:m,sw:sw,sh:sh,fovw:fovw,fovh:fovh,gsd:gsd,dpx:dpx,dof:dof,cams:camsNeeded,fovMax:fovMax,wdMax:wdMax,pxNeeded:pxNeeded,ok:dpx>=need};
+  }
+  function draw(r){
+    ctx.clearRect(0,0,W,H);ctx.font='10px "IBM Plex Mono", monospace';
+    // ---- left: side view (camera above, object plane below) ----
+    var x0=40,w0=440,top=30,bottom=H-40,scale=(bottom-top)/Math.max(r.wd*1.15,300);
+    var camY=top,objY=top+r.wd*scale,cx=x0+w0/2;
+    // object plane
+    ctx.strokeStyle=C.ink;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x0,objY);ctx.lineTo(x0+w0,objY);ctx.stroke();
+    // part on the plane
+    var ppx=Math.min(w0-20,r.part*Math.min(1,w0/(Math.max(r.part,r.fovw)*1.3)));var pxScale=ppx/r.part;
+    ctx.fillStyle=C.bg2;ctx.strokeStyle=C.ink2;ctx.lineWidth=1;ctx.fillRect(cx-ppx/2,objY-8,ppx,8);ctx.strokeRect(cx-ppx/2+0.5,objY-8+0.5,ppx,8);
+    // FOV cone
+    var fovpx=Math.min(w0-4,r.fovw*pxScale);
+    ctx.fillStyle=C.acc;ctx.globalAlpha=0.12;ctx.beginPath();ctx.moveTo(cx-8,camY+26);ctx.lineTo(cx+8,camY+26);ctx.lineTo(cx+fovpx/2,objY);ctx.lineTo(cx-fovpx/2,objY);ctx.closePath();ctx.fill();ctx.globalAlpha=1;
+    ctx.strokeStyle=C.acc;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(cx-8,camY+26);ctx.lineTo(cx-fovpx/2,objY);ctx.moveTo(cx+8,camY+26);ctx.lineTo(cx+fovpx/2,objY);ctx.stroke();ctx.setLineDash([]);
+    // camera + lens
+    ctx.fillStyle=C.ink;ctx.fillRect(cx-22,camY,44,18);ctx.fillStyle=C.ink2;ctx.fillRect(cx-9,camY+18,18,8);
+    // DoF band
+    var dofpx=Math.min(120,r.dof*scale);ctx.fillStyle=C.ok;ctx.globalAlpha=0.18;ctx.fillRect(x0+w0-30,objY-dofpx/2,10,dofpx);ctx.globalAlpha=1;
+    ctx.fillStyle=C.mute;ctx.textAlign='left';ctx.fillText('DoF',x0+w0-18,objY+3);
+    // labels
+    ctx.fillStyle=C.ink2;ctx.textAlign='center';ctx.fillText('FOV '+fmt(r.fovw,1)+' × '+fmt(r.fovh,1)+' mm',cx,objY+22);
+    ctx.textAlign='left';ctx.fillText('WD '+fmt(r.wd,0)+' mm',x0,camY+(objY-camY)/2);ctx.strokeStyle=C.mute;ctx.beginPath();ctx.moveTo(x0+2,camY+26);ctx.lineTo(x0+2,objY-2);ctx.stroke();
+    ctx.fillText((L()==='tr'?'parça ':'part ')+fmt(r.part,0)+' mm',cx-ppx/2,objY-14);
+    ctx.fillText('f '+r.f+' mm · f/'+r.N,cx+30,camY+14);
+    // ---- right: pixel grid with the defect ----
+    var gx=520,gy=40,gs=260,n=12,cell=gs/n;
+    ctx.strokeStyle=C.line;ctx.lineWidth=1;for(var i=0;i<=n;i++){ctx.beginPath();ctx.moveTo(gx+i*cell+0.5,gy);ctx.lineTo(gx+i*cell+0.5,gy+gs);ctx.stroke();ctx.beginPath();ctx.moveTo(gx,gy+i*cell+0.5);ctx.lineTo(gx+gs,gy+i*cell+0.5);ctx.stroke()}
+    var len=Math.min(n*cell,r.dpx*cell),col=r.ok?C.ok:C.ng;
+    ctx.strokeStyle=col;ctx.lineWidth=Math.max(2,Math.min(cell*0.9,r.dpx*cell*0.3));ctx.lineCap='round';ctx.beginPath();ctx.moveTo(gx+cell*1.5,gy+gs-cell*1.5);ctx.lineTo(gx+cell*1.5+len*0.72,gy+gs-cell*1.5-len*0.69);ctx.stroke();ctx.lineCap='butt';
+    ctx.fillStyle=C.ink2;ctx.textAlign='left';ctx.fillText((L()==='tr'?'hata ':'defect ')+fmt(r.def,2)+' mm = '+fmt(r.dpx,1)+' px',gx,gy+gs+16);
+    ctx.fillText((L()==='tr'?'1 piksel = ':'1 pixel = ')+fmt(r.gsd*1000,0)+' µm',gx,gy+gs+32);
+    ctx.fillStyle=col;ctx.fillText(r.ok?(L()==='tr'?'≥ '+r.need+' px · yakalanır':'≥ '+r.need+' px · detectable'):(L()==='tr'?'< '+r.need+' px · güvenilmez':'< '+r.need+' px · unreliable'),gx,gy+gs+48);
+  }
+  function run(){
+    var r=calc();draw(r);var T=L()==='tr';
+    $('fov').textContent=fmt(r.fovw,1)+' × '+fmt(r.fovh,1);$('gsd').textContent=fmt(r.gsd,4);$('dpx').textContent=fmt(r.dpx,1)+' px';$('dpx-box').className=r.ok?'ok':'ng';
+    $('dof').textContent=r.dof>999?'> 999':fmt(r.dof,1);$('mag').textContent=fmt(r.m,3)+'×';$('cams').textContent=r.cams;
+    $('hud-s').textContent=r.pw+'×'+r.ph+' · '+r.pix+' µm';$('hud-l').textContent='f '+r.f+' mm · WD '+fmt(r.wd,0)+' mm · f/'+r.N;$('hud-f').innerHTML='<b>FOV '+fmt(r.fovw,0)+' × '+fmt(r.fovh,0)+' mm</b>';$('hud-g').textContent=fmt(r.gsd*1000,0)+' µm/px';
+    var a;
+    if(r.ok&&r.cams===1)a=T?'<b>Bu kurulum uygun.</b> Hata '+fmt(r.dpx,1)+' piksel, parça tek karede ('+fmt(r.fovw,0)+' mm görüş alanı). Alan derinliği '+fmt(r.dof,1)+' mm; parça yüksekliği bundan fazla değişiyorsa diyaframı kısın ya da ışığı artırın.':'<b>This setup works.</b> The defect is '+fmt(r.dpx,1)+' pixels and the part fits in one frame ('+fmt(r.fovw,0)+' mm field of view). Depth of field is '+fmt(r.dof,1)+' mm; if the part height varies more than that, close the aperture or add light.';
+    else if(r.ok)a=T?'<b>Çözünürlük yeter ama parça sığmıyor.</b> Parça '+fmt(r.part,0)+' mm, görüş alanı '+fmt(r.fovw,0)+' mm: '+r.cams+' kamera ya da hareketli bir eksen gerekir. Alternatif: '+r.pxNeeded.toLocaleString()+' piksel genişliğinde bir sensör (ya da line-scan).':'<b>Resolution is enough but the part doesn\'t fit.</b> The part is '+fmt(r.part,0)+' mm, the field of view '+fmt(r.fovw,0)+' mm: you need '+r.cams+' cameras or a moving axis. Alternative: a sensor '+r.pxNeeded.toLocaleString()+' pixels wide (or line-scan).';
+    else a=T?'<b>Bu kurulumla '+fmt(r.def,2)+' mm hata güvenle yakalanmaz</b> ('+fmt(r.dpx,1)+' px). Bu sensörle görüş alanı en fazla '+fmt(r.fovMax,0)+' mm olabilir; yani çalışma mesafesi en fazla '+fmt(r.wdMax,0)+' mm ya da daha uzun odaklı lens. Parçanın tamamı ('+fmt(r.part,0)+' mm) için '+Math.ceil(r.part/r.fovMax)+' kamera ya da '+r.pxNeeded.toLocaleString()+' piksellik sensör gerekir.':'<b>This setup can\'t catch a '+fmt(r.def,2)+' mm defect reliably</b> ('+fmt(r.dpx,1)+' px). With this sensor the field of view can be at most '+fmt(r.fovMax,0)+' mm; that means a working distance of at most '+fmt(r.wdMax,0)+' mm or a longer lens. Covering the whole part ('+fmt(r.part,0)+' mm) takes '+Math.ceil(r.part/r.fovMax)+' cameras or a '+r.pxNeeded.toLocaleString()+'-pixel sensor.';
+    $('advice').innerHTML=a;
+  }
+  $('sensor').addEventListener('change',function(){$('custom').hidden=$('sensor').value!=='custom';run()});
+  ['focal','fn','cw','cp','defect','part'].forEach(function(id){$(id).addEventListener('input',run);$(id).addEventListener('change',run)});
+  $('wd').addEventListener('input',function(){$('wd-o').textContent=$('wd').value;run()});
+  $('need').addEventListener('input',function(){$('need-o').textContent=$('need').value;run()});
+  document.addEventListener('langchange',run);
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');if(mq.addEventListener)mq.addEventListener('change',function(){theme();run()});
+  theme();run();
+})();
+</script>
+</body>
+</html>

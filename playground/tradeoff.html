@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Eşik, yanlış red ve maliyet · Gizem Keskin</title>
+<meta name="title-tr" content="Eşik, yanlış red ve maliyet · Gizem Keskin">
+<meta name="title-en" content="Threshold, false rejects and cost · Gizem Keskin">
+<meta name="description" content="Bir kalite kontrol sisteminin eşiğini nereye koymalı? Sağlam ve hatalı parçaların skor dağılımları, yanlış red, kaçan hata ve günlük maliyet: kaydırıcıyla görün, en iyi eşiği bulun.">
+<meta name="theme-color" content="#F4F5F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 11V3h8M21 3h8v8M29 21v8h-8M11 29H3v-8' fill='none' stroke='%232643D9' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%232643D9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.charts{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:12px}
+.stage{aspect-ratio:auto}
+.stage canvas{width:100%;height:auto;display:block}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:12px}
+.kv div{border:1px solid var(--line);border-radius:4px;padding:10px 12px}
+.kv b{display:block;font:500 1.35rem/1.1 var(--font-d);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kv small{font:400 .64rem var(--font-m);color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.kv .warn b{color:var(--ng)}.kv .good b{color:var(--ok)}
+.advice{margin-top:12px;padding:12px 14px;border-left:2px solid var(--acc);background:var(--bg2);border-radius:0 4px 4px 0;font-size:.95rem;color:var(--ink2)}
+.advice b{color:var(--ink);font-weight:500}
+.thr{margin-top:12px;padding:12px 14px;border:1px solid var(--acc);border-radius:6px}
+.thr label{display:flex;justify-content:space-between;font:500 .78rem var(--font-m);color:var(--ink);letter-spacing:.03em}
+.thr input{width:100%;accent-color:var(--acc);margin:8px 0 0}
+@media (max-width:640px){.charts{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<script>
+(function(){var l=null;try{l=localStorage.getItem('lang')}catch(e){}
+if(l!=='tr'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'}
+document.documentElement.setAttribute('data-lang',l);document.documentElement.setAttribute('lang',l)})();
+</script>
+
+<div id="det" aria-hidden="true"><i></i><b>tradeoff 0.98</b></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="../">Gizem Keskin</a>
+    <nav>
+      <div class="links">
+        <a href="../#work"><span lang="tr">İşler</span><span lang="en">Work</span></a>
+        <a href="../blog/" data-nav="blog">Blog</a>
+        <a href="./" data-nav="playground">Playground</a>
+      </div>
+      <span class="status"><i></i><span lang="tr">Projelere açık · İstanbul / uzaktan</span><span lang="en">Open to projects · Istanbul / remote</span></span>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" id="lang-tr" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Playground · 04</p>
+    <h1 lang="tr">Eşiği nereye koymalı?</h1>
+    <h1 lang="en">Where to put the threshold?</h1>
+    <p class="lede" lang="tr">Her kontrol sistemi bir skor üretir ve bir eşikle karar verir. Eşiği düşürün: hiçbir hata kaçmaz ama sağlam parçalar da reddedilir, operatör iki günde sistemi kapatır. Yükseltin: hatalar müşteriye gider. Doğru yer teknik değil, ekonomik bir karardır. Kaydırıcıyla oynayın; yanlış redin ve kaçan hatanın günlük maliyetini görün, en iyi eşiği bulun.</p>
+    <p class="lede" lang="en">Every inspection system produces a score and decides with a threshold. Lower it: no defect escapes, but good parts get rejected too and the operator switches the system off within two days. Raise it: defects reach the customer. The right place is an economic decision, not a technical one. Move the slider; see the daily cost of false rejects and escaped defects, find the best threshold.</p>
+  </div>
+</section>
+
+<div class="wrap pg">
+  <div>
+    <div class="charts">
+      <div class="stage"><canvas id="dist" width="600" height="300"></canvas></div>
+      <div class="stage"><canvas id="cost" width="400" height="300"></canvas></div>
+    </div>
+    <div class="thr">
+      <label for="t"><span><span lang="tr">Eşik</span><span lang="en">Threshold</span></span><output id="t-o">0.50</output></label>
+      <input type="range" id="t" min="0" max="1" step="0.005" value="0.5">
+    </div>
+    <div class="kv">
+      <div id="k-frr"><b id="frr">—</b><small lang="tr">yanlış red oranı</small><small lang="en">false reject rate</small></div>
+      <div id="k-esc"><b id="esc">—</b><small lang="tr">kaçan hata oranı</small><small lang="en">escape rate</small></div>
+      <div><b id="frn">—</b><small lang="tr">yanlış red / gün</small><small lang="en">false rejects / day</small></div>
+      <div><b id="escn">—</b><small lang="tr">kaçan / gün</small><small lang="en">escapes / day</small></div>
+      <div><b id="costv">—</b><small lang="tr">maliyet / gün</small><small lang="en">cost / day</small></div>
+      <div class="good"><b id="best">—</b><small lang="tr">en iyi eşik · maliyet</small><small lang="en">best threshold · cost</small></div>
+    </div>
+    <p class="advice" id="advice"></p>
+    <p class="notice" style="margin-top:16px" lang="tr">Model kalitesini artırmak iki dağılımı birbirinden uzaklaştırır; o zaman her eşik daha ucuza gelir. Ama hiçbir model dağılımları tamamen ayıramaz, bu yüzden eşik her zaman bir ticarettir. Alpplas'ta kabul sınırımız yanlış red için yüzde birdi: operatörün sabrı bu kadardı. Kaçan hatanın bedeli müşteriye göre değişir; otomotivde bir kaçak, bin yanlış redden pahalıdır.</p>
+    <p class="notice" style="margin-top:16px" lang="en">Improving the model pushes the two distributions apart; then every threshold gets cheaper. But no model separates them completely, so the threshold is always a trade. At Alpplas our acceptance limit for false rejects was one percent: that was the operator's patience. The price of an escape depends on the customer; in automotive one escape costs more than a thousand false rejects.</p>
+  </div>
+
+  <aside class="ctl">
+    <h2 lang="tr">Senaryo</h2><h2 lang="en">Scenario</h2>
+    <div class="grp">
+      <label><span lang="tr">Model ve hat</span><span lang="en">Model and line</span></label>
+      <label for="sep"><span lang="tr">Model ayrımı (iyi ↔ kötü)</span><span lang="en">Model separation (good ↔ bad)</span><output id="sep-o">0.45</output></label>
+      <input type="range" id="sep" min="0.1" max="0.8" step="0.01" value="0.45">
+      <label for="sd"><span lang="tr">Skor yayılımı (σ)</span><span lang="en">Score spread (σ)</span><output id="sd-o">0.12</output></label>
+      <input type="range" id="sd" min="0.04" max="0.25" step="0.01" value="0.12">
+      <label for="prev"><span lang="tr">Hatalı parça oranı</span><span lang="en">Defective part rate</span><output id="prev-o">1.0%</output></label>
+      <input type="range" id="prev" min="0.1" max="10" step="0.1" value="1">
+      <label for="parts"><span lang="tr">Parça / gün</span><span lang="en">Parts / day</span></label>
+      <input type="number" id="parts" value="10000" min="1" step="100">
+    </div>
+    <div class="grp">
+      <label><span lang="tr">Maliyetler (birim)</span><span lang="en">Costs (units)</span></label>
+      <label for="c1"><span lang="tr">Bir yanlış red</span><span lang="en">One false reject</span></label>
+      <input type="number" id="c1" value="5" min="0" step="1">
+      <label for="c2"><span lang="tr">Bir kaçan hata</span><span lang="en">One escaped defect</span></label>
+      <input type="number" id="c2" value="400" min="0" step="10">
+      <label for="pat"><span lang="tr">Operatör sabrı (yanlış red sınırı)</span><span lang="en">Operator patience (false-reject limit)</span><output id="pat-o">1.0%</output></label>
+      <input type="range" id="pat" min="0.1" max="5" step="0.1" value="1">
+      <div class="btns"><button type="button" class="btn sm ghost" id="opt"><span lang="tr">En iyi eşiğe git</span><span lang="en">Jump to best threshold</span></button></div>
+    </div>
+  </aside>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> Gizem Keskin · İstanbul</span>
+    <span lang="tr">Normal dağılım varsayımı; gerçek skorlar için kendi verinizi kullanın.</span>
+    <span lang="en">Normal-distribution assumption; use your own data for real scores.</span>
+  </div>
+</footer>
+
+<script src="../assets/site.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)},dc=$('dist'),dctx=dc.getContext('2d'),cc=$('cost'),cctx=cc.getContext('2d');
+  var C={};function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+  function theme(){C={ink:css('--ink'),ink2:css('--ink2'),mute:css('--mute'),line:css('--line'),acc:css('--acc'),ng:css('--ng'),ok:css('--ok'),bg:css('--bg'),bg2:css('--bg2')}}
+  var L=function(){return document.documentElement.getAttribute('data-lang')||'tr'};
+  function erf(x){var s=x<0?-1:1;x=Math.abs(x);var t=1/(1+0.3275911*x);var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y}
+  function Phi(z){return 0.5*(1+erf(z/Math.SQRT2))}
+  function pdf(x,m,s){return Math.exp(-0.5*((x-m)/s)*((x-m)/s))/(s*Math.sqrt(2*Math.PI))}
+  function P(){var sep=+$('sep').value,sd=+$('sd').value;return {m0:0.5-sep/2,m1:0.5+sep/2,sd:sd,prev:+$('prev').value/100,parts:+$('parts').value||0,c1:+$('c1').value||0,c2:+$('c2').value||0,pat:+$('pat').value/100,t:+$('t').value}}
+  function rates(p,t){var frr=1-Phi((t-p.m0)/p.sd),esc=Phi((t-p.m1)/p.sd);var frn=p.parts*(1-p.prev)*frr,escn=p.parts*p.prev*esc;return {frr:frr,esc:esc,frn:frn,escn:escn,cost:frn*p.c1+escn*p.c2}}
+  function best(p){var bt=0,bc=Infinity;for(var t=0;t<=1.0001;t+=0.0025){var c=rates(p,t).cost;if(c<bc){bc=c;bt=t}}return {t:bt,cost:bc}}
+  function fmt(v,d){return v.toLocaleString(L()==='tr'?'tr-TR':'en-GB',{minimumFractionDigits:d,maximumFractionDigits:d})}
+  function drawDist(p,r){
+    var W=dc.width,H=dc.height,pad={l:14,r:14,t:16,b:26},pw=W-pad.l-pad.r,ph=H-pad.t-pad.b;dctx.clearRect(0,0,W,H);
+    var X=function(x){return pad.l+x*pw},maxp=pdf(0,0,p.sd),Y=function(v){return pad.t+ph-(v/maxp)*ph*0.92};
+    dctx.strokeStyle=C.line;dctx.beginPath();dctx.moveTo(pad.l,pad.t+ph+0.5);dctx.lineTo(W-pad.r,pad.t+ph+0.5);dctx.stroke();
+    function curve(m,col,fillFrom,fillTo){dctx.beginPath();for(var i=0;i<=200;i++){var x=i/200,y=Y(pdf(x,m,p.sd));if(i)dctx.lineTo(X(x),y);else dctx.moveTo(X(x),y)}dctx.strokeStyle=col;dctx.lineWidth=1.6;dctx.stroke();
+      if(fillFrom!==undefined){dctx.beginPath();dctx.moveTo(X(fillFrom),pad.t+ph);for(var j=0;j<=100;j++){var xx=fillFrom+(fillTo-fillFrom)*j/100;dctx.lineTo(X(xx),Y(pdf(xx,m,p.sd)))}dctx.lineTo(X(fillTo),pad.t+ph);dctx.closePath();dctx.fillStyle=col;dctx.globalAlpha=0.28;dctx.fill();dctx.globalAlpha=1}}
+    curve(p.m0,C.ok,p.t,1);   // false rejects: good parts above threshold
+    curve(p.m1,C.ng,0,p.t);   // escapes: bad parts below threshold
+    dctx.strokeStyle=C.acc;dctx.lineWidth=1.5;dctx.setLineDash([5,4]);dctx.beginPath();dctx.moveTo(X(p.t)+0.5,pad.t);dctx.lineTo(X(p.t)+0.5,pad.t+ph);dctx.stroke();dctx.setLineDash([]);
+    dctx.font='10px "IBM Plex Mono", monospace';dctx.fillStyle=C.ok;dctx.textAlign='center';dctx.fillText(L()==='tr'?'sağlam parçalar':'good parts',X(p.m0),pad.t+8);dctx.fillStyle=C.ng;dctx.fillText(L()==='tr'?'hatalı parçalar':'defective parts',X(p.m1),pad.t+8);
+    dctx.fillStyle=C.acc;dctx.textAlign=p.t>0.8?'right':'left';dctx.fillText((L()==='tr'?'eşik ':'threshold ')+p.t.toFixed(2),X(p.t)+(p.t>0.8?-6:6),pad.t+ph-6);
+    dctx.fillStyle=C.mute;dctx.textAlign='left';dctx.fillText('score 0',pad.l,H-8);dctx.textAlign='right';dctx.fillText('1',W-pad.r,H-8);
+    dctx.textAlign='center';dctx.fillStyle=C.ok;dctx.fillText((L()==='tr'?'yanlış red ':'false rejects ')+(r.frr*100).toFixed(1)+'%',X(Math.min(0.85,p.t+0.12)),pad.t+ph-40);dctx.fillStyle=C.ng;dctx.fillText((L()==='tr'?'kaçan ':'escapes ')+(r.esc*100).toFixed(1)+'%',X(Math.max(0.15,p.t-0.12)),pad.t+ph-24);
+  }
+  function drawCost(p,b){
+    var W=cc.width,H=cc.height,pad={l:44,r:12,t:16,b:26},pw=W-pad.l-pad.r,ph=H-pad.t-pad.b;cctx.clearRect(0,0,W,H);
+    var pts=[],mx=0;for(var i=0;i<=200;i++){var t=i/200,c=rates(p,t).cost;pts.push([t,c]);if(c>mx&&t>0.05&&t<0.95)mx=c}mx=mx||1;
+    var X=function(t){return pad.l+t*pw},Y=function(c){return pad.t+ph-Math.min(1,c/mx)*ph};
+    cctx.strokeStyle=C.line;cctx.beginPath();cctx.moveTo(pad.l,pad.t+ph+0.5);cctx.lineTo(W-pad.r,pad.t+ph+0.5);cctx.stroke();
+    // patience limit: threshold where FRR == pat
+    var tp=p.m0+p.sd*(-1)*(function(q){var lo=-5,hi=5;for(var k=0;k<40;k++){var mid=(lo+hi)/2;if(Phi(mid)<1-q)lo=mid;else hi=mid}return (lo+hi)/2})(p.pat)*-1;
+    cctx.fillStyle=C.ng;cctx.globalAlpha=0.08;cctx.fillRect(pad.l,pad.t,Math.max(0,X(tp)-pad.l),ph);cctx.globalAlpha=1;
+    cctx.strokeStyle=C.ng;cctx.setLineDash([3,3]);cctx.beginPath();cctx.moveTo(X(tp)+0.5,pad.t);cctx.lineTo(X(tp)+0.5,pad.t+ph);cctx.stroke();cctx.setLineDash([]);
+    cctx.beginPath();pts.forEach(function(q,i){if(i)cctx.lineTo(X(q[0]),Y(q[1]));else cctx.moveTo(X(q[0]),Y(q[1]))});cctx.strokeStyle=C.ink;cctx.lineWidth=1.6;cctx.stroke();
+    cctx.fillStyle=C.ok;cctx.beginPath();cctx.arc(X(b.t),Y(b.cost),4,0,7);cctx.fill();
+    var r=rates(p,p.t);cctx.strokeStyle=C.acc;cctx.lineWidth=2;cctx.beginPath();cctx.arc(X(p.t),Y(r.cost),5,0,7);cctx.stroke();
+    cctx.font='10px "IBM Plex Mono", monospace';cctx.fillStyle=C.mute;cctx.textAlign='right';cctx.fillText(fmt(mx,0),pad.l-4,pad.t+8);cctx.fillText('0',pad.l-4,pad.t+ph);cctx.textAlign='left';cctx.fillText(L()==='tr'?'maliyet / gün':'cost / day',pad.l,H-8);cctx.textAlign='right';cctx.fillText(L()==='tr'?'eşik →':'threshold →',W-pad.r,H-8);
+    cctx.fillStyle=C.ng;cctx.textAlign='left';cctx.fillText(L()==='tr'?'operatör sabrı':'operator patience',Math.min(X(tp)+4,W-110),pad.t+10);
+  }
+  function run(){
+    var p=P(),r=rates(p,p.t),b=best(p);drawDist(p,r);drawCost(p,b);
+    $('frr').textContent=(r.frr*100).toFixed(2)+'%';$('esc').textContent=(r.esc*100).toFixed(1)+'%';$('frn').textContent=fmt(r.frn,0);$('escn').textContent=fmt(r.escn,1);$('costv').textContent=fmt(r.cost,0);$('best').textContent=b.t.toFixed(2)+' · '+fmt(b.cost,0);
+    $('k-frr').className=r.frr>p.pat?'warn':'';$('k-esc').className=r.esc>0.2?'warn':'';
+    var T=L()==='tr',a;
+    if(r.frr>p.pat)a=T?'<b>Operatör bu sistemi kapatır.</b> Yanlış red '+(r.frr*100).toFixed(1)+'%, sabır sınırı '+(p.pat*100).toFixed(1)+'%. Günde '+fmt(r.frn,0)+' sağlam parça reddediliyor. Eşiği yükseltin ya da modeli iyileştirin (ayrımı artırın).':'<b>The operator will switch this off.</b> False rejects '+(r.frr*100).toFixed(1)+'%, patience limit '+(p.pat*100).toFixed(1)+'%. '+fmt(r.frn,0)+' good parts are rejected per day. Raise the threshold or improve the model (increase separation).';
+    else if(Math.abs(p.t-b.t)<0.02)a=T?'<b>En ucuz noktadasınız.</b> Günlük maliyet '+fmt(r.cost,0)+' birim: '+fmt(r.frn,0)+' yanlış red ve '+fmt(r.escn,1)+' kaçan hata. Daha iyisi ancak daha iyi bir modelle mümkün.':'<b>You are at the cheapest point.</b> Daily cost '+fmt(r.cost,0)+' units: '+fmt(r.frn,0)+' false rejects and '+fmt(r.escn,1)+' escapes. Only a better model can beat this.';
+    else if(p.t<b.t)a=T?'<b>Eşik gereğinden düşük.</b> Hata kaçırmıyorsunuz ama yanlış redler pahalıya geliyor; en iyi eşik '+b.t.toFixed(2)+', günde '+fmt(r.cost-b.cost,0)+' birim tasarruf.':'<b>The threshold is lower than it needs to be.</b> You miss almost nothing, but false rejects are expensive; the best threshold is '+b.t.toFixed(2)+', saving '+fmt(r.cost-b.cost,0)+' units a day.';
+    else a=T?'<b>Eşik gereğinden yüksek.</b> Günde '+fmt(r.escn,1)+' hatalı parça müşteriye gidiyor; her biri '+fmt(p.c2,0)+' birim. En iyi eşik '+b.t.toFixed(2)+', günde '+fmt(r.cost-b.cost,0)+' birim tasarruf.':'<b>The threshold is higher than it needs to be.</b> '+fmt(r.escn,1)+' defective parts reach the customer per day at '+fmt(p.c2,0)+' units each. The best threshold is '+b.t.toFixed(2)+', saving '+fmt(r.cost-b.cost,0)+' units a day.';
+    $('advice').innerHTML=a;
+  }
+  [['sep',function(v){return (+v).toFixed(2)}],['sd',function(v){return (+v).toFixed(2)}],['prev',function(v){return (+v).toFixed(1)+'%'}],['pat',function(v){return (+v).toFixed(1)+'%'}],['t',function(v){return (+v).toFixed(2)}]].forEach(function(e){$(e[0]).addEventListener('input',function(){$(e[0]+'-o').textContent=e[1]($(e[0]).value);run()})});
+  ['parts','c1','c2'].forEach(function(id){$(id).addEventListener('input',run)});
+  $('opt').addEventListener('click',function(){var b=best(P());$('t').value=b.t.toFixed(3);$('t-o').textContent=b.t.toFixed(2);run()});
+  document.addEventListener('langchange',run);
+  var mq=window.matchMedia('(prefers-color-scheme: dark)');if(mq.addEventListener)mq.addEventListener('change',function(){theme();run()});
+  theme();run();
+})();
+</script>
+</body>
+</html>

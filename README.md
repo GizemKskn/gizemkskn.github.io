@@ -7,7 +7,10 @@ index.html                 ana sayfa (hizmetler, işler, süreç, özgeçmiş, h
 blog/index.html            yazı listesi
 blog/<slug>.html           yazılar (TR + EN aynı dosyada)
 playground/index.html      playground girişi
-playground/bench.html      görüntü işleme tezgâhı
+playground/bench.html      görüntü işleme tezgâhı (6 adımlı hat)
+playground/optics.html     kamera ve lens hesaplayıcı
+playground/lighting.html   ışık açısı simülasyonu
+playground/tradeoff.html   eşik, yanlış red ve maliyet
 playground/conv.html       evrişim çekirdeği
 playground/nn.html         sinir ağı oyun alanı
 playground/digits.html     rakam tanıma (ağırlıklar sayfaya gömülü, scikit-learn ile eğitildi)
